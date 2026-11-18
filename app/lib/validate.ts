@@ -7,21 +7,21 @@ export const HANDLE_RE = /^[a-z0-9_]{3,20}$/;
 const RESERVED = new Set(["admin", "api", "find", "settings", "sign_in", "me", "g", "p", "img", "moderator", "staff"]);
 
 export const profileSchema = z.object({
-  displayName: z.string().trim().min(1, "Enter your name.").max(40, "Use 40 characters or fewer."),
+  displayName: z.string().trim().min(1, "Enter your name").max(40, "Use 40 characters or fewer"),
   handle: z
     .string()
     .trim()
     .toLowerCase()
-    .regex(HANDLE_RE, "Use 3–20 lowercase letters, numbers or _.")
+    .regex(HANDLE_RE, "Use 3–20 lowercase letters, numbers or _")
     .refine((h) => !RESERVED.has(h), "That username is reserved. Pick another."),
-  district: z.string().refine((d) => DISTRICTS.includes(d), "Pick your district from the list."),
+  district: z.string().refine((d) => DISTRICTS.includes(d), "Pick your district from the list"),
   bggUsername: z
     .string()
     .trim()
     .max(40)
     .regex(/^[A-Za-z0-9_ .-]*$/, "BGG usernames use letters, numbers, spaces, _ . or -.")
     .transform((s) => s || null),
-  bio: z.string().trim().max(280, "Keep it to 280 characters."),
+  bio: z.string().trim().max(280, "Keep it to 280 characters"),
 });
 
 export type ProfileInput = z.infer<typeof profileSchema>;
@@ -46,26 +46,26 @@ export function suggestHandle(source: string): string {
 
 // ---------- Phase 2 inputs ----------
 
-export const postSchema = z.object({ body: z.string().trim().max(500, "Keep posts to 500 characters.") });
-export const commentSchema = z.object({ body: z.string().trim().min(1, "Write something first.").max(300, "Keep comments to 300 characters.") });
+export const postSchema = z.object({ body: z.string().trim().max(500, "Keep posts to 500 characters") });
+export const commentSchema = z.object({ body: z.string().trim().min(1, "Write something first").max(300, "Keep comments to 300 characters") });
 
-const httpsUrl = z.string().trim().max(300).refine((u) => { try { return new URL(u).protocol === "https:"; } catch { return false; } }, "Use a full https:// link.");
+const httpsUrl = z.string().trim().max(300).refine((u) => { try { return new URL(u).protocol === "https:"; } catch { return false; } }, "Use a full https:// link");
 
 export const placeSchema = z.object({
-  name: z.string().trim().min(2, "Enter the place's name.").max(60, "Use 60 characters or fewer."),
-  district: z.string().refine((d) => DISTRICTS.includes(d), "Pick the district."),
-  address: z.string().trim().max(120, "Use 120 characters or fewer."),
+  name: z.string().trim().min(2, "Enter the place's name").max(60, "Use 60 characters or fewer"),
+  district: z.string().refine((d) => DISTRICTS.includes(d), "Pick the district"),
+  address: z.string().trim().max(120, "Use 120 characters or fewer"),
   mapUrl: z.string().trim().transform((s) => s || null).pipe(httpsUrl.nullable()),
-  note: z.string().trim().max(200, "Use 200 characters or fewer."),
+  note: z.string().trim().max(200, "Use 200 characters or fewer"),
 });
 
 export const tableSchema = (now = Date.now()) =>
   z.object({
-    bggId: z.number().int().positive("Pick a game."),
+    bggId: z.number().int().positive("Pick a game"),
     placeId: z.string().max(64).nullable(),
-    startsAt: z.number().refine((t) => t >= now - 5 * 60_000, "Pick a time that hasn't passed.").refine((t) => t <= now + 180 * 86400_000, "Pick a date within 6 months."),
-    seats: z.number().int().min(2, "A table needs at least 2 seats.").max(12, "12 seats at most."),
-    note: z.string().trim().max(200, "Use 200 characters or fewer."),
+    startsAt: z.number().refine((t) => t >= now - 5 * 60_000, "Pick a time that hasn't passed").refine((t) => t <= now + 180 * 86400_000, "Pick a date within 6 months"),
+    seats: z.number().int().min(2, "A table needs at least 2 seats").max(12, "12 seats at most"),
+    note: z.string().trim().max(200, "Use 200 characters or fewer"),
   });
 
 /** Parses the datetime-local text of the table form (Jakarta time). */
@@ -82,7 +82,7 @@ const playerSchema = z
 
 export const playSchema = (now = Date.now()) =>
   z.object({
-    bggId: z.number().int().positive("Pick a game."),
+    bggId: z.number().int().positive("Pick a game"),
     playedOn: z.string().refine(isIsoDay, "Pick the date.").refine((d) => d <= todayWib(now), "A play can't be in the future.").refine((d) => d >= todayWib(now - 366 * 86400_000), "Plays older than a year can't be logged."),
     placeId: z.string().max(64).nullable(),
     durationMin: z.number().int().min(1).max(1440).nullable(),

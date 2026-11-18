@@ -80,3 +80,21 @@ describe("play, table, place and report input", () => {
     expect(likePattern("100%_a\\b")).toBe("%100\\%\\_a\\\\b%");
   });
 });
+
+import { mergeSiteText, siteTextSchema, SITE_DEFAULTS } from "@/lib/site-text";
+
+describe("editable site text", () => {
+  const ok = { homeTitle: "Find your table", homeIntro: "A short intro for the home page.", banner: "", contact: "Ask in the group", footer: "By the community" };
+  it("falls back to the defaults and lets the banner be empty", () => {
+    expect(mergeSiteText([])).toEqual(SITE_DEFAULTS);
+    expect(mergeSiteText([{ key: "site.homeTitle", value: "  " }]).homeTitle).toBe(SITE_DEFAULTS.homeTitle);
+    expect(mergeSiteText([{ key: "site.banner", value: "Playday Saturday" }]).banner).toBe("Playday Saturday");
+    expect(mergeSiteText([{ key: "other.key", value: "x" }])).toEqual(SITE_DEFAULTS);
+  });
+  it("validates lengths and requires the core fields", () => {
+    expect(siteTextSchema.safeParse(ok).success).toBe(true);
+    expect(siteTextSchema.safeParse({ ...ok, homeTitle: "ab" }).success).toBe(false);
+    expect(siteTextSchema.safeParse({ ...ok, contact: "" }).success).toBe(false);
+    expect(siteTextSchema.safeParse({ ...ok, banner: "x".repeat(161) }).success).toBe(false);
+  });
+});

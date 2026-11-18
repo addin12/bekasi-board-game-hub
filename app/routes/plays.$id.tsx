@@ -33,14 +33,14 @@ export async function action({ request, params }: Route.ActionArgs) {
     if (res.ok) throw redirect("/feed");
     return res;
   }
-  return { ok: false as const, message: "Unknown action." };
+  return { ok: false as const, message: "Unknown action" };
 }
 
 export default function PlayPage({ loaderData }: Route.ComponentProps) {
   const { play, viewerId, isAdmin } = loaderData;
   const f = useFetcher<{ ok: boolean; message?: string }>();
   const [confirmDelete, setConfirmDelete] = useState(false);
-  useEffect(() => { if (f.data && !f.data.ok) toast.error(f.data.message ?? "That didn't work."); }, [f.data]);
+  useEffect(() => { if (f.data && !f.data.ok) toast.error(f.data.message ?? "That didn't work"); }, [f.data]);
   const me = play.players.find((p) => p.userId === viewerId);
   const busy = f.state !== "idle";
   const act = (intent: string) => f.submit({ intent }, { method: "post" });
@@ -63,7 +63,7 @@ export default function PlayPage({ loaderData }: Route.ComponentProps) {
       {me && !me.confirmed && (
         <section aria-label="Confirm this play" className="panel grid gap-3 p-5">
           <h2 className="text-lg font-extrabold">Were you there?</h2>
-          <p className="text-muted-foreground">It only counts for you once you confirm.</p>
+          <p className="text-muted-foreground">It only counts for you once you confirm</p>
           <div className="flex flex-wrap gap-2">
             <Button disabled={busy} onClick={() => act("confirm")}>Yes, I played</Button>
             <Button variant="outline" disabled={busy} onClick={() => act("remove-me")}>That wasn't me</Button>

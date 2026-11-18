@@ -18,9 +18,9 @@ import type { Route } from "./+types/find";
 export const meta = () => [{ title: "Find players · Bekasi Board Game Hub" }];
 
 const MODES: { key: FindMode; label: string; help: string }[] = [
-  { key: "like", label: "Like-minded players", help: "Matches your favorites and hotness with other cards." },
-  { key: "play", label: "People to play with", help: "Owners of games you want to play, and people who want the same games." },
-  { key: "trade", label: "Buy & sell", help: "Sellers of games you're looking for, and buyers for games you sell." },
+  { key: "like", label: "Like-minded players", help: "Matches your favorites and hotness with other cards" },
+  { key: "play", label: "People to play with", help: "Owners of games you want to play, and people who want the same games" },
+  { key: "trade", label: "Buy & sell", help: "Sellers of games you're looking for, and buyers for games you sell" },
 ];
 
 const chip = "inline-flex min-h-11 items-center gap-2 rounded-full border-2 border-ink bg-card px-3 text-sm font-semibold hover:bg-muted";
@@ -71,7 +71,7 @@ export default function Find({ loaderData }: Route.ComponentProps) {
 
       <section aria-label="Filters" className="panel grid gap-4 p-5">
         <div className="grid gap-4 md:grid-cols-[2fr_1fr_auto] md:items-start">
-          <GamePicker label="One game (optional)" help={gameName ? `Showing: ${gameName}` : "Leave empty to match on your whole card."} onPick={(h) => navigate(withParams({ game: String(h.bggId) }))} />
+          <GamePicker label="One game (optional)" help={gameName ? `Showing: ${gameName}` : "Leave empty to match on your whole card"} onPick={(h) => navigate(withParams({ game: String(h.bggId) }))} />
           {/* key: remount when filters change elsewhere (chips, tabs) so the select/checkbox never show a stale value. */}
           <Form key={sp.toString()} method="get" className="contents">
             <input type="hidden" name="mode" value={mode} />
@@ -94,9 +94,9 @@ export default function Find({ loaderData }: Route.ComponentProps) {
         </div>
         {hasFilters && (
           <div className="flex flex-wrap items-center gap-2">
-            {gameName && <Link className={chip} to={withParams({ game: null })} aria-label={`Remove filter: game ${gameName}`}>Game: {gameName} <X className="size-4" aria-hidden /></Link>}
-            {district && <Link className={chip} to={withParams({ district: null })} aria-label={`Remove filter: district ${district}`}>District: {district} <X className="size-4" aria-hidden /></Link>}
-            {verifiedOnly && <Link className={chip} to={withParams({ verified: null })} aria-label="Remove filter: verified members only">Verified only <X className="size-4" aria-hidden /></Link>}
+            {gameName && <Link className={chip} to={withParams({ game: null })} aria-label={`Remove filter: game ${gameName}`}>Game: {gameName} <X className="icon" aria-hidden /></Link>}
+            {district && <Link className={chip} to={withParams({ district: null })} aria-label={`Remove filter: district ${district}`}>District: {district} <X className="icon" aria-hidden /></Link>}
+            {verifiedOnly && <Link className={chip} to={withParams({ verified: null })} aria-label="Remove filter: verified members only">Verified only <X className="icon" aria-hidden /></Link>}
             <Button asChild variant="ghost" size="sm"><Link to={`/find?mode=${mode}`}>Clear filters</Link></Button>
           </div>
         )}
@@ -109,8 +109,8 @@ export default function Find({ loaderData }: Route.ComponentProps) {
         </h2>
         {results.length === 0 ? (
           <div className="panel grid gap-3 p-6">
-            <p className="font-bold">No matches yet.</p>
-            <p className="text-muted-foreground">Add more games to your card, or try another game or district.</p>
+            <p className="font-bold">No matches yet</p>
+            <p className="text-muted-foreground">Add more games to your card, or try another game or district</p>
             <Button asChild variant="outline" className="w-fit"><Link to="/me/edit">Add games to my card</Link></Button>
           </div>
         ) : (

@@ -27,7 +27,7 @@ export default function Tables({ loaderData }: Route.ComponentProps) {
       {tables.length === 0 ? (
         <section className="panel grid gap-3 p-6">
           <h2 className="text-lg font-extrabold">No tables open</h2>
-          <p className="text-muted-foreground">Pick a game, a time and a place, and others can join.</p>
+          <p className="text-muted-foreground">Pick a game, a time and a place, and others can join</p>
           <Button asChild variant="outline" className="w-fit"><Link to="/tables/new">Open the first table</Link></Button>
         </section>
       ) : (

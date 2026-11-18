@@ -15,7 +15,7 @@ function Section({ icon, label, color, children, empty }: { icon: React.ReactNod
         {icon}
         {label}
       </h2>
-      {empty ? <p className="text-muted-foreground">Nothing here yet.</p> : children}
+      {empty ? <p className="text-muted-foreground">Nothing here yet</p> : children}
     </section>
   );
 }
@@ -55,13 +55,13 @@ export function PlayerCard({ card }: { card: Card }) {
           </p>
           {person.district && (
             <p className="flex items-center gap-1 text-sm font-semibold text-ink">
-              <MapPin className="size-4" style={fill} stroke="var(--color-brand)" aria-hidden /> {person.district}
+              <MapPin className="icon" style={fill} stroke="var(--color-brand)" aria-hidden /> {person.district}
             </p>
           )}
           {card.stats.plays > 0 && <p className="text-sm font-semibold text-ink tabular-nums">{card.stats.plays} {card.stats.plays === 1 ? "play" : "plays"} logged</p>}
           {person.verified && (
-            <p className="mt-1 inline-flex w-fit items-center gap-1 rounded-full bg-ink px-2.5 py-1 text-xs font-bold text-white">
-              <BadgeCheck className="size-4" aria-hidden /> Verified member
+            <p className="mt-1 inline-flex w-fit items-center gap-1 rounded-full bg-ink px-3 py-1 text-xs font-bold text-white">
+              <BadgeCheck className="icon" aria-hidden /> Verified member
             </p>
           )}
         </div>
@@ -71,7 +71,7 @@ export function PlayerCard({ card }: { card: Card }) {
       <div className="grid gap-5 px-5 pb-6 pt-5">
         {card.bio && <p className="max-w-prose leading-relaxed">{card.bio}</p>}
 
-        <Section icon={<Heart className="size-5" style={fill} aria-hidden />} label="Favorites" color="text-fav" empty={!card.favorite.length}>
+        <Section icon={<Heart className="icon" style={fill} aria-hidden />} label="Favorites" color="text-fav" empty={!card.favorite.length}>
           <div className="grid gap-2">
             {/* Overlapping tokens as in the sketch; the names below are the real links. */}
             <div aria-hidden className="flex">
@@ -90,20 +90,20 @@ export function PlayerCard({ card }: { card: Card }) {
           </div>
         </Section>
 
-        <Section icon={<Flame className="size-5" style={fill} aria-hidden />} label="Hotness" color="text-hot" empty={!card.hot.length}>
+        <Section icon={<Flame className="icon" style={fill} aria-hidden />} label="Hotness" color="text-hot" empty={!card.hot.length}>
           <ul className="grid gap-1">
             {card.hot.map((g) => <GameRow key={g.bggId} g={g} />)}
           </ul>
           {card.hotSource && <p className="text-sm text-muted-foreground">{HOT_SOURCE_LABEL[card.hotSource]}</p>}
         </Section>
 
-        <Section icon={<MessageCircle className="size-5" style={fill} aria-hidden />} label="Want to play" color="text-want" empty={!card.want.length}>
+        <Section icon={<MessageCircle className="icon" style={fill} aria-hidden />} label="Want to play" color="text-want" empty={!card.want.length}>
           <ul className="grid gap-1">
             {card.want.map((g) => <GameRow key={g.bggId} g={g} />)}
           </ul>
         </Section>
 
-        <Section icon={<ShoppingBag className="size-5" style={fill} stroke="#fff" aria-hidden />} label="Trade" color="text-trade" empty={!card.sell.length && !card.buy.length}>
+        <Section icon={<ShoppingBag className="icon" style={fill} stroke="#fff" aria-hidden />} label="Trade" color="text-trade" empty={!card.sell.length && !card.buy.length}>
           <ul className="grid gap-1">
             {card.sell.map((g) => (
               <GameRow key={`s${g.bggId}`} g={g}
@@ -120,7 +120,7 @@ export function PlayerCard({ card }: { card: Card }) {
 
         {card.badges.length > 0 && (
           <Section icon={null} label="Badges" color="text-ink" empty={false}>
-            <ul className="grid gap-1.5">
+            <ul className="grid gap-2">
               {card.badges.map((b) => (
                 <li key={b.code} className="flex flex-wrap items-baseline gap-x-2"><span className="font-extrabold">{b.name}</span><span className="text-sm text-muted-foreground">{b.rule}</span></li>
               ))}

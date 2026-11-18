@@ -15,6 +15,13 @@
       "when": 1794982645989,
       "tag": "0001_phase2",
       "breakpoints": true
+    },
+    {
+      "idx": 2,
+      "version": "6",
+      "when": 1794993676188,
+      "tag": "0002_admin_log",
+      "breakpoints": true
     }
   ]
 }

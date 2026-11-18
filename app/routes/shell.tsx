@@ -4,6 +4,7 @@ import { Form, Link, NavLink, Outlet, useLocation, useNavigation, useRouteLoader
 import { CreateMenu } from "@/components/create-menu";
 import { isSandboxOn, SANDBOX_CODE, SANDBOX_DOMAIN } from "@/lib/sandbox";
 import { cn } from "@/lib/utils";
+import { loadSiteText } from "@/lib/.server/admin";
 import { unreadCount } from "@/lib/.server/common";
 import { getDb } from "@/lib/.server/db";
 import { getViewer } from "@/lib/.server/viewer";
@@ -11,10 +12,12 @@ import type { Route } from "./+types/shell";
 
 export async function loader({ request }: Route.LoaderArgs) {
   const v = await getViewer(request);
-  const unread = v?.profile ? await unreadCount(getDb(), v.user.id) : 0;
+  const db = getDb();
+  const [unread, site] = await Promise.all([v?.profile ? unreadCount(db, v.user.id) : Promise.resolve(0), loadSiteText(db)]);
   return {
     viewer: v ? { handle: v.profile?.handle ?? null, isAdmin: v.isAdmin } : null,
     unread,
+    site, // admin-editable text: banner, footer line, home text, contact line
     sandbox: isSandboxOn(env.SANDBOX),
   };
 }
@@ -46,7 +49,7 @@ function BarItem({ to, label, icon: Icon, active }: { to: string; label: string;
     <NavLink to={to} aria-current={active ? "page" : undefined} className={({ isActive }) => cn("flex min-h-14 flex-col items-center justify-center gap-0.5 text-xs font-bold", (active ?? isActive) ? "text-ink" : "text-muted-foreground")}>
       {({ isActive }) => (
         <>
-          <Icon className="size-6" strokeWidth={(active ?? isActive) ? 2.75 : 2} aria-hidden />
+          <Icon className="icon" aria-hidden />
           {label}
         </>
       )}
@@ -55,7 +58,7 @@ function BarItem({ to, label, icon: Icon, active }: { to: string; label: string;
 }
 
 export default function Shell({ loaderData }: Route.ComponentProps) {
-  const { viewer: v, unread } = loaderData;
+  const { viewer: v, unread, site } = loaderData;
   const busy = useNavigation().state !== "idle";
   const { pathname } = useLocation();
   const member = Boolean(v?.handle);
@@ -68,10 +71,11 @@ export default function Shell({ loaderData }: Route.ComponentProps) {
           Sandbox: fake data for testing, may be wiped. Sign in with any name@{SANDBOX_DOMAIN} address and code {SANDBOX_CODE}.
         </div>
       )}
+      {site.banner && <div role="note" className="bg-ink px-4 py-2 text-center text-sm font-semibold text-white">{site.banner}</div>}
       <header className="border-b-2 border-ink bg-card pt-[env(safe-area-inset-top)]">
         <div className={cn("mx-auto flex max-w-5xl items-end justify-between gap-x-3 gap-y-1 px-4 pt-3 sm:gap-x-6", member ? "flex-nowrap md:flex-wrap" : "flex-wrap")}>
           {/* Text wordmark until the community has a real logo (R-23). */}
-          <a href="/" className="mb-1.5 inline-flex min-h-11 min-w-0 items-center text-base font-extrabold uppercase leading-tight tracking-tight sm:text-lg">
+          <a href="/" className="mb-2 inline-flex min-h-11 min-w-0 items-center text-base font-extrabold uppercase leading-tight sm:text-lg">
             Bekasi Board Game Hub
           </a>
           <nav aria-label="Main" className="flex flex-wrap items-center gap-x-3">
@@ -87,10 +91,10 @@ export default function Shell({ loaderData }: Route.ComponentProps) {
                   <Tab to="/settings">Settings</Tab>
                   {v!.isAdmin && <Tab to="/admin">Admin</Tab>}
                 </span>
-                <Link to="/search" className="inline-flex size-11 items-center justify-center" aria-label="Search"><Search className="size-6" aria-hidden /></Link>
+                <Link to="/search" className="inline-flex size-11 items-center justify-center" aria-label="Search"><Search className="icon" aria-hidden /></Link>
                 <Link to="/notifications" className="relative inline-flex size-11 items-center justify-center" aria-label={unread > 0 ? `Notifications, ${unread} new` : "Notifications"}>
-                  <Bell className="size-6" aria-hidden />
-                  {unread > 0 && <span aria-hidden className="absolute right-0.5 top-0.5 grid min-w-5 place-items-center rounded-full border-2 border-ink bg-brand px-1 text-[11px] font-extrabold leading-4 text-ink tabular-nums">{unread > 9 ? "9+" : unread}</span>}
+                  <Bell className="icon" aria-hidden />
+                  {unread > 0 && <span aria-hidden className="absolute right-0.5 top-0.5 grid min-w-5 place-items-center rounded-full border-2 border-ink bg-brand px-1 text-xs font-extrabold leading-4 text-ink tabular-nums">{unread > 9 ? "9+" : unread}</span>}
                 </Link>
                 <span className="mb-1 ml-1 hidden md:block"><CreateMenu variant="header" /></span>
               </>
@@ -112,7 +116,7 @@ export default function Shell({ loaderData }: Route.ComponentProps) {
 
       <footer className={cn("border-t border-line", member && "pb-20 md:pb-0")}>
         <div className="mx-auto flex max-w-5xl flex-wrap items-center justify-between gap-x-6 gap-y-1 px-4 py-5 text-sm text-muted-foreground">
-          <p>Run by and for the Bekasi board game community.</p>
+          <p>{site.footer}</p>
           <nav aria-label="About" className="flex flex-wrap items-center gap-x-4">
             <Link className="inline-flex h-11 items-center font-semibold text-ink underline underline-offset-4" to="/privacy">Privacy</Link>
             <Link className="inline-flex h-11 items-center font-semibold text-ink underline underline-offset-4" to="/terms">Terms</Link>

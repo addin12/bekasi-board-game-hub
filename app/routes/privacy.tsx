@@ -1,9 +1,12 @@
 import { Link } from "react-router";
 import { Legal } from "@/components/legal";
+import { SITE_DEFAULTS } from "@/lib/site-text";
+import { useShell } from "./shell";
 
 export const meta = () => [{ title: "Privacy · Bekasi Board Game Hub" }, { name: "description", content: "What Bekasi Board Game Hub stores about you and who can see it." }];
 
 export default function Privacy() {
+  const contact = useShell()?.site.contact ?? SITE_DEFAULTS.contact; // edited in Admin > Site
   return (
     <Legal title="Privacy" updated="18 November 2026">
       <p>Bekasi Board Game Hub is run by volunteers from the Bekasi board game community. This page says what we keep about you, who can see it, and how to remove it.</p>
@@ -39,7 +42,7 @@ export default function Privacy() {
         <ul>
           <li>Change or remove anything on your card at any time from <Link className="font-semibold underline underline-offset-4" to="/me/edit">Edit your card</Link>.</li>
           <li>Delete your account in <Link className="font-semibold underline underline-offset-4" to="/settings">Settings</Link>. This removes your card, photo, posts, comments, likes and the tables you host, and takes you off plays you were part of. It cannot be undone.</li>
-          <li>For anything else, ask an admin in the community WhatsApp group.</li>
+          <li>For anything else: {contact}</li>
         </ul>
       </section>
 

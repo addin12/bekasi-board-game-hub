@@ -108,6 +108,11 @@
   .token {
     @apply shrink-0 rounded-full border-2 border-ink bg-muted object-cover;
   }
+  /* The one icon size and stroke for the whole interface (unslop: 16 or 18px, 1.5 stroke). */
+  .icon {
+    @apply size-[18px] shrink-0;
+    stroke-width: 1.5;
+  }
   /* Solid black numbered marker (sketch), only for pointing at card parts. */
   .marker {
     @apply grid size-9 shrink-0 place-items-center rounded-full bg-ink text-lg font-extrabold text-white;

@@ -34,7 +34,7 @@ export default function PlacePage({ loaderData }: Route.ComponentProps) {
       </header>
 
       <section className="panel grid gap-3 p-5">
-        {place.note ? <p className="whitespace-pre-line leading-relaxed">{place.note}</p> : <p className="text-muted-foreground">No details added yet.</p>}
+        {place.note ? <p className="whitespace-pre-line leading-relaxed">{place.note}</p> : <p className="text-muted-foreground">No details added yet</p>}
         {place.mapUrl && <a className="inline-flex min-h-11 w-fit items-center font-semibold underline underline-offset-4" href={place.mapUrl} target="_blank" rel="noreferrer noopener">Open the map</a>}
       </section>
 
@@ -42,7 +42,7 @@ export default function PlacePage({ loaderData }: Route.ComponentProps) {
         <h2 id="open-tables" className="text-xl font-extrabold">Tables here</h2>
         {tables.length === 0 ? (
           <div className="panel grid gap-3 p-5">
-            <p className="text-muted-foreground">Nothing planned here yet.</p>
+            <p className="text-muted-foreground">Nothing planned here yet</p>
             {member && <Button asChild variant="outline" className="w-fit"><Link to="/tables/new">Open a table</Link></Button>}
           </div>
         ) : (

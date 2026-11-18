@@ -1,9 +1,12 @@
 import { Link } from "react-router";
 import { Legal } from "@/components/legal";
+import { SITE_DEFAULTS } from "@/lib/site-text";
+import { useShell } from "./shell";
 
 export const meta = () => [{ title: "Terms · Bekasi Board Game Hub" }, { name: "description", content: "The rules for using Bekasi Board Game Hub." }];
 
 export default function Terms() {
+  const contact = useShell()?.site.contact ?? SITE_DEFAULTS.contact; // edited in Admin > Site
   return (
     <Legal title="Terms" updated="18 November 2026">
       <p>By using Bekasi Board Game Hub you agree to these rules. They are short on purpose.</p>
@@ -39,7 +42,7 @@ export default function Terms() {
         <p>The hub is run by volunteers and offered as it is. It can go down or change. We are not responsible for what members do, for games bought or sold, or for what happens at a meetup.</p>
       </section>
 
-      <p className="text-sm text-muted-foreground">See also the <Link className="font-semibold underline underline-offset-4" to="/privacy">privacy page</Link>. Questions: ask an admin in the community WhatsApp group.</p>
+      <p className="text-sm text-muted-foreground">See also the <Link className="font-semibold underline underline-offset-4" to="/privacy">privacy page</Link>. Questions: {contact}</p>
     </Legal>
   );
 }

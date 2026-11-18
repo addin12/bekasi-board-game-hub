@@ -37,7 +37,7 @@ export async function action({ request }: Route.ActionArgs) {
   });
   if (!parsed.success) {
     const issue = parsed.error.issues[0];
-    return { ok: false as const, message: issue.path[0] === "startsAt" && issue.code === "invalid_type" ? "Pick the date and time." : issue.message };
+    return { ok: false as const, message: issue.path[0] === "startsAt" && issue.code === "invalid_type" ? "Pick the date and time" : issue.message };
   }
   const res = await createTable(getDb(), v.user.id, parsed.data);
   if (res.ok) throw redirect(`/tables/${res.id}`);
@@ -62,8 +62,8 @@ export default function NewTable({ loaderData, actionData }: Route.ComponentProp
           <GamePicker label="Game" onPick={(h) => setPicked({ bggId: h.bggId, name: h.name })} />
         )}
         <div className="grid gap-5 sm:grid-cols-2">
-          <Field id="startsAt" label="When" help="Jakarta time."><Input id="startsAt" name="startsAt" type="datetime-local" required defaultValue={start} /></Field>
-          <Field id="seats" label="Seats" help="Including you."><Input id="seats" name="seats" type="number" required min={2} max={12} inputMode="numeric" defaultValue={preset?.maxPlayers && preset.maxPlayers >= 2 ? Math.min(preset.maxPlayers, 12) : 4} /></Field>
+          <Field id="startsAt" label="When" help="Jakarta time"><Input id="startsAt" name="startsAt" type="datetime-local" required defaultValue={start} /></Field>
+          <Field id="seats" label="Seats" help="Including you"><Input id="seats" name="seats" type="number" required min={2} max={12} inputMode="numeric" defaultValue={preset?.maxPlayers && preset.maxPlayers >= 2 ? Math.min(preset.maxPlayers, 12) : 4} /></Field>
           <Field id="placeId" label="Place (optional)" className="sm:col-span-2" help={<>Not listed? <Link className="font-semibold underline underline-offset-4" to="/places/new">Add the place</Link>.</>}>
             <select id="placeId" name="placeId" className={selectClass} defaultValue="">
               <option value="">No place yet</option>

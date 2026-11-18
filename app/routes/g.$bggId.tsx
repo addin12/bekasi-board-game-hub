@@ -37,7 +37,7 @@ export async function action({ request, params }: Route.ActionArgs) {
   form.set("bggId", params.bggId); // the page's own game, whatever the form says
   if (form.get("intent") === "add") return addGame(db, v.user.id, form);
   if (form.get("intent") === "remove") return removeGame(db, v.user.id, form);
-  return { ok: false as const, message: "Unknown action." };
+  return { ok: false as const, message: "Unknown action" };
 }
 
 export const meta = ({ loaderData: data }: Route.MetaArgs) => {
@@ -101,7 +101,7 @@ export default function GamePage({ loaderData }: Route.ComponentProps) {
         {groups.map((t) => (
           <TabsContent key={t.key} value={t.key}>
             {t.list.length === 0 ? (
-              <p className="text-muted-foreground">No members here yet.</p>
+              <p className="text-muted-foreground">No members here yet</p>
             ) : (
               <ul className="panel grid divide-y divide-line sm:grid-cols-2 sm:divide-y-0">
                 {t.list.map((p) => (

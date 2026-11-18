@@ -55,7 +55,7 @@ export default function SignIn({ loaderData }: Route.ComponentProps) {
 
       {!google && !loaderData.email && (
         <div role="status" className="panel grid gap-1 p-4">
-          <p className="font-medium">Sign-in opens soon.</p>
+          <p className="font-medium">Sign-in opens soon</p>
           <p className="text-muted-foreground">The admins are still setting it up. Player cards and game pages can already be viewed.</p>
         </div>
       )}

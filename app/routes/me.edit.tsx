@@ -46,16 +46,16 @@ export async function action({ request }: Route.ActionArgs): Promise<ActionResul
     if (res.ok && !v.profile) throw redirect("/me/edit?welcome=1");
     return res;
   }
-  if (!v.profile) return { ok: false, message: "Save your card details first." };
+  if (!v.profile) return { ok: false, message: "Save your card details first" };
   if (intent === "add") return addGame(db, v.user.id, form);
   if (intent === "remove") return removeGame(db, v.user.id, form);
   if (intent === "sold") return markSold(db, v.user.id, form);
   if (intent === "import-owned") return importOwnedGames(db, v.user.id, v.profile.bggUsername);
   if (intent === "refresh-hot") {
     await refreshHot(db, v.user.id, v.profile.bggUsername);
-    return { ok: true, message: "Hotness updated." };
+    return { ok: true, message: "Hotness updated" };
   }
-  return { ok: false, message: "Unknown action." };
+  return { ok: false, message: "Unknown action" };
 }
 
 function useResultToast(data: ActionResult | undefined) {
@@ -95,12 +95,12 @@ function ProfileForm({ defaults, isNew, result }: { defaults: Route.ComponentPro
         {field("handle", "Username",
           <>
             <span>Shown as @{username || "username"} on your card and in your card link.</span>
-            {!isNew && username !== defaults.handle && <span className="block font-semibold text-ink">Your old card link will stop working.</span>}
+            {!isNew && username !== defaults.handle && <span className="block font-semibold text-ink">Your old card link will stop working</span>}
           </>,
           // Lowercase and strip anything not allowed as they type, so the rule needs no sentence.
           <Input id="handle" name="handle" required minLength={3} maxLength={20} autoComplete="username" autoCapitalize="none" spellCheck={false}
             value={username} onChange={(e) => setUsername(e.target.value.toLowerCase().replace(/[^a-z0-9_]/g, ""))} aria-invalid={!!err("handle")} aria-describedby="handle-help" />)}
-        {field("district", "District", "Only your district is shown.",
+        {field("district", "District", "Only your district is shown",
           <select id="district" name="district" required defaultValue={defaults.district} className={fieldClass} aria-invalid={!!err("district")} aria-describedby="district-help">
             <option value="" disabled>Pick your district</option>
             {DISTRICT_GROUPS.map((g) => (
@@ -109,7 +109,7 @@ function ProfileForm({ defaults, isNew, result }: { defaults: Route.ComponentPro
               </optgroup>
             ))}
           </select>)}
-        {field("bggUsername", "BoardGameGeek username (optional)", "For Hotness and importing your collection.",
+        {field("bggUsername", "BoardGameGeek username (optional)", "For Hotness and importing your collection",
           <Input id="bggUsername" name="bggUsername" maxLength={40} defaultValue={defaults.bggUsername} aria-invalid={!!err("bggUsername")} aria-describedby="bggUsername-help" />)}
         {field("bio", "About you (optional)", null,
           <Textarea id="bio" name="bio" maxLength={280} rows={3} placeholder="What do you like to play?" defaultValue={defaults.bio} aria-invalid={!!err("bio")} />, true)}
@@ -223,11 +223,11 @@ export default function EditCard({ loaderData, actionData }: Route.ComponentProp
 
       {card && (
         <div className="panel p-5">
-          <Part icon={<Heart className="size-5" style={fill} aria-hidden />} label="Favorites" color="text-fav" aside={`${card.favorite.length} of 3`}>
+          <Part icon={<Heart className="icon" style={fill} aria-hidden />} label="Favorites" color="text-fav" aside={`${card.favorite.length} of 3`}>
             <GameList kind="favorite" addLabel="Add a favorite" games={card.favorite} max={3} />
           </Part>
 
-          <Part icon={<Flame className="size-5" style={fill} aria-hidden />} label="Hotness" color="text-hot" aside="Automatic">
+          <Part icon={<Flame className="icon" style={fill} aria-hidden />} label="Hotness" color="text-hot" aside="Automatic">
             {card.hot.length > 0 && <p className="font-semibold">{card.hot.map((g) => g.name).join(", ")}</p>}
             <div className="flex flex-wrap items-center justify-between gap-2">
               <p className="text-sm text-muted-foreground">{card.hotSource ? HOT_SOURCE_LABEL[card.hotSource] : "Nothing yet"}</p>
@@ -237,11 +237,11 @@ export default function EditCard({ loaderData, actionData }: Route.ComponentProp
             </div>
           </Part>
 
-          <Part icon={<MessageCircle className="size-5" style={fill} aria-hidden />} label="Want to play" color="text-want">
+          <Part icon={<MessageCircle className="icon" style={fill} aria-hidden />} label="Want to play" color="text-want">
             <GameList kind="want" addLabel="Add a game you want to play" games={card.want} max={30} />
           </Part>
 
-          <Part icon={<ShoppingBag className="size-5" style={fill} stroke="#fff" aria-hidden />} label="Trade" color="text-trade" aside="Deals happen on WhatsApp">
+          <Part icon={<ShoppingBag className="icon" style={fill} stroke="#fff" aria-hidden />} label="Trade" color="text-trade" aside="Deals happen on WhatsApp">
             <h3 className="font-bold">Selling</h3>
             <GameList kind="sell" addLabel="Add a game you're selling" games={card.sell} max={30} price="sell" />
             <h3 className="mt-2 font-bold">Looking to buy</h3>
@@ -254,7 +254,7 @@ export default function EditCard({ loaderData, actionData }: Route.ComponentProp
               <Button variant="outline" disabled={importFetcher.state !== "idle" || !defaults.bggUsername} onClick={() => importFetcher.submit({ intent: "import-owned" }, { method: "post" })}>
                 {importFetcher.state !== "idle" ? "Importing…" : "Import from BGG"}
               </Button>
-              {!defaults.bggUsername && <p className="text-sm text-muted-foreground">Add your BGG username first.</p>}
+              {!defaults.bggUsername && <p className="text-sm text-muted-foreground">Add your BGG username first</p>}
             </div>
             <GameList kind="own" addLabel="Or add one by hand" games={[]} max={300} />
           </Part>

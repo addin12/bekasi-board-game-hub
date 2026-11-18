@@ -23,7 +23,7 @@ function Body({ item }: { item: Item }) {
   }
   if (item.kind === "play") {
     const p = item.play;
-    if (!p) return <p className="text-muted-foreground">This play was removed.</p>;
+    if (!p) return <p className="text-muted-foreground">This play was removed</p>;
     return (
       <div className="flex gap-3">
         <GameThumb src={p.thumbnail} name={p.gameName} size={56} />
@@ -40,7 +40,7 @@ function Body({ item }: { item: Item }) {
     );
   }
   const t = item.table;
-  if (!t) return <p className="text-muted-foreground">This table was removed.</p>;
+  if (!t) return <p className="text-muted-foreground">This table was removed</p>;
   return (
     <div className="flex gap-3">
       <GameThumb src={t.thumbnail} name={t.gameName} size={56} />
@@ -84,15 +84,15 @@ export function FeedItemView({ item, viewerId, isAdmin, detail }: { item: Item; 
       )}
       <footer className="flex flex-wrap items-center gap-x-4 border-t border-line pt-1">
         <button type="button" aria-pressed={liked} onClick={() => likeFetcher.submit({ intent: "like" }, { method: "post", action: `/posts/${item.id}` })}
-          className={cn("inline-flex h-11 items-center gap-1.5 text-sm font-semibold", liked ? "text-fav" : "text-muted-foreground hover:text-ink")}>
-          <Heart className="size-5" style={liked ? { fill: "currentColor" } : undefined} aria-hidden />
+          className={cn("inline-flex h-11 items-center gap-2 text-sm font-semibold", liked ? "text-fav" : "text-muted-foreground hover:text-ink")}>
+          <Heart className="icon" style={liked ? { fill: "currentColor" } : undefined} aria-hidden />
           <span className="tabular-nums">{likes}</span><span className="sr-only"> likes. {liked ? "Remove your like" : "Like"}</span>
         </button>
         {detail ? (
-          <span className="inline-flex h-11 items-center gap-1.5 text-sm font-semibold text-muted-foreground"><MessageCircle className="size-5" aria-hidden /><span className="tabular-nums">{item.comments}</span><span className="sr-only"> comments</span></span>
+          <span className="inline-flex h-11 items-center gap-2 text-sm font-semibold text-muted-foreground"><MessageCircle className="icon" aria-hidden /><span className="tabular-nums">{item.comments}</span><span className="sr-only"> comments</span></span>
         ) : (
-          <Link to={`/posts/${item.id}`} className="inline-flex h-11 items-center gap-1.5 text-sm font-semibold text-muted-foreground hover:text-ink">
-            <MessageCircle className="size-5" aria-hidden /><span className="tabular-nums">{item.comments}</span><span className="sr-only"> comments, open the post</span>
+          <Link to={`/posts/${item.id}`} className="inline-flex h-11 items-center gap-2 text-sm font-semibold text-muted-foreground hover:text-ink">
+            <MessageCircle className="icon" aria-hidden /><span className="tabular-nums">{item.comments}</span><span className="sr-only"> comments, open the post</span>
           </Link>
         )}
         <span className="ml-auto flex flex-wrap items-center gap-x-4">

@@ -19,7 +19,7 @@ export async function createTable(db: Db, hostId: string, input: TableInput): Pr
   if (open >= 5) return { ok: false, message: "You already have 5 open tables. Finish or cancel one first." };
   if (input.placeId) {
     const [pl] = await db.select({ id: place.id }).from(place).where(eq(place.id, input.placeId)).limit(1);
-    if (!pl) return { ok: false, message: "That place doesn't exist." };
+    if (!pl) return { ok: false, message: "That place doesn't exist" };
   }
   try {
     await ensureGames(db, [input.bggId]);
@@ -39,13 +39,13 @@ export async function createTable(db: Db, hostId: string, input: TableInput): Pr
 export async function joinTable(db: Db, userId: string, tableId: string): Promise<Result> {
   const [t] = await db.select({ host: playTable.hostId, seats: playTable.seats, status: playTable.status, startsAt: playTable.startsAt, game: game.name })
     .from(playTable).innerJoin(game, eq(game.bggId, playTable.bggId)).where(eq(playTable.id, tableId)).limit(1);
-  if (!t) return { ok: false, message: "That table doesn't exist." };
-  if (t.status !== "open" || t.startsAt.getTime() < Date.now() - STILL_ON_MS) return { ok: false, message: "This table is closed." };
+  if (!t) return { ok: false, message: "That table doesn't exist" };
+  if (t.status !== "open" || t.startsAt.getTime() < Date.now() - STILL_ON_MS) return { ok: false, message: "This table is closed" };
   const [mine] = await db.select({ u: tablePlayer.userId }).from(tablePlayer).where(and(eq(tablePlayer.tableId, tableId), eq(tablePlayer.userId, userId))).limit(1);
   if (mine) return { ok: true };
   const res = await db.run(sql`INSERT OR IGNORE INTO table_player (table_id, user_id)
     SELECT ${tableId}, ${userId} WHERE (SELECT COUNT(*) FROM table_player WHERE table_id = ${tableId}) < ${t.seats}`);
-  if (!res.meta.changes) return { ok: false, message: "This table is full." };
+  if (!res.meta.changes) return { ok: false, message: "This table is full" };
   const [who] = await db.select({ name: profile.displayName }).from(profile).where(eq(profile.userId, userId)).limit(1);
   await notify(db, t.host, `${who?.name ?? "Someone"} joined your ${t.game} table.`, `/tables/${tableId}`);
   return { ok: true };
@@ -53,7 +53,7 @@ export async function joinTable(db: Db, userId: string, tableId: string): Promis
 
 export async function leaveTable(db: Db, userId: string, tableId: string): Promise<Result> {
   const [t] = await db.select({ host: playTable.hostId, game: game.name }).from(playTable).innerJoin(game, eq(game.bggId, playTable.bggId)).where(eq(playTable.id, tableId)).limit(1);
-  if (!t) return { ok: false, message: "That table doesn't exist." };
+  if (!t) return { ok: false, message: "That table doesn't exist" };
   if (t.host === userId) return { ok: false, message: "You're the host. Cancel the table instead." };
   const res = await db.delete(tablePlayer).where(and(eq(tablePlayer.tableId, tableId), eq(tablePlayer.userId, userId)));
   if (res.meta.changes) {
@@ -67,10 +67,10 @@ export async function leaveTable(db: Db, userId: string, tableId: string): Promi
 export async function setTableStatus(db: Db, userId: string, tableId: string, status: "done" | "cancelled"): Promise<Result> {
   const [t] = await db.select({ host: playTable.hostId, startsAt: playTable.startsAt, status: playTable.status, game: game.name })
     .from(playTable).innerJoin(game, eq(game.bggId, playTable.bggId)).where(eq(playTable.id, tableId)).limit(1);
-  if (!t) return { ok: false, message: "That table doesn't exist." };
-  if (t.host !== userId) return { ok: false, message: "Only the host can do that." };
-  if (t.status !== "open") return { ok: false, message: "This table is already closed." };
-  if (status === "done" && t.startsAt.getTime() > Date.now()) return { ok: false, message: "You can mark it as played once it has started." };
+  if (!t) return { ok: false, message: "That table doesn't exist" };
+  if (t.host !== userId) return { ok: false, message: "Only the host can do that" };
+  if (t.status !== "open") return { ok: false, message: "This table is already closed" };
+  if (status === "done" && t.startsAt.getTime() > Date.now()) return { ok: false, message: "You can mark it as played once it has started" };
   await db.update(playTable).set({ status }).where(eq(playTable.id, tableId));
   if (status === "cancelled") {
     const joined = await db.select({ id: tablePlayer.userId }).from(tablePlayer).where(eq(tablePlayer.tableId, tableId));

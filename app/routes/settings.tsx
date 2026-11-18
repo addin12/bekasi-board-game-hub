@@ -32,7 +32,7 @@ export async function action({ request }: Route.ActionArgs) {
     throw redirect("/");
   }
   const code = String(form.get("passcode") ?? "").slice(0, 64);
-  if (!code.trim()) return { ok: false, text: "Enter the passcode.", scope: "passcode" as const };
+  if (!code.trim()) return { ok: false, text: "Enter the passcode", scope: "passcode" as const };
   return { ...MESSAGES[await verifyMember(getDb(), v.user.id, code)], scope: "passcode" as const };
 }
 
@@ -60,7 +60,7 @@ export default function Settings({ loaderData, actionData: result }: Route.Compo
           <p className="text-muted-foreground">Members of our WhatsApp group get a passcode from the admins. Enter it here to get the verified badge.</p>
         </div>
         {loaderData.verified ? (
-          <p className="font-medium">You're a verified member.</p>
+          <p className="font-medium">You're a verified member</p>
         ) : (
           <Form method="post" className="grid gap-3">
             <div className="grid gap-2">

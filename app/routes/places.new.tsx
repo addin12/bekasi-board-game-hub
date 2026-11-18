@@ -24,7 +24,7 @@ export async function action({ request }: Route.ActionArgs) {
   if (!parsed.success) {
     const errors: Record<string, string> = {};
     for (const i of parsed.error.issues) errors[String(i.path[0])] ??= i.message;
-    return { ok: false as const, message: "Check the fields marked below.", errors };
+    return { ok: false as const, message: "Check the fields marked below", errors };
   }
   const res = await createPlace(getDb(), v.user.id, parsed.data);
   if (res.ok) throw redirect(`/places/${res.id}`);
@@ -47,7 +47,7 @@ export default function NewPlace({ actionData }: Route.ComponentProps) {
             </select>
           </Field>
           <Field id="address" label="Address (optional)" error={err("address")} className="sm:col-span-2"><Input id="address" name="address" maxLength={120} /></Field>
-          <Field id="mapUrl" label="Google Maps link (optional)" error={err("mapUrl")} help="Paste the share link from Google Maps." className="sm:col-span-2"><Input id="mapUrl" name="mapUrl" type="url" inputMode="url" maxLength={300} placeholder="https://maps.app.goo.gl/..." aria-invalid={!!err("mapUrl")} /></Field>
+          <Field id="mapUrl" label="Google Maps link (optional)" error={err("mapUrl")} help="Paste the share link from Google Maps" className="sm:col-span-2"><Input id="mapUrl" name="mapUrl" type="url" inputMode="url" maxLength={300} placeholder="https://maps.app.goo.gl/..." aria-invalid={!!err("mapUrl")} /></Field>
           <Field id="note" label="Good to know (optional)" error={err("note")} className="sm:col-span-2"><Textarea id="note" name="note" maxLength={200} rows={2} placeholder="Opening hours, table fee, number of tables" /></Field>
         </div>
         {actionData && !actionData.ok && <p role="alert" className="font-semibold text-destructive">{actionData.message}</p>}

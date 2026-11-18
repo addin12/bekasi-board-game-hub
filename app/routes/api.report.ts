@@ -8,7 +8,7 @@ export async function action({ request }: Route.ActionArgs) {
   const v = await requireMember(request);
   const f = await request.formData();
   const parsed = reportSchema.safeParse({ targetType: f.get("targetType"), targetId: f.get("targetId"), reason: f.get("reason") });
-  if (!parsed.success) return Response.json({ ok: false, message: parsed.error.issues[0]?.message ?? "Check the report." }, { status: 400 });
+  if (!parsed.success) return Response.json({ ok: false, message: parsed.error.issues[0]?.message ?? "Check the report" }, { status: 400 });
   const res = await createReport(getDb(), v.user.id, parsed.data);
   return Response.json(res, { status: res.ok ? 200 : 429 });
 }

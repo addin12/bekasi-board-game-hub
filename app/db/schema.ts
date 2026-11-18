@@ -216,6 +216,17 @@ export const report = sqliteTable("report", {
   createdAt: ts("created_at").notNull().default(now),
 }, (t) => [index("report_status").on(t.status, t.createdAt)]);
 
+/** Every admin action, newest last. Nothing in the app edits or deletes these rows. */
+export const auditLog = sqliteTable("audit_log", {
+  id: text("id").primaryKey(),
+  adminId: text("admin_id").references(() => user.id, { onDelete: "set null" }),
+  action: text("action").notNull(),
+  targetType: text("target_type").notNull(),
+  targetId: text("target_id").notNull(),
+  detail: text("detail").notNull().default(""),
+  createdAt: ts("created_at").notNull().default(now),
+}, (t) => [index("audit_log_created").on(t.createdAt)]);
+
 export const notification = sqliteTable("notification", {
   id: text("id").primaryKey(),
   userId: text("user_id").notNull().references(() => user.id, { onDelete: "cascade" }),

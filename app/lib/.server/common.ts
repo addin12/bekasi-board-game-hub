@@ -24,7 +24,7 @@ const IMAGE_TYPES: Record<string, string> = { "image/jpeg": "jpg", "image/png": 
 /** Stores an uploaded picture in R2. Returns the key, or the message to show. */
 export async function saveImage(file: File, prefix: "posts" | "avatars", maxBytes: number): Promise<{ key: string } | { error: string }> {
   const ext = IMAGE_TYPES[file.type];
-  if (!ext) return { error: "Use a JPG, PNG or WebP picture." };
+  if (!ext) return { error: "Use a JPG, PNG or WebP picture" };
   if (file.size > maxBytes) return { error: `Pick a picture under ${Math.round(maxBytes / 1024 / 1024)} MB.` };
   const key = `${prefix}/${crypto.randomUUID()}.${ext}`;
   await env.UPLOADS.put(key, await file.arrayBuffer(), { httpMetadata: { contentType: file.type } });

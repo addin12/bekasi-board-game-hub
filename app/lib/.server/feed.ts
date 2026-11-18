@@ -71,7 +71,7 @@ const IMG_MAX = 3 * 1024 * 1024;
 
 export async function createStatusPost(db: Db, userId: string, body: string, file: File | null): Promise<Result<{ id: string }>> {
   const hasFile = file !== null && file.size > 0;
-  if (!body && !hasFile) return { ok: false, message: "Write something or add a picture." };
+  if (!body && !hasFile) return { ok: false, message: "Write something or add a picture" };
   const [{ n }] = await db.select({ n: count() }).from(post).where(and(eq(post.userId, userId), eq(post.kind, "status"), gt(post.createdAt, new Date(Date.now() - 3600_000))));
   if (n >= 20) return { ok: false, message: LIMIT_MSG };
   let imageKey: string | null = null;
@@ -92,7 +92,7 @@ export async function tradePost(db: Db, userId: string, bggId: number, body: str
 
 export async function toggleLike(db: Db, userId: string, postId: string): Promise<Result<{ liked: boolean }>> {
   const [p] = await db.select({ id: post.id }).from(post).where(eq(post.id, postId)).limit(1);
-  if (!p) return { ok: false, message: "That post is gone." };
+  if (!p) return { ok: false, message: "That post is gone" };
   const [had] = await db.select({ id: postLike.postId }).from(postLike).where(and(eq(postLike.postId, postId), eq(postLike.userId, userId))).limit(1);
   if (had) await db.delete(postLike).where(and(eq(postLike.postId, postId), eq(postLike.userId, userId)));
   else await db.insert(postLike).values({ postId, userId }).onConflictDoNothing();
@@ -103,7 +103,7 @@ export async function addComment(db: Db, userId: string, postId: string, body: s
   const [{ n }] = await db.select({ n: count() }).from(postComment).where(and(eq(postComment.userId, userId), gt(postComment.createdAt, new Date(Date.now() - 3600_000))));
   if (n >= 60) return { ok: false, message: LIMIT_MSG };
   const [p] = await db.select({ author: post.userId }).from(post).where(eq(post.id, postId)).limit(1);
-  if (!p) return { ok: false, message: "That post is gone." };
+  if (!p) return { ok: false, message: "That post is gone" };
   await db.insert(postComment).values({ id: newId(), postId, userId, body });
   if (p.author !== userId) {
     const [who] = await db.select({ name: profile.displayName }).from(profile).where(eq(profile.userId, userId)).limit(1);
@@ -116,7 +116,7 @@ export async function addComment(db: Db, userId: string, postId: string, body: s
 export async function deletePost(db: Db, userId: string, postId: string, isAdmin: boolean): Promise<Result> {
   const [p] = await db.select({ author: post.userId, imageKey: post.imageKey }).from(post).where(eq(post.id, postId)).limit(1);
   if (!p) return { ok: true };
-  if (p.author !== userId && !isAdmin) return { ok: false, message: "Only the author can delete this." };
+  if (p.author !== userId && !isAdmin) return { ok: false, message: "Only the author can delete this" };
   if (p.imageKey) await env.UPLOADS.delete(p.imageKey);
   await db.delete(post).where(eq(post.id, postId));
   return { ok: true };
@@ -125,7 +125,7 @@ export async function deletePost(db: Db, userId: string, postId: string, isAdmin
 export async function deleteComment(db: Db, userId: string, commentId: string, isAdmin: boolean): Promise<Result> {
   const [c] = await db.select({ author: postComment.userId }).from(postComment).where(eq(postComment.id, commentId)).limit(1);
   if (!c) return { ok: true };
-  if (c.author !== userId && !isAdmin) return { ok: false, message: "Only the author can delete this." };
+  if (c.author !== userId && !isAdmin) return { ok: false, message: "Only the author can delete this" };
   await db.delete(postComment).where(eq(postComment.id, commentId));
   return { ok: true };
 }

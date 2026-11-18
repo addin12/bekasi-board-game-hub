@@ -53,9 +53,9 @@ export default function Search({ loaderData }: Route.ComponentProps) {
       </Form>
 
       {!d.searched ? (
-        d.q ? <p className="text-muted-foreground">Type at least 2 letters.</p> : null
+        d.q ? <p className="text-muted-foreground">Type at least 2 letters</p> : null
       ) : d.people.length + d.games.length + d.places.length + d.more.length === 0 ? (
-        <section className="panel grid gap-2 p-6"><h2 className="text-lg font-extrabold">No results for "{d.q}"</h2><p className="text-muted-foreground">Check the spelling, or try a shorter word.</p></section>
+        <section className="panel grid gap-2 p-6"><h2 className="text-lg font-extrabold">No results for "{d.q}"</h2><p className="text-muted-foreground">Check the spelling, or try a shorter word</p></section>
       ) : (
         <>
           {d.people.length > 0 && (
@@ -94,7 +94,7 @@ export default function Search({ loaderData }: Route.ComponentProps) {
               </ul>
             </section>
           )}
-          {d.bggDown && <p className="text-sm text-muted-foreground">BoardGameGeek isn't answering, so only games already on the hub are shown.</p>}
+          {d.bggDown && <p className="text-sm text-muted-foreground">BoardGameGeek isn't answering, so only games already on the hub are shown</p>}
         </>
       )}
     </div>

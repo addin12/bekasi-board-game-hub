@@ -4,9 +4,11 @@ A community site for Bekasi board gamers. Every member has a **player card** (fa
 
 Beyond the card: log plays (confirmed by the people on them, which feeds Hotness and badges), open tables others can join, a places directory, a community feed with likes and comments, search, reports for admins, in-app notifications, and one-tap "add to my card" on every game page.
 
+**Back office** (`/admin`, admins only, the emails in `ADMIN_EMAILS`): overview and reports, members (search, verify, edit details, remove photo, delete account), content (delete posts, comments, plays; cancel tables; edit or delete places), site text (home headline and intro, banner, contact line, footer, member passcode) and a log of every admin action.
+
 Stack: React Router 8 on Cloudflare Workers, D1 (SQLite) through Drizzle, R2 for pictures, Better Auth (email code + Google), shadcn/ui + Tailwind 4. Game data from the BoardGameGeek XML API.
 
-Both sites are on migration `0001_phase2` and the same code (shipped 2026-11-18). Order for any later migration: sandbox first, then `npm run db:migrate:remote`, then `npm run deploy`.
+The real site is on migration `0001_phase2`; the sandbox is on `0002_admin_log` with newer code (back office and the unslop pass), waiting for "ship it". Order for any later migration: sandbox first, then `npm run db:migrate:remote`, then `npm run deploy`.
 
 ## Quick start
 

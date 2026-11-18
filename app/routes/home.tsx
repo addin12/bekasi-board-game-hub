@@ -5,7 +5,9 @@ import { PersonAvatar } from "@/components/game-thumb";
 import { Button } from "@/components/ui/button";
 import { profile, user } from "@/db/schema";
 import { getDb } from "@/lib/.server/db";
+import { SITE_DEFAULTS } from "@/lib/site-text";
 import { getViewer } from "@/lib/.server/viewer";
+import { useShell } from "./shell";
 import type { Route } from "./+types/home";
 
 export const meta = () => {
@@ -32,10 +34,10 @@ const fill = { fill: "currentColor" } as const;
 
 // What each numbered part of the card finds for you. The numbers match the markers on the example card (sketch motif).
 const PARTS = [
-  { n: 1, title: "Favorites and hotness", text: "Matched with members who love the same games or have been playing them lately." },
-  { n: 2, title: "Want to play", text: "Shows who owns that game, and who else is looking for a table for it." },
+  { n: 1, title: "Favorites and hotness", text: "Matched with members who love the same games or have been playing them lately" },
+  { n: 2, title: "Want to play", text: "Shows who owns that game, and who else is looking for a table for it" },
   { n: 3, title: "Trade", text: "Games you sell meet members looking for them. You settle the deal on WhatsApp." },
-  { n: 4, title: "District", text: "Narrow any search to players near you, from Tambun to Pondok Gede." },
+  { n: 4, title: "District", text: "Narrow any search to players near you, from Tambun to Pondok Gede" },
 ];
 
 /** Example card in the sketch's layout. Decorative (aria-hidden); everything it shows is explained in the list beside it. */
@@ -43,8 +45,8 @@ function ExampleCard() {
   // Each part carries its own marker on the card's left edge, outside the text (as in the sketch).
   const part = (n: number | null, icon: React.ReactNode, text: string, color: string, games: string, ruled: boolean) => (
     <div className={`relative grid gap-1 ${ruled ? "border-t-2 border-ink pt-3" : ""}`}>
-      {n && <span className={`marker absolute -left-[3.1rem] ${ruled ? "top-2.5" : "-top-0.5"}`}>{n}</span>}
-      <p className={`flex items-center gap-1.5 text-sm font-extrabold uppercase ${color}`}>{icon}{text}</p>
+      {n && <span className={`marker absolute -left-[3.1rem] ${ruled ? "top-3" : "-top-0.5"}`}>{n}</span>}
+      <p className={`flex items-center gap-2 text-sm font-extrabold uppercase ${color}`}>{icon}{text}</p>
       <p className="font-semibold">{games}</p>
     </div>
   );
@@ -54,13 +56,13 @@ function ExampleCard() {
         <div className="relative rounded-t-[17px] border-b-[3px] border-ink bg-brand pb-4 pl-8 pr-5 pt-5">
           <span className="marker absolute -left-5 top-12">4</span>
           <p className="text-3xl font-extrabold uppercase leading-none">Malik</p>
-          <p className="mt-1 flex items-center gap-1 text-sm font-semibold"><MapPin className="size-4" />Bekasi Timur</p>
+          <p className="mt-1 flex items-center gap-1 text-sm font-semibold"><MapPin className="icon" />Bekasi Timur</p>
         </div>
         <div className="grid gap-3 pb-5 pl-8 pr-5 pt-4">
-          {part(1, <Heart className="size-4" style={fill} />, "Favorites", "text-fav", "Arnak, Wingspan, Everdell", false)}
-          {part(null, <Flame className="size-4" style={fill} />, "Hotness", "text-hot", "The Crew, Harmonies", true)}
-          {part(2, <MessageCircle className="size-4" style={fill} />, "Want to play", "text-want", "Oath", true)}
-          {part(3, <ShoppingBag className="size-4" style={fill} stroke="#fff" />, "Trade", "text-trade", "Selling Catan", true)}
+          {part(1, <Heart className="icon" style={fill} />, "Favorites", "text-fav", "Arnak, Wingspan, Everdell", false)}
+          {part(null, <Flame className="icon" style={fill} />, "Hotness", "text-hot", "The Crew, Harmonies", true)}
+          {part(2, <MessageCircle className="icon" style={fill} />, "Want to play", "text-want", "Oath", true)}
+          {part(3, <ShoppingBag className="icon" style={fill} stroke="#fff" />, "Trade", "text-trade", "Selling Catan", true)}
         </div>
       </div>
       <figcaption className="text-center text-sm text-muted-foreground">Example card</figcaption>
@@ -69,14 +71,13 @@ function ExampleCard() {
 }
 
 export default function Home({ loaderData }: Route.ComponentProps) {
+  const site = useShell()?.site ?? SITE_DEFAULTS; // headline and intro are edited in Admin > Site
   return (
     <div className="grid gap-16">
       <section className="grid items-center gap-x-12 gap-y-10 pt-2 md:grid-cols-[1fr_auto]">
         <div className="grid max-w-xl gap-5">
-          <h1 className="text-5xl font-extrabold leading-[1.02] tracking-tight sm:text-6xl">Find your next table in Bekasi</h1>
-          <p className="text-lg leading-relaxed">
-            Make a player card with the games you love, the ones you want to play, and the ones you're selling. The hub matches it with every other card in the community.
-          </p>
+          <h1 className="text-5xl font-extrabold leading-[1.02] tracking-tight sm:text-6xl">{site.homeTitle}</h1>
+          <p className="text-lg leading-relaxed">{site.homeIntro}</p>
           <div>
             <Button asChild size="lg"><Link to="/sign-in">Make my player card</Link></Button>
           </div>

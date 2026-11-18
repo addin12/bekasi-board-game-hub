@@ -31,7 +31,7 @@ export function GameActions({ bggId, signedIn, hasCard, mine }: { bggId: number;
     return (
       <section aria-label="Add to your card" className="panel grid gap-3 p-5">
         <h2 className="text-lg font-extrabold">Put it on your card</h2>
-        <p className="text-muted-foreground">{signedIn ? "Make your player card first." : "Sign in to say you own it, love it, want to play it or sell it."}</p>
+        <p className="text-muted-foreground">{signedIn ? "Make your player card first" : "Sign in to say you own it, love it, want to play it or sell it"}</p>
         <Button asChild className="w-fit"><Link to={signedIn ? "/me/edit" : `/sign-in?next=${encodeURIComponent(`/g/${bggId}`)}`}>{signedIn ? "Make my card" : "Sign in"}</Link></Button>
       </section>
     );

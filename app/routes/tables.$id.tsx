@@ -33,7 +33,7 @@ export async function action({ request, params }: Route.ActionArgs) {
   if (intent === "leave") return leaveTable(db, v.user.id, params.id);
   if (intent === "done") return setTableStatus(db, v.user.id, params.id, "done");
   if (intent === "cancel") return setTableStatus(db, v.user.id, params.id, "cancelled");
-  return { ok: false as const, message: "Unknown action." };
+  return { ok: false as const, message: "Unknown action" };
 }
 
 export default function TablePage({ loaderData, actionData }: Route.ComponentProps) {
@@ -95,7 +95,7 @@ export default function TablePage({ loaderData, actionData }: Route.ComponentPro
               {btn("cancel", "Cancel table", "destructive")}
             </>
           ) : joined ? btn("leave", "Leave table", "outline")
-          : full ? <p className="font-bold">This table is full.</p>
+          : full ? <p className="font-bold">This table is full</p>
           : btn("join", "Join table")
         )}
         {isHost && t.status === "done" && <Button asChild size="lg"><Link to={`/plays/new?table=${t.id}`}>Log the play</Link></Button>}

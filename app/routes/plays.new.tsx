@@ -45,7 +45,7 @@ export async function action({ request }: Route.ActionArgs) {
   let raw: unknown;
   try { raw = JSON.parse(String((await request.formData()).get("payload") ?? "")); } catch { return { ok: false as const, message: "That didn't send properly. Try again." }; }
   const parsed = playSchema().safeParse(raw);
-  if (!parsed.success) return { ok: false as const, message: parsed.error.issues[0]?.message ?? "Check the form." };
+  if (!parsed.success) return { ok: false as const, message: parsed.error.issues[0]?.message ?? "Check the form" };
   const res = await createPlay(getDb(), v.user.id, parsed.data);
   if (res.ok) throw redirect(`/plays/${res.id}`);
   return res;
@@ -117,7 +117,7 @@ export default function LogPlay({ loaderData, actionData }: Route.ComponentProps
                   <Input type="number" inputMode="numeric" placeholder="Score" aria-label={`Score for ${r.name}`} value={r.score} onChange={(e) => patch(r.key, { score: e.target.value })} />
                 </label>
                 {r.userId === me.userId ? <span /> : (
-                  <Button type="button" variant="ghost" size="icon" onClick={() => setRows((rs) => rs.filter((x) => x.key !== r.key))}><X className="size-5" aria-hidden /><span className="sr-only">Remove {r.name}</span></Button>
+                  <Button type="button" variant="ghost" size="icon" onClick={() => setRows((rs) => rs.filter((x) => x.key !== r.key))}><X className="icon" aria-hidden /><span className="sr-only">Remove {r.name}</span></Button>
                 )}
               </li>
             ))}

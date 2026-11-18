@@ -1,3 +1,4 @@
+import { useEffect } from "react";
 import { isRouteErrorResponse, Links, Meta, Outlet, Scripts, ScrollRestoration } from "react-router";
 import type { Route } from "./+types/root";
 import { Toaster } from "@/components/ui/sonner";
@@ -25,6 +26,8 @@ export function Layout({ children }: { children: React.ReactNode }) {
 }
 
 export default function App() {
+  // Marks the page as interactive. Tests wait for it so they never click before the buttons work.
+  useEffect(() => { document.documentElement.dataset.hydrated = "1"; }, []);
   return <Outlet />;
 }
 

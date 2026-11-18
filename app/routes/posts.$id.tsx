@@ -30,7 +30,7 @@ export async function action({ request, params }: Route.ActionArgs) {
   if (intent === "like") return toggleLike(db, v.user.id, params.id);
   if (intent === "comment") {
     const parsed = commentSchema.safeParse({ body: form.get("body") ?? "" });
-    if (!parsed.success) return { ok: false as const, message: parsed.error.issues[0]?.message ?? "Check your comment." };
+    if (!parsed.success) return { ok: false as const, message: parsed.error.issues[0]?.message ?? "Check your comment" };
     return addComment(db, v.user.id, params.id, parsed.data.body);
   }
   if (intent === "delete-comment") return deleteComment(db, v.user.id, String(form.get("commentId") ?? ""), v.isAdmin);
@@ -39,7 +39,7 @@ export async function action({ request, params }: Route.ActionArgs) {
     if (res.ok) throw redirect("/feed");
     return res;
   }
-  return { ok: false as const, message: "Unknown action." };
+  return { ok: false as const, message: "Unknown action" };
 }
 
 export default function PostPage({ loaderData, actionData }: Route.ComponentProps) {
@@ -61,7 +61,7 @@ export default function PostPage({ loaderData, actionData }: Route.ComponentProp
       <section aria-labelledby="comments" className="grid gap-3">
         <h2 id="comments" className="text-xl font-extrabold">Comments</h2>
         {comments.length === 0 ? (
-          <p className="text-muted-foreground">No comments yet.</p>
+          <p className="text-muted-foreground">No comments yet</p>
         ) : (
           <ul className="panel grid divide-y divide-line">
             {comments.map((c) => (

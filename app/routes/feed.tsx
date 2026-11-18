@@ -44,7 +44,7 @@ export async function action({ request }: Route.ActionArgs) {
   const v = await requireMember(request);
   const form = await request.formData();
   const parsed = postSchema.safeParse({ body: form.get("body") ?? "" });
-  if (!parsed.success) return { ok: false, message: parsed.error.issues[0]?.message ?? "Check your post." };
+  if (!parsed.success) return { ok: false, message: parsed.error.issues[0]?.message ?? "Check your post" };
   const file = form.get("image");
   return createStatusPost(getDb(), v.user.id, parsed.data.body, file instanceof File ? file : null);
 }
@@ -55,7 +55,7 @@ export default function Feed({ loaderData, actionData }: Route.ComponentProps) {
   const formRef = useRef<HTMLFormElement>(null);
   useEffect(() => {
     if (!actionData) return;
-    if (actionData.ok) { toast.success("Posted."); formRef.current?.reset(); }
+    if (actionData.ok) { toast.success("Posted"); formRef.current?.reset(); }
     else toast.error(actionData.message);
   }, [actionData]);
 
@@ -83,7 +83,7 @@ export default function Feed({ loaderData, actionData }: Route.ComponentProps) {
       {pending.length > 0 && !paged && (
         <section aria-label="Plays to confirm" className="panel grid gap-2 p-5">
           <h2 className="text-lg font-extrabold">Were you there?</h2>
-          <p className="text-sm text-muted-foreground">These plays count for you once you confirm them.</p>
+          <p className="text-sm text-muted-foreground">These plays count for you once you confirm them</p>
           <ul className="grid gap-1">
             {pending.map((p) => (
               <li key={p.playId}>

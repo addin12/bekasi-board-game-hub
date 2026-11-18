@@ -34,10 +34,10 @@ export async function createPlay(db: Db, loggerId: string, input: PlayInput): Pr
   if (!members.has(loggerId)) members.set(loggerId, { winner: false, score: null });
   const memberIds = [...members.keys()];
   const known = await db.select({ id: profile.userId, name: profile.displayName }).from(profile).where(inArray(profile.userId, memberIds));
-  if (known.length !== memberIds.length) return { ok: false, message: "One of the players isn't a member." };
+  if (known.length !== memberIds.length) return { ok: false, message: "One of the players isn't a member" };
   if (input.placeId) {
     const [pl] = await db.select({ id: place.id }).from(place).where(eq(place.id, input.placeId)).limit(1);
-    if (!pl) return { ok: false, message: "That place doesn't exist." };
+    if (!pl) return { ok: false, message: "That place doesn't exist" };
   }
   try {
     await ensureGames(db, [input.bggId]);
@@ -45,7 +45,7 @@ export async function createPlay(db: Db, loggerId: string, input: PlayInput): Pr
     return { ok: false, message: "BoardGameGeek isn't answering. Try again in a minute." };
   }
   const [g] = await db.select({ name: game.name }).from(game).where(eq(game.bggId, input.bggId)).limit(1);
-  if (!g) return { ok: false, message: "That game couldn't be found." };
+  if (!g) return { ok: false, message: "That game couldn't be found" };
 
   const id = newId();
   const ordered = [loggerId, ...memberIds.filter((m) => m !== loggerId)];
@@ -67,7 +67,7 @@ export async function createPlay(db: Db, loggerId: string, input: PlayInput): Pr
 
 export async function confirmPlay(db: Db, userId: string, playId: string): Promise<Result> {
   const res = await db.update(playPlayer).set({ confirmed: true }).where(and(eq(playPlayer.playId, playId), eq(playPlayer.userId, userId)));
-  if (!res.meta.changes) return { ok: false, message: "You're not on this play." };
+  if (!res.meta.changes) return { ok: false, message: "You're not on this play" };
   await refreshHotFor(db, userId);
   return { ok: true };
 }
@@ -88,8 +88,8 @@ async function dropPlay(db: Db, playId: string) {
 /** Only whoever logged it (or an admin) can delete a play for everyone. */
 export async function deletePlay(db: Db, userId: string, playId: string, isAdmin: boolean): Promise<Result> {
   const [p] = await db.select({ by: play.loggedBy }).from(play).where(eq(play.id, playId)).limit(1);
-  if (!p) return { ok: false, message: "That play is gone." };
-  if (p.by !== userId && !isAdmin) return { ok: false, message: "Only the person who logged it can delete it." };
+  if (!p) return { ok: false, message: "That play is gone" };
+  if (p.by !== userId && !isAdmin) return { ok: false, message: "Only the person who logged it can delete it" };
   const members = await db.select({ id: playPlayer.userId }).from(playPlayer).where(and(eq(playPlayer.playId, playId), isNotNull(playPlayer.userId)));
   await dropPlay(db, playId);
   for (const m of members) if (m.id) await refreshHotFor(db, m.id);

@@ -25,14 +25,14 @@ export default function Notifications({ loaderData }: Route.ComponentProps) {
       {items.length === 0 ? (
         <section className="panel grid gap-2 p-6">
           <h2 className="text-lg font-extrabold">Nothing yet</h2>
-          <p className="text-muted-foreground">You'll see it here when someone joins your table, adds you to a play or comments on your post.</p>
+          <p className="text-muted-foreground">You'll see it here when someone joins your table, adds you to a play or comments on your post</p>
         </section>
       ) : (
         <ul className="panel grid divide-y divide-line">
           {items.map((n) => (
             <li key={n.id}>
               <Link to={n.href} className="grid min-h-14 gap-0.5 px-4 py-3 hover:bg-muted">
-                <span className={n.isNew ? "font-extrabold" : "font-semibold"}>{n.isNew && <span className="mr-2 rounded bg-ink px-1.5 py-0.5 text-xs font-bold text-white">New</span>}{n.text}</span>
+                <span className={n.isNew ? "font-extrabold" : "font-semibold"}>{n.isNew && <span className="mr-2 rounded bg-ink px-2 py-0.5 text-xs font-bold text-white">New</span>}{n.text}</span>
                 <span className="text-sm text-muted-foreground tabular-nums">{formatStamp(n.at)}</span>
               </Link>
             </li>

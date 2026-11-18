@@ -6,7 +6,7 @@ export function Legal({ title, updated, children }: { title: string; updated?: s
         <h1 className="text-3xl font-extrabold">{title}</h1>
         {updated && <p className="text-sm text-muted-foreground">Last updated {updated}</p>}
       </header>
-      <div data-prose className="grid gap-6 leading-relaxed [&_h2]:text-xl [&_h2]:font-extrabold [&_ul]:grid [&_ul]:list-disc [&_ul]:gap-1.5 [&_ul]:pl-5">{children}</div>
+      <div data-prose className="grid gap-6 leading-relaxed [&_h2]:text-xl [&_h2]:font-extrabold [&_ul]:grid [&_ul]:list-disc [&_ul]:gap-2 [&_ul]:pl-5">{children}</div>
     </article>
   );
 }

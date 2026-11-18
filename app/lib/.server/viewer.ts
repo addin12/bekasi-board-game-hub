@@ -40,3 +40,10 @@ export async function requireMember(request: Request) {
 
 export const avatarUrl = (p: { avatarKey: string | null } | null, fallback?: string | null) =>
   p?.avatarKey ? `/img/${p.avatarKey}` : fallback ?? null;
+
+/** Admins only. Everyone else gets a plain 404, so the back office doesn't announce itself. Call it in every admin loader AND action. */
+export async function requireAdmin(request: Request) {
+  const v = await requireViewer(request);
+  if (!v.isAdmin) throw new Response("Not found", { status: 404 });
+  return v;
+}
