@@ -6,14 +6,17 @@
     "build": "react-router build",
     "dev": "react-router dev",
     "typecheck": "wrangler types && react-router typegen && tsc -b",
-    "deploy": "npm run build && wrangler deploy",
+    "deploy": "react-router build && wrangler deploy",
     "preview": "npm run build && vite preview",
     "cf-typegen": "wrangler types",
     "postinstall": "wrangler types",
     "test": "vitest run",
     "db:generate": "drizzle-kit generate",
     "db:migrate:local": "wrangler d1 migrations apply bekasi-bgh --local",
-    "db:migrate:remote": "wrangler d1 migrations apply bekasi-bgh --remote"
+    "db:migrate:remote": "wrangler d1 migrations apply bekasi-bgh --remote",
+    "deploy:sandbox": "node -e \"process.env.CLOUDFLARE_ENV='staging';require('child_process').execSync('npx react-router build && npx wrangler deploy',{stdio:'inherit',env:process.env})\"",
+    "db:migrate:sandbox": "wrangler d1 migrations apply bekasi-bgh-staging --env staging --remote",
+    "seed:sandbox": "node scripts/seed-sandbox.mjs && wrangler d1 execute bekasi-bgh-staging --env staging --remote --file .wrangler/seed-sandbox.sql"
   },
   "dependencies": {
     "@fontsource-variable/geist": "^5.3.0",

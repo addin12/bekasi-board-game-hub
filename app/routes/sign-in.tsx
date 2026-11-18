@@ -5,7 +5,7 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Separator } from "@/components/ui/separator";
 import { authClient, safeNext } from "@/lib/auth-client";
-import { googleEnabled } from "@/lib/.server/auth";
+import { emailEnabled, googleEnabled } from "@/lib/.server/auth";
 import { getViewer } from "@/lib/.server/viewer";
 import type { Route } from "./+types/sign-in";
 
@@ -14,7 +14,7 @@ export const meta = () => [{ title: "Sign in · Bekasi Board Game Hub" }];
 export async function loader({ request }: Route.LoaderArgs) {
   const next = safeNext(new URL(request.url).searchParams.get("next"));
   if (await getViewer(request)) throw redirect(next === "/" ? "/find" : next);
-  return { google: googleEnabled(), next };
+  return { google: googleEnabled(), email: emailEnabled(), next };
 }
 
 export default function SignIn({ loaderData }: Route.ComponentProps) {
@@ -53,18 +53,27 @@ export default function SignIn({ loaderData }: Route.ComponentProps) {
         <p className="text-muted-foreground">New here? Signing in creates your account. Next you'll set up your player card.</p>
       </div>
 
+      {!google && !loaderData.email && (
+        <div role="status" className="grid gap-1 rounded-xl border border-border bg-card p-4">
+          <p className="font-medium">Sign-in opens soon.</p>
+          <p className="text-muted-foreground">The admins are still setting it up. Player cards and game pages can already be viewed.</p>
+        </div>
+      )}
+
       {google && (
         <>
           <Button size="lg" variant="outline" disabled={busy} onClick={() => authClient.signIn.social({ provider: "google", callbackURL: after })}>
             Continue with Google
           </Button>
-          <div className="flex items-center gap-3 text-sm text-muted-foreground">
-            <Separator className="flex-1" /> or use your email <Separator className="flex-1" />
-          </div>
+          {loaderData.email && (
+            <div className="flex items-center gap-3 text-sm text-muted-foreground">
+              <Separator className="flex-1" /> or use your email <Separator className="flex-1" />
+            </div>
+          )}
         </>
       )}
 
-      {step === "email" ? (
+      {!loaderData.email ? null : step === "email" ? (
         <form onSubmit={sendCode} className="grid gap-4">
           <div className="grid gap-2">
             <Label htmlFor="email">Email address</Label>

@@ -1,11 +1,13 @@
+import { env } from "cloudflare:workers";
 import { Form, NavLink, Outlet, useRouteLoaderData } from "react-router";
+import { isSandboxOn, SANDBOX_CODE, SANDBOX_DOMAIN } from "@/lib/sandbox";
 import { cn } from "@/lib/utils";
 import { getViewer } from "@/lib/.server/viewer";
 import type { Route } from "./+types/shell";
 
 export async function loader({ request }: Route.LoaderArgs) {
   const v = await getViewer(request);
-  return { viewer: v ? { handle: v.profile?.handle ?? null, isAdmin: v.isAdmin } : null };
+  return { viewer: v ? { handle: v.profile?.handle ?? null, isAdmin: v.isAdmin } : null, sandbox: isSandboxOn(env.SANDBOX) };
 }
 
 export const useShell = () => useRouteLoaderData<typeof loader>("routes/shell");
@@ -31,6 +33,11 @@ export default function Shell({ loaderData }: Route.ComponentProps) {
   const v = loaderData.viewer;
   return (
     <div className="flex min-h-dvh flex-col">
+      {loaderData.sandbox && (
+        <div role="note" className="bg-amber-300 px-4 py-2 text-center text-sm font-medium text-black">
+          Sandbox: fake data for testing, may be wiped. Sign in with any name@{SANDBOX_DOMAIN} address and code {SANDBOX_CODE}.
+        </div>
+      )}
       <header className="sticky top-0 z-20 border-b border-border bg-background/85 backdrop-blur pt-[env(safe-area-inset-top)]">
         <div className="mx-auto flex max-w-5xl flex-wrap items-center gap-x-4 gap-y-1 px-4 py-2">
           <a href="/" className="mr-auto py-2 text-lg font-semibold tracking-tight">

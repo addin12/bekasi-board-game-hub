@@ -38,10 +38,17 @@ Secrets live in `.dev.vars` locally (see `.dev.vars.example`) and as Worker secr
 - `app/routes/`: pages. `routes.ts` lists them.
 - `docs/brainstorm-report.html`, `DECISIONS.md`: why things are the way they are.
 
-## First production deploy (not done yet)
+## The two live sites
 
-1. `wrangler d1 create bekasi-bgh` and put the id in `wrangler.jsonc`.
-2. `wrangler r2 bucket create bekasi-bgh-uploads`.
-3. `wrangler secret put` for `BGG_TOKEN`, `BETTER_AUTH_SECRET`, `BETTER_AUTH_URL`, and optionally Google and mail.
-4. Set `ADMIN_EMAILS` in `wrangler.jsonc`.
-5. `npm run db:migrate:remote && npm run deploy`.
+| Site | URL | Data | Sign-in |
+|---|---|---|---|
+| Sandbox (test + simulation) | https://bekasi-board-game-hub-staging.addinalayubi12.workers.dev | Fake demo members, may be wiped | Any `name@sandbox.test` with code `000000` (e.g. `raka@sandbox.test`, admin: `admin@sandbox.test`) |
+| Real | https://bekasi-board-game-hub.addinalayubi12.workers.dev | Real members | Google and/or email code, once configured |
+
+Each has its own Worker, D1 database, R2 bucket and secrets (`wrangler.jsonc`: top level = real, `env.staging` = sandbox). The sandbox sends `X-Robots-Tag: noindex`.
+
+**Release flow:** change → `npm run typecheck && npm test` → `npm run deploy:sandbox` → try it on the sandbox → `npm run deploy`.
+New migration: `npm run db:migrate:sandbox` first, then `npm run db:migrate:remote`.
+Reset the demo members: `npm run seed:sandbox`.
+
+Secrets per site: `wrangler secret put NAME` (real) or `wrangler secret put NAME --env staging` (sandbox). Set today: `BGG_TOKEN`, `BETTER_AUTH_SECRET` (different per site), `BETTER_AUTH_URL`. Still to add: `GOOGLE_CLIENT_ID` + `GOOGLE_CLIENT_SECRET`, `MAIL_RELAY_URL` + `MAIL_RELAY_SECRET`.

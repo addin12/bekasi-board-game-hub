@@ -3,10 +3,13 @@ import { betterAuth } from "better-auth";
 import { drizzleAdapter } from "better-auth/adapters/drizzle";
 import { emailOTP } from "better-auth/plugins/email-otp";
 import * as schema from "@/db/schema";
+import { isSandboxEmail, isSandboxOn, SANDBOX_CODE } from "@/lib/sandbox";
 import { getDb } from "./db";
 import { sendMail } from "./mail";
 
 export const googleEnabled = () => Boolean(env.GOOGLE_CLIENT_ID && env.GOOGLE_CLIENT_SECRET);
+/** Email codes can actually arrive: a relay is set, or sandbox test addresses, or local dev (console). */
+export const emailEnabled = () => Boolean(env.MAIL_RELAY_URL) || isSandboxOn(env.SANDBOX) || import.meta.env.DEV;
 
 function createAuth() {
   return betterAuth({
@@ -25,7 +28,10 @@ function createAuth() {
         expiresIn: 10 * 60,
         allowedAttempts: 5,
         storeOTP: "hashed",
+        // Sandbox only: fixed code for name@sandbox.test (undefined → Better Auth's random code).
+        generateOTP: ({ email }) => (isSandboxEmail(email, isSandboxOn(env.SANDBOX)) ? SANDBOX_CODE : undefined),
         async sendVerificationOTP({ email, otp }) {
+          if (isSandboxEmail(email, isSandboxOn(env.SANDBOX))) return; // nothing to send
           await sendMail(
             email,
             `${otp} is your ${env.APP_NAME} code`,
@@ -35,7 +41,8 @@ function createAuth() {
       }),
     ],
     // Workers have no shared memory between requests, so limits live in D1.
-    rateLimit: { enabled: true, storage: "database", window: 60, max: 30, customRules: { "/email-otp/send-verification-otp": { window: 300, max: 3 } } },
+    // Sandbox testers often share one Wi-Fi (one IP), so the code-request limit is looser there.
+    rateLimit: { enabled: true, storage: "database", window: 60, max: 30, customRules: { "/email-otp/send-verification-otp": { window: 300, max: isSandboxOn(env.SANDBOX) ? 30 : 3 } } },
     advanced: { ipAddress: { ipAddressHeaders: ["cf-connecting-ip"] } },
   });
 }

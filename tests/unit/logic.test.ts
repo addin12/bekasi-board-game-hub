@@ -3,6 +3,7 @@ import { safeNext } from "@/lib/auth-client";
 import { parseCollection, parseHot, parsePlays, parseSearch, parseThings } from "@/lib/bgg-parse";
 import { chooseHot, topPlayed } from "@/lib/hotness";
 import { constantTimeEqual, hashPasscode } from "@/lib/passcode";
+import { isSandboxEmail, isSandboxOn } from "@/lib/sandbox";
 import { parseRupiah, profileSchema } from "@/lib/validate";
 
 const thingXml = `<?xml version="1.0"?><items><item type="boardgame" id="13">
@@ -65,6 +66,16 @@ describe("member passcode", () => {
     expect(constantTimeEqual(a, b)).toBe(true);
     expect(constantTimeEqual(a, await hashPasscode("secret", "meeple43"))).toBe(false);
     expect(constantTimeEqual(a, await hashPasscode("other-secret", "meeple42"))).toBe(false);
+  });
+});
+
+describe("sandbox sign-in", () => {
+  it("only applies on the sandbox, only to @sandbox.test", () => {
+    expect(isSandboxEmail("Tester@Sandbox.test ", isSandboxOn("1"))).toBe(true);
+    expect(isSandboxEmail("tester@sandbox.test", isSandboxOn("0"))).toBe(false); // real site
+    expect(isSandboxEmail("tester@sandbox.test", isSandboxOn(undefined))).toBe(false);
+    expect(isSandboxEmail("bekasibgcom@gmail.com", isSandboxOn("1"))).toBe(false);
+    expect(isSandboxEmail("x@sandbox.test.evil.com", isSandboxOn("1"))).toBe(false);
   });
 });
 

@@ -1,5 +1,6 @@
-// Cloudflare Worker config. Secrets (BGG_TOKEN, BETTER_AUTH_SECRET, GOOGLE_*, MAIL_*) are NOT here:
-// locally they live in .dev.vars, in production run `wrangler secret put <NAME>`.
+// Cloudflare Worker config. Secrets (BGG_TOKEN, BETTER_AUTH_SECRET, BETTER_AUTH_URL, GOOGLE_*, MAIL_*) are NOT here:
+// locally they live in .dev.vars, deployed: `wrangler secret put <NAME> [--env staging]`.
+// Top level = the real site. `env.staging` = the sandbox (fake data, test sign-in). Bindings and vars are per env.
 {
 	"$schema": "node_modules/wrangler/config-schema.json",
 	"name": "bekasi-board-game-hub",
@@ -9,20 +10,27 @@
 	"vars": {
 		"APP_NAME": "Bekasi Board Game Hub",
 		// Comma-separated emails that may open /admin.
-		"ADMIN_EMAILS": "bekasibgcom@gmail.com"
+		"ADMIN_EMAILS": "bekasibgcom@gmail.com",
+		"SANDBOX": "0"
 	},
 	"d1_databases": [
-		{
-			"binding": "DB",
-			"database_name": "bekasi-bgh",
-			// Placeholder until `wrangler d1 create bekasi-bgh` is run for production.
-			"database_id": "00000000-0000-0000-0000-000000000000",
-			"migrations_dir": "drizzle"
-		}
+		{ "binding": "DB", "database_name": "bekasi-bgh", "database_id": "e15cf85e-ac10-407b-8ba3-2c01af8ae9a3", "migrations_dir": "drizzle" }
 	],
-	"r2_buckets": [
-		{ "binding": "UPLOADS", "bucket_name": "bekasi-bgh-uploads" }
-	],
+	"r2_buckets": [{ "binding": "UPLOADS", "bucket_name": "bekasi-bgh-uploads" }],
 	"observability": { "enabled": true },
-	"upload_source_maps": true
+	"upload_source_maps": true,
+	"env": {
+		"staging": {
+			"vars": {
+				"APP_NAME": "Bekasi Board Game Hub (Sandbox)",
+				"ADMIN_EMAILS": "bekasibgcom@gmail.com,admin@sandbox.test",
+				// Turns on test sign-in for name@sandbox.test with code 000000. Never set this on the real site.
+				"SANDBOX": "1"
+			},
+			"d1_databases": [
+				{ "binding": "DB", "database_name": "bekasi-bgh-staging", "database_id": "d9482541-9471-479e-bbc4-ea1b7a12f782", "migrations_dir": "drizzle" }
+			],
+			"r2_buckets": [{ "binding": "UPLOADS", "bucket_name": "bekasi-bgh-staging-uploads" }]
+		}
+	}
 }
