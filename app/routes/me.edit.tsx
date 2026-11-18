@@ -1,4 +1,5 @@
 import { useEffect, useState } from "react";
+import { Flame, Heart, MessageCircle, ShoppingBag } from "lucide-react";
 import { Form, Link, redirect, useFetcher, useNavigation } from "react-router";
 import { toast } from "sonner";
 import { GamePicker } from "@/components/game-picker";
@@ -32,7 +33,7 @@ export async function loader({ request }: Route.LoaderArgs) {
       bio: v.profile?.bio ?? "",
     },
     card,
-    origin: new URL(request.url).origin, // for the live "Your card's link" preview
+    origin: new URL(request.url).origin, // for the live card-link preview
   };
 }
 
@@ -66,33 +67,31 @@ function useResultToast(data: ActionResult | undefined) {
 }
 
 const fieldClass = "h-11 w-full rounded-lg border-2 border-input bg-white px-3 text-base";
+const fill = { fill: "currentColor" } as const;
+
+// ---------- Profile ----------
 
 function ProfileForm({ defaults, isNew, result, origin }: { defaults: Route.ComponentProps["loaderData"]["defaults"]; isNew: boolean; result?: ActionResult; origin: string }) {
   const nav = useNavigation();
   const busy = nav.state !== "idle" && nav.formData?.get("intent") === "profile";
   const [username, setUsername] = useState(defaults.handle);
   const err = (k: string) => (result && !result.ok && result.fieldErrors?.[k]) || null;
-  // content-start: in the 2-column grid a field must not stretch to its taller neighbour (that spread Name's label/box/hint apart).
+  // content-start: in the 2-column grid a field must not stretch to its taller neighbour.
   const field = (name: string, label: string, help: React.ReactNode, input: React.ReactNode, wide = false) => (
     <div className={`grid content-start gap-2 ${wide ? "sm:col-span-2" : ""}`}>
       <Label htmlFor={name}>{label}</Label>
       {input}
-      {err(name) ? <p className="text-sm text-destructive" role="alert">{err(name)}</p> : <div id={`${name}-help`} className="grid gap-1 text-sm text-muted-foreground">{help}</div>}
+      {err(name) ? <p className="text-sm text-destructive" role="alert">{err(name)}</p> : help && <div id={`${name}-help`} className="text-sm text-muted-foreground">{help}</div>}
     </div>
   );
-  const usernameHelp = (
-    <>
-      <p>Your card's link: <span className="break-all font-semibold text-ink">{origin}/p/{username || "username"}</span></p>
-      <p>Shown as @{username || "username"} on your card. Lowercase letters, numbers and _ only.{!isNew && " Changing it changes your link, so links you already shared stop working."}</p>
-    </>
-  );
+  const host = new URL(origin).host;
   return (
     <Form method="post" encType="multipart/form-data" className="grid gap-5">
       <input type="hidden" name="intent" value="profile" />
       <div className="grid gap-5 sm:grid-cols-2">
-        {field("displayName", "Name", "As friends know you, e.g. Malik.", <Input id="displayName" name="displayName" required maxLength={40} defaultValue={defaults.displayName} aria-invalid={!!err("displayName")} />)}
-        {field("district", "District", "Only the district shows. Never your address.",
-          <select id="district" name="district" required defaultValue={defaults.district} className={fieldClass} aria-invalid={!!err("district")}>
+        {field("displayName", "Name", null, <Input id="displayName" name="displayName" required maxLength={40} defaultValue={defaults.displayName} aria-invalid={!!err("displayName")} />)}
+        {field("district", "District", "Only your district is shown.",
+          <select id="district" name="district" required defaultValue={defaults.district} className={fieldClass} aria-invalid={!!err("district")} aria-describedby="district-help">
             <option value="" disabled>Pick your district</option>
             {DISTRICT_GROUPS.map((g) => (
               <optgroup key={g.label} label={g.label}>
@@ -100,39 +99,57 @@ function ProfileForm({ defaults, isNew, result, origin }: { defaults: Route.Comp
               </optgroup>
             ))}
           </select>)}
-        {field("handle", "Username", usernameHelp,
+        {field("handle", "Username",
+          <>
+            <span className="break-all">{host}/p/<span className="font-semibold text-ink">{username || "username"}</span></span>
+            {!isNew && username !== defaults.handle && <span className="block font-semibold text-ink">Your old card link will stop working.</span>}
+          </>,
+          // Lowercase and strip anything not allowed as they type, so the rule needs no sentence.
           <Input id="handle" name="handle" required minLength={3} maxLength={20} autoComplete="username" autoCapitalize="none" spellCheck={false}
-            value={username} onChange={(e) => setUsername(e.target.value.toLowerCase())} aria-invalid={!!err("handle")} aria-describedby="handle-help" />, true)}
-        {field("bggUsername", "BoardGameGeek username (optional)", "Links your BGG profile and fills Hotness from your plays.", <Input id="bggUsername" name="bggUsername" maxLength={40} defaultValue={defaults.bggUsername} aria-invalid={!!err("bggUsername")} />, true)}
+            value={username} onChange={(e) => setUsername(e.target.value.toLowerCase().replace(/[^a-z0-9_]/g, ""))} aria-invalid={!!err("handle")} aria-describedby="handle-help" />, true)}
+        {field("bggUsername", "BoardGameGeek username (optional)", "For Hotness and importing your collection.",
+          <Input id="bggUsername" name="bggUsername" maxLength={40} defaultValue={defaults.bggUsername} aria-invalid={!!err("bggUsername")} aria-describedby="bggUsername-help" />, true)}
+        {field("bio", "About you (optional)", null,
+          <Textarea id="bio" name="bio" maxLength={280} rows={3} placeholder="What do you like to play?" defaultValue={defaults.bio} aria-invalid={!!err("bio")} />, true)}
+        {field("avatar", "Photo (optional)", "JPG, PNG or WebP, max 2 MB.",
+          <Input id="avatar" name="avatar" type="file" accept="image/jpeg,image/png,image/webp" aria-invalid={!!err("avatar")} aria-describedby="avatar-help" />, true)}
       </div>
-      {field("bio", "About you (optional)", "Up to 280 characters. What do you like to play?", <Textarea id="bio" name="bio" maxLength={280} rows={3} defaultValue={defaults.bio} aria-invalid={!!err("bio")} />)}
-      {field("avatar", "Profile picture (optional)", "JPG, PNG or WebP, under 2 MB.", <Input id="avatar" name="avatar" type="file" accept="image/jpeg,image/png,image/webp" aria-invalid={!!err("avatar")} />)}
       {result && !result.ok && result.fieldErrors && <p role="alert" className="text-destructive">{result.message}</p>}
       <div className="flex justify-end">
-        <Button size="lg" type="submit" disabled={busy}>{busy ? "Saving…" : isNew ? "Create my card" : "Save card"}</Button>
+        <Button size="lg" type="submit" disabled={busy}>{busy ? "Saving…" : isNew ? "Create my card" : "Save"}</Button>
       </div>
     </Form>
   );
 }
 
-function GameList({ kind, title, help, games, max, withPrice }: {
-  kind: Kind; title: string; help: string; games: { bggId: number; name: string; thumbnail: string | null; price?: number | null; condition?: string | null }[]; max: number; withPrice?: "sell" | "buy";
-}) {
+// ---------- Games (laid out like the card: colored labels, solid rules) ----------
+
+function Part({ icon, label, color, aside, children }: { icon?: React.ReactNode; label: string; color?: string; aside?: React.ReactNode; children: React.ReactNode }) {
+  return (
+    <section className="grid gap-3 border-t-2 border-ink py-5 first:border-t-0 first:pt-0 last:pb-0">
+      <div className="flex items-baseline justify-between gap-3">
+        <h2 className={`flex items-center gap-2 text-base font-extrabold uppercase ${color ?? "text-ink"}`}>{icon}{label}</h2>
+        {aside && <span className="text-sm font-semibold text-muted-foreground tabular-nums">{aside}</span>}
+      </div>
+      {children}
+    </section>
+  );
+}
+
+type ListGame = { bggId: number; name: string; thumbnail: string | null; price?: number | null; condition?: string | null };
+
+function GameList({ kind, addLabel, games, max, price }: { kind: Kind; addLabel: string; games: ListGame[]; max: number; price?: "sell" | "buy" }) {
   const fetcher = useFetcher<ActionResult>();
   useResultToast(fetcher.data);
   const [pending, setPending] = useState<{ bggId: number; name: string } | null>(null);
-  const full = games.length >= max;
+  const busy = fetcher.state !== "idle";
   const add = (bggId: number, extra: Record<string, string> = {}) => fetcher.submit({ intent: "add", kind, bggId: String(bggId), ...extra }, { method: "post" });
   return (
-    <section className="panel grid gap-4 p-5">
-      <div className="grid gap-1">
-        <h2 className="text-xl font-extrabold">{title}</h2>
-        <p className="text-muted-foreground">{help}</p>
-      </div>
+    <div className="grid gap-3">
       {games.length > 0 && (
-        <ul className="grid gap-2">
+        <ul className="grid gap-1">
           {games.map((g) => (
-            <li key={g.bggId} className="flex items-center gap-3">
+            <li key={g.bggId} className="flex min-h-12 items-center gap-3">
               <GameThumb src={g.thumbnail} name={g.name} size={40} />
               <span className="min-w-0 flex-1">
                 <span className="block font-semibold">{g.name}</span>
@@ -140,17 +157,15 @@ function GameList({ kind, title, help, games, max, withPrice }: {
                   <span className="block text-sm text-muted-foreground">{[g.price ? formatRupiah(g.price) : null, g.condition].filter(Boolean).join(" · ")}</span>
                 )}
               </span>
-              <Button variant="ghost" size="sm" disabled={fetcher.state !== "idle"} onClick={() => fetcher.submit({ intent: "remove", kind, bggId: String(g.bggId) }, { method: "post" })}>
+              <Button variant="ghost" size="sm" disabled={busy} onClick={() => fetcher.submit({ intent: "remove", kind, bggId: String(g.bggId) }, { method: "post" })}>
                 Remove<span className="sr-only"> {g.name}</span>
               </Button>
             </li>
           ))}
         </ul>
       )}
-      {full ? (
-        <p className="text-sm text-muted-foreground">This list is full. Remove a game to add another.</p>
-      ) : pending ? (
-        <form className="grid gap-3 rounded-lg border border-line bg-muted p-4" onSubmit={(e) => {
+      {games.length >= max ? null : pending ? (
+        <form className="grid gap-3 rounded-lg bg-muted p-4" onSubmit={(e) => {
           e.preventDefault();
           const f = new FormData(e.currentTarget);
           add(pending.bggId, { price: String(f.get("price") ?? ""), condition: String(f.get("condition") ?? "") });
@@ -158,27 +173,26 @@ function GameList({ kind, title, help, games, max, withPrice }: {
         }}>
           <p className="font-bold">{pending.name}</p>
           <div className="grid gap-3 sm:grid-cols-2">
-            <div className="grid gap-2">
-              <Label htmlFor={`${kind}-price`}>{withPrice === "sell" ? "Price (rupiah)" : "Budget (rupiah, optional)"}</Label>
-              <Input id={`${kind}-price`} name="price" inputMode="numeric" placeholder="350000 or 350k" />
+            <div className="grid content-start gap-2">
+              <Label htmlFor={`${kind}-price`}>{price === "sell" ? "Price" : "Budget (optional)"}</Label>
+              <Input id={`${kind}-price`} name="price" inputMode="numeric" placeholder="e.g. 350k" />
             </div>
-            {withPrice === "sell" && (
-              <div className="grid gap-2">
+            {price === "sell" && (
+              <div className="grid content-start gap-2">
                 <Label htmlFor={`${kind}-condition`}>Condition (optional)</Label>
-                <Input id={`${kind}-condition`} name="condition" maxLength={40} placeholder="Like new, sleeved" />
+                <Input id={`${kind}-condition`} name="condition" maxLength={40} placeholder="e.g. Like new" />
               </div>
             )}
           </div>
           <div className="flex justify-between gap-2">
             <Button type="button" variant="ghost" onClick={() => setPending(null)}>Cancel</Button>
-            <Button type="submit">Add to list</Button>
+            <Button type="submit">Add</Button>
           </div>
         </form>
       ) : (
-        <GamePicker label={`Add to ${title.toLowerCase()}`} help="Pick from the results to add it." disabled={fetcher.state !== "idle"}
-          onPick={(h) => (withPrice ? setPending(h) : add(h.bggId))} />
+        <GamePicker label={addLabel} disabled={busy} onPick={(h) => (price ? setPending(h) : add(h.bggId))} />
       )}
-    </section>
+    </div>
   );
 }
 
@@ -192,51 +206,54 @@ export default function EditCard({ loaderData, actionData }: Route.ComponentProp
   useResultToast(importFetcher.data);
 
   return (
-    <div className="grid gap-8">
-      <div className="flex flex-wrap items-end justify-between gap-4">
-        <div className="grid gap-2">
-          <h1 className="text-3xl font-extrabold">{isNew ? "Set up your player card" : "Edit your card"}</h1>
-          <p className="text-muted-foreground">{isNew ? "Members find you through this card. You can change everything later." : "Changes show on your card right away."}</p>
-        </div>
-        {!isNew && <Button asChild variant="outline"><Link to={`/p/${defaults.handle}`}>View my card</Link></Button>}
+    <div className="mx-auto grid max-w-2xl gap-6">
+      <div className="flex flex-wrap items-center justify-between gap-4">
+        <h1 className="text-3xl font-extrabold">{isNew ? "Make your card" : "Edit your card"}</h1>
+        {!isNew && <Button asChild variant="outline"><Link to={`/p/${defaults.handle}`}>View card</Link></Button>}
       </div>
 
-      <section className="panel p-5">
+      <section aria-label="Profile" className="panel p-5">
         <ProfileForm defaults={defaults} isNew={isNew} result={profileResult} origin={loaderData.origin} />
       </section>
 
       {card && (
-        <>
-          <GameList kind="favorite" title="Favorites" help="Your all-time favorite games. Up to 3." games={card.favorite} max={3} />
+        <div className="panel p-5">
+          <Part icon={<Heart className="size-5" style={fill} aria-hidden />} label="Favorites" color="text-fav" aside={`${card.favorite.length} of 3`}>
+            <GameList kind="favorite" addLabel="Add a favorite" games={card.favorite} max={3} />
+          </Part>
 
-          <section className="panel grid gap-3 p-5">
-            <h2 className="text-xl font-extrabold">Hotness</h2>
-            <p className="text-muted-foreground">Filled in for you: from sessions logged here once you have a few, until then from your BGG plays, or from what's hot on BGG.</p>
-            {card.hot.length > 0 && <p>{card.hot.map((g) => g.name).join(", ")}</p>}
-            {card.hotSource && <p className="text-sm text-muted-foreground">{HOT_SOURCE_LABEL[card.hotSource]}</p>}
-            <div>
-              <Button variant="outline" disabled={hotFetcher.state !== "idle"} onClick={() => hotFetcher.submit({ intent: "refresh-hot" }, { method: "post" })}>
-                {hotFetcher.state !== "idle" ? "Updating…" : "Update hotness now"}
+          <Part icon={<Flame className="size-5" style={fill} aria-hidden />} label="Hotness" color="text-hot" aside="Automatic">
+            {card.hot.length > 0 && <p className="font-semibold">{card.hot.map((g) => g.name).join(", ")}</p>}
+            <div className="flex flex-wrap items-center justify-between gap-2">
+              <p className="text-sm text-muted-foreground">{card.hotSource ? HOT_SOURCE_LABEL[card.hotSource] : "Nothing yet"}</p>
+              <Button variant="outline" size="sm" disabled={hotFetcher.state !== "idle"} onClick={() => hotFetcher.submit({ intent: "refresh-hot" }, { method: "post" })}>
+                {hotFetcher.state !== "idle" ? "Refreshing…" : "Refresh"}
               </Button>
             </div>
-          </section>
+          </Part>
 
-          <GameList kind="want" title="Want to play" help="Games you're looking for a table for." games={card.want} max={30} />
-          <GameList kind="sell" title="Selling" help="Games you want to sell. Buyers contact you; the deal happens outside the site." games={card.sell} max={30} withPrice="sell" />
-          <GameList kind="buy" title="Looking to buy" help="Games you want to buy. Sellers of these show up in Find." games={card.buy} max={30} withPrice="buy" />
+          <Part icon={<MessageCircle className="size-5" style={fill} aria-hidden />} label="Want to play" color="text-want">
+            <GameList kind="want" addLabel="Add a game you want to play" games={card.want} max={30} />
+          </Part>
 
-          <section className="panel grid gap-3 p-5">
-            <h2 className="text-xl font-extrabold">Owned games</h2>
-            <p className="text-muted-foreground">Not shown on your card. Used so people who want to play a game can find who owns it. You have {card.own.length}.</p>
-            <div className="flex flex-wrap gap-2">
+          <Part icon={<ShoppingBag className="size-5" style={fill} stroke="#fff" aria-hidden />} label="Trade" color="text-trade" aside="Deals happen on WhatsApp">
+            <h3 className="font-bold">Selling</h3>
+            <GameList kind="sell" addLabel="Add a game you're selling" games={card.sell} max={30} price="sell" />
+            <h3 className="mt-2 font-bold">Looking to buy</h3>
+            <GameList kind="buy" addLabel="Add a game you want to buy" games={card.buy} max={30} price="buy" />
+          </Part>
+
+          <Part label="Owned games" aside={String(card.own.length)}>
+            <p className="text-sm text-muted-foreground">Not shown on your card. Lets people find who owns a game.</p>
+            <div className="flex flex-wrap items-center gap-3">
               <Button variant="outline" disabled={importFetcher.state !== "idle" || !defaults.bggUsername} onClick={() => importFetcher.submit({ intent: "import-owned" }, { method: "post" })}>
-                {importFetcher.state !== "idle" ? "Importing…" : "Import from my BGG collection"}
+                {importFetcher.state !== "idle" ? "Importing…" : "Import from BGG"}
               </Button>
-              {!defaults.bggUsername && <p className="self-center text-sm text-muted-foreground">Add your BGG username above to import.</p>}
+              {!defaults.bggUsername && <p className="text-sm text-muted-foreground">Add your BGG username first.</p>}
             </div>
-          </section>
-          <GameList kind="own" title="Add an owned game by hand" help="For games not in your BGG collection." games={[]} max={300} />
-        </>
+            <GameList kind="own" addLabel="Or add one by hand" games={[]} max={300} />
+          </Part>
+        </div>
       )}
     </div>
   );

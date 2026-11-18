@@ -32,8 +32,9 @@ export function GamePicker({ label, help, onPick, disabled }: { label: string; h
   return (
     <div className="grid gap-2">
       <Label htmlFor={id}>{label}</Label>
-      <Input id={id} type="search" value={q} disabled={disabled} onChange={(e) => setQ(e.target.value)} placeholder="Type a game name, e.g. Harmonies" autoComplete="off" aria-describedby={`${id}-help`} />
-      <p id={`${id}-help`} className="text-sm text-muted-foreground" aria-live="polite">
+      <Input id={id} type="search" value={q} disabled={disabled} onChange={(e) => setQ(e.target.value)} placeholder="Search a game" autoComplete="off" aria-describedby={`${id}-help`} />
+      {/* Always in the DOM for screen readers (aria-live); takes no space while empty. */}
+      <p id={`${id}-help`} className="text-sm text-muted-foreground empty:hidden" aria-live="polite">
         {status === "loading" ? "Searching BoardGameGeek…" : status === "error" ? "BoardGameGeek isn't answering. Try again in a minute." : status === "none" ? "No games found. Check the spelling." : help}
       </p>
       {hits.length > 0 && (
