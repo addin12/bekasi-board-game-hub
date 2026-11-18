@@ -9,7 +9,7 @@
 	"vars": {
 		"APP_NAME": "Bekasi Board Game Hub",
 		// Comma-separated emails that may open /admin.
-		"ADMIN_EMAILS": ""
+		"ADMIN_EMAILS": "bekasibgcom@gmail.com"
 	},
 	"d1_databases": [
 		{
