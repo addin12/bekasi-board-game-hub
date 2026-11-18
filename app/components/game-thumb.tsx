@@ -1,21 +1,26 @@
 import { cn } from "@/lib/utils";
 
-/** Square BGG cover with the game's initial as a fallback. Decorative: the name is always shown next to it. */
-export function GameThumb({ src, name, className }: { src: string | null; name: string; className?: string }) {
+/**
+ * Game cover as a round "token" with an ink ring (DESIGN.md, from the sketch). `square` is for the big box cover on a game page.
+ * Decorative: the game's name is always shown next to it. width/height are set so the layout never jumps (R-40).
+ */
+export function GameThumb({ src, name, size = 48, square = false, className }: { src: string | null; name: string; size?: number; square?: boolean; className?: string }) {
+  const shape = square ? "rounded-xl border-2 border-ink bg-muted object-cover shrink-0" : "token";
   return src ? (
-    <img src={src} alt="" loading="lazy" className={cn("size-12 shrink-0 rounded-lg bg-muted object-cover", className)} />
+    <img src={src} alt="" width={size} height={size} loading="lazy" decoding="async" style={{ width: size, height: size }} className={cn(shape, className)} />
   ) : (
-    <span aria-hidden className={cn("grid size-12 shrink-0 place-items-center rounded-lg bg-muted text-lg font-semibold text-muted-foreground", className)}>
+    <span aria-hidden style={{ width: size, height: size }} className={cn(shape, "grid place-items-center font-extrabold text-muted-foreground", className)}>
       {name.slice(0, 1)}
     </span>
   );
 }
 
-export function PersonAvatar({ src, name, className }: { src: string | null; name: string; className?: string }) {
+/** Member photo, or their initial on the brand orange when they have none. */
+export function PersonAvatar({ src, name, size = 48, className }: { src: string | null; name: string; size?: number; className?: string }) {
   return src ? (
-    <img src={src} alt="" className={cn("size-12 shrink-0 rounded-full bg-muted object-cover", className)} />
+    <img src={src} alt="" width={size} height={size} decoding="async" style={{ width: size, height: size }} className={cn("shrink-0 rounded-full border-2 border-ink bg-muted object-cover", className)} />
   ) : (
-    <span aria-hidden className={cn("grid size-12 shrink-0 place-items-center rounded-full bg-secondary text-lg font-semibold", className)}>
+    <span aria-hidden style={{ width: size, height: size, fontSize: size * 0.42 }} className={cn("grid shrink-0 place-items-center rounded-full border-2 border-ink bg-brand font-extrabold text-ink", className)}>
       {name.slice(0, 1).toUpperCase()}
     </span>
   );

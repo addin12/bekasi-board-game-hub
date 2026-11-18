@@ -28,76 +28,90 @@ export async function loader({ request }: Route.LoaderArgs) {
   return { members: members.map((m) => ({ ...m, avatar: m.avatarKey ? `/img/${m.avatarKey}` : m.image })) };
 }
 
-const POINTS = [
-  { icon: <Flame className="size-6 text-hot" aria-hidden />, title: "Meet like-minded players", text: "Your card shows your favorites and what you've loved playing lately. We match you with people who love the same games." },
-  { icon: <MessageCircle className="size-6 text-want" aria-hidden />, title: "Get a table for any game", text: "Want to play something? See who owns it and who else wants to play it, close to you." },
-  { icon: <ShoppingBag className="size-6 text-trade" aria-hidden />, title: "Buy and sell within the group", text: "List games you sell or look for. Matches find each other; you settle the deal on WhatsApp." },
+const fill = { fill: "currentColor" } as const;
+
+// What each numbered part of the card finds for you. The numbers match the markers on the example card (sketch motif).
+const PARTS = [
+  { n: 1, title: "Favorites and hotness", text: "Matched with members who love the same games or have been playing them lately." },
+  { n: 2, title: "Want to play", text: "Shows who owns that game, and who else is looking for a table for it." },
+  { n: 3, title: "Trade", text: "Games you sell meet members looking for them. You settle the deal on WhatsApp." },
+  { n: 4, title: "District", text: "Narrow any search to players near you, from Tambun to Pondok Gede." },
 ];
 
-/** A small example card for the hero, tossed on the table. Clearly marked as an example. */
+/** Example card in the sketch's layout. Decorative (aria-hidden); everything it shows is explained in the list beside it. */
 function ExampleCard() {
-  const row = (icon: React.ReactNode, label: string, color: string, games: string[]) => (
-    <div className="grid gap-1 border-t-2 border-dashed border-ink/20 pt-3">
-      <p className={`flex items-center gap-1.5 font-display text-sm font-extrabold uppercase ${color}`}>{icon}{label}</p>
-      <p className="font-semibold">{games.join(" · ")}</p>
+  // Each part carries its own marker on the card's left edge, outside the text (as in the sketch).
+  const part = (n: number | null, icon: React.ReactNode, text: string, color: string, games: string, ruled: boolean) => (
+    <div className={`relative grid gap-1 ${ruled ? "border-t-2 border-ink pt-3" : ""}`}>
+      {n && <span className={`marker absolute -left-[3.1rem] ${ruled ? "top-2.5" : "-top-0.5"}`}>{n}</span>}
+      <p className={`flex items-center gap-1.5 text-sm font-extrabold uppercase ${color}`}>{icon}{text}</p>
+      <p className="font-semibold">{games}</p>
     </div>
   );
   return (
-    <div aria-hidden className="sticker relative w-full max-w-xs rotate-3 overflow-hidden">
-      <span className="absolute right-3 top-3 rounded-full border-2 border-ink bg-white px-2 py-0.5 text-xs font-bold">Example</span>
-      <div className="card-band h-16 border-b-2 border-ink" />
-      <div className="grid gap-3 px-4 pb-4">
-        <span className="-mt-8 grid size-16 place-items-center rounded-full border-[3px] border-ink bg-primary font-display text-2xl font-extrabold shadow-[3px_3px_0_var(--color-ink)]">M</span>
-        <div>
-          <p className="font-display text-2xl font-extrabold uppercase leading-none">Malik</p>
-          <p className="flex items-center gap-1 text-sm text-muted-foreground"><MapPin className="size-3.5" />Bekasi Timur</p>
+    <figure className="grid w-full max-w-[19rem] gap-3 pl-5">
+      <div aria-hidden className="player-card relative rotate-2 overflow-visible">
+        <div className="relative rounded-t-[17px] border-b-[3px] border-ink bg-brand pb-4 pl-8 pr-5 pt-5">
+          <span className="marker absolute -left-5 top-12">4</span>
+          <p className="text-3xl font-extrabold uppercase leading-none">Malik</p>
+          <p className="mt-1 flex items-center gap-1 text-sm font-semibold"><MapPin className="size-4" />Bekasi Timur</p>
         </div>
-        {row(<Heart className="size-4" />, "Favorites", "text-fav", ["Arnak", "Wingspan", "Everdell"])}
-        {row(<Flame className="size-4" />, "Hotness", "text-hot", ["The Crew", "Harmonies"])}
-        {row(<MessageCircle className="size-4" />, "Want to play", "text-want", ["Oath"])}
+        <div className="grid gap-3 pb-5 pl-8 pr-5 pt-4">
+          {part(1, <Heart className="size-4" style={fill} />, "Favorites", "text-fav", "Arnak, Wingspan, Everdell", false)}
+          {part(null, <Flame className="size-4" style={fill} />, "Hotness", "text-hot", "The Crew, Harmonies", true)}
+          {part(2, <MessageCircle className="size-4" style={fill} />, "Want to play", "text-want", "Oath", true)}
+          {part(3, <ShoppingBag className="size-4" style={fill} stroke="#fff" />, "Trade", "text-trade", "Selling Catan", true)}
+        </div>
       </div>
-    </div>
+      <figcaption className="text-center text-sm text-muted-foreground">Example card</figcaption>
+    </figure>
   );
 }
 
 export default function Home({ loaderData }: Route.ComponentProps) {
   return (
-    <div className="grid gap-12">
-      <section className="grid items-center gap-10 py-4 md:grid-cols-[1.4fr_1fr] md:py-10">
-        <div className="grid gap-5">
-          <p className="w-fit -rotate-2 rounded-full border-2 border-ink bg-secondary px-3 py-1 text-sm font-bold">For the Bekasi board game community</p>
-          <h1 className="max-w-2xl text-5xl font-extrabold leading-[1.05] sm:text-6xl">
-            Find your next <span className="relative inline-block"><span className="relative z-10">table</span><span aria-hidden className="absolute inset-x-[-4px] bottom-1 -z-0 h-4 -rotate-1 rounded bg-primary" /></span> in Bekasi
-          </h1>
-          <p className="max-w-xl text-lg leading-relaxed">Every member has a player card. Cards get matched, so you find people to play with, games to borrow, and games to buy.</p>
-          <div className="flex flex-wrap gap-3">
+    <div className="grid gap-16">
+      <section className="grid items-center gap-x-12 gap-y-10 pt-2 md:grid-cols-[1fr_auto]">
+        <div className="grid max-w-xl gap-5">
+          <h1 className="text-5xl font-extrabold leading-[1.02] tracking-tight sm:text-6xl">Find your next table in Bekasi</h1>
+          <p className="text-lg leading-relaxed">
+            Make a player card with the games you love, the ones you want to play, and the ones you're selling. The hub matches it with every other card in the community.
+          </p>
+          <div>
             <Button asChild size="lg"><Link to="/sign-in">Make my player card</Link></Button>
           </div>
         </div>
-        <div className="flex justify-center py-4 md:justify-end"><ExampleCard /></div>
+        <div className="flex justify-center pl-4 md:justify-end">
+          <ExampleCard />
+        </div>
       </section>
 
-      <section className="grid gap-5 md:grid-cols-3">
-        {POINTS.map((p, i) => (
-          <div key={p.title} className={`grid content-start gap-3 sticker p-5 ${["md:-rotate-1", "md:rotate-1", "md:-rotate-[0.5deg]"][i]}`}>
-            <span className="grid size-12 place-items-center rounded-xl border-2 border-ink bg-accent">{p.icon}</span>
-            <h2 className="text-xl font-extrabold">{p.title}</h2>
-            <p className="leading-relaxed text-muted-foreground">{p.text}</p>
-          </div>
-        ))}
+      <section aria-labelledby="parts" className="grid gap-6">
+        <h2 id="parts" className="text-2xl font-extrabold">What each part of your card finds</h2>
+        <ol className="grid gap-x-10 gap-y-6 sm:grid-cols-2">
+          {PARTS.map((p) => (
+            <li key={p.n} className="flex gap-4">
+              <span className="marker" aria-hidden>{p.n}</span>
+              <div className="grid gap-1">
+                <h3 className="text-lg font-extrabold">{p.title}</h3>
+                <p className="leading-relaxed text-muted-foreground">{p.text}</p>
+              </div>
+            </li>
+          ))}
+        </ol>
       </section>
 
       {loaderData.members.length > 0 && (
-        <section className="grid gap-4">
-          <h2 className="text-2xl font-semibold">Newest members</h2>
-          <ul className="grid gap-3 sm:grid-cols-2 lg:grid-cols-4">
+        <section aria-labelledby="newest" className="grid gap-4">
+          <h2 id="newest" className="text-2xl font-extrabold">Newest members</h2>
+          <ul className="panel grid divide-y divide-line sm:grid-cols-2 sm:divide-y-0">
             {loaderData.members.map((m) => (
-              <li key={m.handle}>
-                <Link to={`/p/${m.handle}`} className="flex items-center gap-3 sticker-sm liftable p-3">
-                  <PersonAvatar src={m.avatar} name={m.displayName} />
+              <li key={m.handle} className="sm:border-b sm:border-line">
+                <Link to={`/p/${m.handle}`} className="flex min-h-16 items-center gap-3 px-4 py-3 hover:bg-muted">
+                  <PersonAvatar src={m.avatar} name={m.displayName} size={44} />
                   <span className="min-w-0">
-                    <span className="block font-medium">{m.displayName}</span>
-                    <span className="flex items-center gap-1 text-sm text-muted-foreground"><MapPin className="size-3.5" aria-hidden />{m.district}</span>
+                    <span className="block font-bold">{m.displayName}</span>
+                    <span className="block text-sm text-muted-foreground">{m.district}</span>
                   </span>
                 </Link>
               </li>

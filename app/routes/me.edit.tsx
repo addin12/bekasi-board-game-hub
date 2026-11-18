@@ -64,7 +64,7 @@ function useResultToast(data: ActionResult | undefined) {
   }, [data]);
 }
 
-const fieldClass = "h-11 w-full rounded-xl border-2 border-input bg-white px-3 text-base";
+const fieldClass = "h-11 w-full rounded-lg border-2 border-input bg-white px-3 text-base";
 
 function ProfileForm({ defaults, isNew, result }: { defaults: Route.ComponentProps["loaderData"]["defaults"]; isNew: boolean; result?: ActionResult }) {
   const nav = useNavigation();
@@ -113,18 +113,18 @@ function GameList({ kind, title, help, games, max, withPrice }: {
   const full = games.length >= max;
   const add = (bggId: number, extra: Record<string, string> = {}) => fetcher.submit({ intent: "add", kind, bggId: String(bggId), ...extra }, { method: "post" });
   return (
-    <section className="grid gap-4 sticker p-5">
+    <section className="panel grid gap-4 p-5">
       <div className="grid gap-1">
-        <h2 className="text-xl font-semibold">{title}</h2>
+        <h2 className="text-xl font-extrabold">{title}</h2>
         <p className="text-muted-foreground">{help}</p>
       </div>
       {games.length > 0 && (
         <ul className="grid gap-2">
           {games.map((g) => (
             <li key={g.bggId} className="flex items-center gap-3">
-              <GameThumb src={g.thumbnail} name={g.name} className="size-10" />
+              <GameThumb src={g.thumbnail} name={g.name} size={40} />
               <span className="min-w-0 flex-1">
-                <span className="block font-medium">{g.name}</span>
+                <span className="block font-semibold">{g.name}</span>
                 {(g.price || g.condition) && (
                   <span className="block text-sm text-muted-foreground">{[g.price ? formatRupiah(g.price) : null, g.condition].filter(Boolean).join(" · ")}</span>
                 )}
@@ -139,13 +139,13 @@ function GameList({ kind, title, help, games, max, withPrice }: {
       {full ? (
         <p className="text-sm text-muted-foreground">This list is full. Remove a game to add another.</p>
       ) : pending ? (
-        <form className="grid gap-3 rounded-xl border-2 border-dashed border-ink/40 bg-accent p-4" onSubmit={(e) => {
+        <form className="grid gap-3 rounded-lg border border-line bg-muted p-4" onSubmit={(e) => {
           e.preventDefault();
           const f = new FormData(e.currentTarget);
           add(pending.bggId, { price: String(f.get("price") ?? ""), condition: String(f.get("condition") ?? "") });
           setPending(null);
         }}>
-          <p className="font-medium">{pending.name}</p>
+          <p className="font-bold">{pending.name}</p>
           <div className="grid gap-3 sm:grid-cols-2">
             <div className="grid gap-2">
               <Label htmlFor={`${kind}-price`}>{withPrice === "sell" ? "Price (rupiah)" : "Budget (rupiah, optional)"}</Label>
@@ -190,7 +190,7 @@ export default function EditCard({ loaderData, actionData }: Route.ComponentProp
         {!isNew && <Button asChild variant="outline"><Link to={`/p/${defaults.handle}`}>View my card</Link></Button>}
       </div>
 
-      <section className="sticker p-5">
+      <section className="panel p-5">
         <ProfileForm defaults={defaults} isNew={isNew} result={profileResult} />
       </section>
 
@@ -198,8 +198,8 @@ export default function EditCard({ loaderData, actionData }: Route.ComponentProp
         <>
           <GameList kind="favorite" title="Favorites" help="Your all-time favorite games. Up to 3." games={card.favorite} max={3} />
 
-          <section className="grid gap-3 sticker p-5">
-            <h2 className="text-xl font-semibold">Hotness</h2>
+          <section className="panel grid gap-3 p-5">
+            <h2 className="text-xl font-extrabold">Hotness</h2>
             <p className="text-muted-foreground">Filled in for you: from sessions logged here once you have a few, until then from your BGG plays, or from what's hot on BGG.</p>
             {card.hot.length > 0 && <p>{card.hot.map((g) => g.name).join(", ")}</p>}
             {card.hotSource && <p className="text-sm text-muted-foreground">{HOT_SOURCE_LABEL[card.hotSource]}</p>}
@@ -214,8 +214,8 @@ export default function EditCard({ loaderData, actionData }: Route.ComponentProp
           <GameList kind="sell" title="Selling" help="Games you want to sell. Buyers contact you; the deal happens outside the site." games={card.sell} max={30} withPrice="sell" />
           <GameList kind="buy" title="Looking to buy" help="Games you want to buy. Sellers of these show up in Find." games={card.buy} max={30} withPrice="buy" />
 
-          <section className="grid gap-3 sticker p-5">
-            <h2 className="text-xl font-semibold">Owned games</h2>
+          <section className="panel grid gap-3 p-5">
+            <h2 className="text-xl font-extrabold">Owned games</h2>
             <p className="text-muted-foreground">Not shown on your card. Used so people who want to play a game can find who owns it. You have {card.own.length}.</p>
             <div className="flex flex-wrap gap-2">
               <Button variant="outline" disabled={importFetcher.state !== "idle" || !defaults.bggUsername} onClick={() => importFetcher.submit({ intent: "import-owned" }, { method: "post" })}>

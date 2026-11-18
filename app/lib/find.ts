@@ -9,6 +9,20 @@ export type MatchReason =
   | "buys_your_sell" // they look for a game you sell
   | "loves" | "owns" | "wants" | "sells" | "buys"; // single-game search
 
+/**
+ * One row per game and reason. The SQL join multiplies rows when a game is both "favorite" and "hot"
+ * on either card, which showed the same match twice in Find.
+ */
+export function uniqueMatches<T extends { bgg_id: number; reason: MatchReason }>(rows: T[]): T[] {
+  const seen = new Set<string>();
+  return rows.filter((r) => {
+    const key = `${r.bgg_id}|${r.reason}`;
+    if (seen.has(key)) return false;
+    seen.add(key);
+    return true;
+  });
+}
+
 export const REASON_LABEL: Record<MatchReason, string> = {
   shared_love: "You both love it",
   owns_your_want: "Owns a game you want to play",

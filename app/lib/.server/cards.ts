@@ -3,7 +3,7 @@ import { game, profile, user, userGame, type Kind } from "@/db/schema";
 import { chooseHot, type HotSource } from "@/lib/hotness";
 import { BggBusy, ensureGames, hotList, recentPlays } from "./bgg";
 import type { Db } from "./db";
-import type { FindMode, MatchReason } from "@/lib/find";
+import { uniqueMatches, type FindMode, type MatchReason } from "@/lib/find";
 export type { FindMode, MatchReason };
 
 export type GameLite = { bggId: number; name: string; year: number | null; thumbnail: string | null };
@@ -129,8 +129,7 @@ export async function findPeople(
     .map(toPerson)
     .filter((p) => (!input.district || p.district === input.district) && (!input.verifiedOnly || p.verified))
     .map((p) => {
-      const matches = rows
-        .filter((r) => r.user_id === p.userId && gameById.has(r.bgg_id))
+      const matches = uniqueMatches(rows.filter((r) => r.user_id === p.userId && gameById.has(r.bgg_id)))
         .map((r) => ({ ...gameById.get(r.bgg_id)!, reason: r.reason, price: r.price }));
       return { ...p, matches, score: new Set(matches.map((m) => m.bggId)).size };
     })

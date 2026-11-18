@@ -19,8 +19,7 @@
     "seed:sandbox": "node scripts/seed-sandbox.mjs && wrangler d1 execute bekasi-bgh-staging --env staging --remote --file .wrangler/seed-sandbox.sql"
   },
   "dependencies": {
-    "@fontsource-variable/bricolage-grotesque": "^5.3.0",
-    "@fontsource-variable/nunito": "^5.3.0",
+    "@fontsource-variable/montserrat": "^5.3.0",
     "better-auth": "^1.7.25",
     "class-variance-authority": "^0.7.1",
     "cn": "^0.5.2",

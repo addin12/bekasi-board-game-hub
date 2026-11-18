@@ -1,28 +1,24 @@
 @import "tailwindcss" source(".");
 @import "tw-animate-css";
 @import "shadcn/tailwind.css";
-@import "@fontsource-variable/bricolage-grotesque";
-@import "@fontsource-variable/nunito";
+@import "@fontsource-variable/montserrat";
 
-/*
-  "Game night table": bright paper, chunky ink outlines with offset shadows (like the owner's card sketch),
-  one yellow accent for main actions, the sketch's orange on card headers, category colors only on labels/icons.
-*/
+/* Direction: DESIGN.md (from the owner's player card sketch). Contrast values are listed there. */
 
 @theme {
-  /* Category colors (darkened from the sketch so text passes 4.5:1 on white). */
-  --color-fav: #d62839;
+  --color-fav: #c8102e;
   --color-hot: #c2410c;
-  --color-want: #1d63b8;
-  --color-trade: #15803d;
-  --color-brand-orange: #ff7a2f;
-  --color-ink: #1d1a2f;
-  --font-display: "Bricolage Grotesque Variable", "Segoe UI", system-ui, sans-serif;
-  --font-sans: "Nunito Variable", "Segoe UI", system-ui, sans-serif;
+  --color-want: #0a5fa8;
+  --color-trade: #1f7a35;
+  --color-brand: #f26522;
+  --color-brand-hover: #e0561a;
+  --color-ink: #1e1b2e;
+  --color-line: #ddd7cf;
+  --font-sans: "Montserrat Variable", "Segoe UI", system-ui, sans-serif;
 }
 
 @theme inline {
-  --font-heading: var(--font-display);
+  --font-heading: var(--font-sans);
   --color-ring: var(--ring);
   --color-input: var(--input);
   --color-border: var(--border);
@@ -41,90 +37,83 @@
   --color-card: var(--card);
   --color-foreground: var(--foreground);
   --color-background: var(--background);
-  --radius-sm: calc(var(--radius) * 0.6);
-  --radius-md: calc(var(--radius) * 0.8);
-  --radius-lg: var(--radius);
-  --radius-xl: calc(var(--radius) * 1.4);
-  --radius-2xl: calc(var(--radius) * 1.8);
-  --radius-3xl: calc(var(--radius) * 2.2);
+  --radius-sm: 6px;
+  --radius-md: 8px;
+  --radius-lg: 10px;
+  --radius-xl: 14px;
+  --radius-2xl: 20px;
 }
 
 :root {
   color-scheme: light;
-  --background: #fff8ee;
-  --foreground: #1d1a2f;
+  --background: #f5f2ee;
+  --foreground: #1e1b2e;
   --card: #ffffff;
-  --card-foreground: #1d1a2f;
+  --card-foreground: #1e1b2e;
   --popover: #ffffff;
-  --popover-foreground: #1d1a2f;
-  --primary: #ffd23f;
-  --primary-foreground: #1d1a2f;
-  --secondary: #f3ecff;
-  --secondary-foreground: #1d1a2f;
-  --muted: #f4efe6;
-  --muted-foreground: #57516b;
-  --accent: #fff1c2;
-  --accent-foreground: #1d1a2f;
-  --destructive: #c81e3a;
-  --border: #1d1a2f;
-  --input: #1d1a2f;
-  --ring: #1d63b8;
-  --radius: 0.75rem;
+  --popover-foreground: #1e1b2e;
+  --primary: #f26522;
+  --primary-foreground: #1e1b2e;
+  --secondary: #ece7e0;
+  --secondary-foreground: #1e1b2e;
+  --muted: #ece7e0;
+  --muted-foreground: #5c566b;
+  --accent: #fbe9df;
+  --accent-foreground: #1e1b2e;
+  --destructive: #c8102e;
+  --border: #ddd7cf;
+  --input: #8f8899;
+  --ring: #0a5fa8;
+  --radius: 10px;
 }
 
 @layer base {
   * {
-    @apply border-border outline-ring/50;
+    @apply border-border;
   }
   html {
     @apply font-sans;
   }
   body {
     @apply bg-background text-foreground;
-    /* Faint dot grid, like a game board's printed table. */
-    background-image: radial-gradient(color-mix(in oklab, var(--foreground) 9%, transparent) 1px, transparent 1px);
-    background-size: 22px 22px;
+    font-weight: 500;
   }
   h1, h2, h3 {
-    font-family: var(--font-display);
     text-wrap: balance;
-    letter-spacing: -0.01em;
   }
-  button:not(:disabled), [role="button"]:not(:disabled) {
+  /* One visible focus ring for every focusable element (keyboard users). */
+  :focus-visible {
+    outline: 3px solid var(--ring);
+    outline-offset: 2px;
+  }
+  button:not(:disabled), [role="button"]:not(:disabled), summary, label[for], select {
     cursor: pointer;
+  }
+  :disabled {
+    cursor: not-allowed;
   }
 }
 
 @layer components {
-  /* A piece on the table: ink outline + offset shadow. */
-  .sticker {
-    @apply rounded-2xl border-2 border-ink bg-card;
-    box-shadow: 4px 4px 0 var(--color-ink);
+  /* The player card: the one physical object on the table, so the only thing with a shadow (as in the sketch). */
+  .player-card {
+    @apply rounded-2xl border-[3px] border-ink bg-card;
+    box-shadow: 6px 6px 0 rgb(30 27 46 / 0.22);
   }
-  .sticker-sm {
-    @apply rounded-xl border-2 border-ink bg-card;
-    box-shadow: 3px 3px 0 var(--color-ink);
+  /* Plain surface for everything else: flat, hairline border. */
+  .panel {
+    @apply rounded-2xl border border-line bg-card;
   }
-  /* Lifts when hovered, presses down when tapped. */
-  .liftable {
-    transition: transform 120ms ease, box-shadow 120ms ease;
+  /* Round game token with an ink ring (sketch). */
+  .token {
+    @apply shrink-0 rounded-full border-2 border-ink bg-muted object-cover;
   }
-  .liftable:hover {
-    transform: translate(-1px, -2px);
-    box-shadow: 5px 6px 0 var(--color-ink);
-  }
-  .liftable:active {
-    transform: translate(2px, 2px);
-    box-shadow: 1px 1px 0 var(--color-ink);
-  }
-  /* Orange header band from the sketch, with a dice-pip pattern. */
-  .card-band {
-    background-color: var(--color-brand-orange);
-    background-image: radial-gradient(rgb(255 255 255 / 0.28) 3px, transparent 3.5px);
-    background-size: 18px 18px;
+  /* Solid black numbered marker (sketch), only for pointing at card parts. */
+  .marker {
+    @apply grid size-9 shrink-0 place-items-center rounded-full bg-ink text-lg font-extrabold text-white;
   }
 }
 
 @media (prefers-reduced-motion: reduce) {
-  .liftable, .liftable:hover, .liftable:active { transition: none; transform: none; }
+  *, *::before, *::after { transition-duration: 0ms !important; animation-duration: 0ms !important; }
 }

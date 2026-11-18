@@ -3,6 +3,7 @@ import { safeNext } from "@/lib/auth-client";
 import { parseCollection, parseHot, parsePlays, parseSearch, parseThings } from "@/lib/bgg-parse";
 import { chooseHot, topPlayed } from "@/lib/hotness";
 import { constantTimeEqual, hashPasscode } from "@/lib/passcode";
+import { uniqueMatches } from "@/lib/find";
 import { isSandboxEmail, isSandboxOn } from "@/lib/sandbox";
 import { parseRupiah, profileSchema } from "@/lib/validate";
 
@@ -66,6 +67,16 @@ describe("member passcode", () => {
     expect(constantTimeEqual(a, b)).toBe(true);
     expect(constantTimeEqual(a, await hashPasscode("secret", "meeple43"))).toBe(false);
     expect(constantTimeEqual(a, await hashPasscode("other-secret", "meeple42"))).toBe(false);
+  });
+});
+
+describe("Find matches", () => {
+  it("shows a game once per reason even when it is both favorite and hot", () => {
+    const rows = [
+      { bgg_id: 7, reason: "shared_love" as const }, { bgg_id: 7, reason: "shared_love" as const },
+      { bgg_id: 7, reason: "owns_your_want" as const }, { bgg_id: 9, reason: "shared_love" as const },
+    ];
+    expect(uniqueMatches(rows)).toEqual([rows[0], rows[2], rows[3]]);
   });
 });
 
