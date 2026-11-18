@@ -33,7 +33,6 @@ export async function loader({ request }: Route.LoaderArgs) {
       bio: v.profile?.bio ?? "",
     },
     card,
-    origin: new URL(request.url).origin, // for the live card-link preview
   };
 }
 
@@ -71,7 +70,7 @@ const fill = { fill: "currentColor" } as const;
 
 // ---------- Profile ----------
 
-function ProfileForm({ defaults, isNew, result, origin }: { defaults: Route.ComponentProps["loaderData"]["defaults"]; isNew: boolean; result?: ActionResult; origin: string }) {
+function ProfileForm({ defaults, isNew, result }: { defaults: Route.ComponentProps["loaderData"]["defaults"]; isNew: boolean; result?: ActionResult }) {
   const nav = useNavigation();
   const busy = nav.state !== "idle" && nav.formData?.get("intent") === "profile";
   const [username, setUsername] = useState(defaults.handle);
@@ -84,12 +83,22 @@ function ProfileForm({ defaults, isNew, result, origin }: { defaults: Route.Comp
       {err(name) ? <p className="text-sm text-destructive" role="alert">{err(name)}</p> : help && <div id={`${name}-help`} className="text-sm text-muted-foreground">{help}</div>}
     </div>
   );
-  const host = new URL(origin).host;
+  // Same order as the card, top to bottom: photo, name, username, district, BGG username, about.
   return (
     <Form method="post" encType="multipart/form-data" className="grid gap-5">
       <input type="hidden" name="intent" value="profile" />
       <div className="grid gap-5 sm:grid-cols-2">
+        {field("avatar", "Photo (optional)", "JPG, PNG or WebP, max 2 MB.",
+          <Input id="avatar" name="avatar" type="file" accept="image/jpeg,image/png,image/webp" aria-invalid={!!err("avatar")} aria-describedby="avatar-help" />, true)}
         {field("displayName", "Name", null, <Input id="displayName" name="displayName" required maxLength={40} defaultValue={defaults.displayName} aria-invalid={!!err("displayName")} />)}
+        {field("handle", "Username",
+          <>
+            <span>Shown as @{username || "username"} on your card and in your card link.</span>
+            {!isNew && username !== defaults.handle && <span className="block font-semibold text-ink">Your old card link will stop working.</span>}
+          </>,
+          // Lowercase and strip anything not allowed as they type, so the rule needs no sentence.
+          <Input id="handle" name="handle" required minLength={3} maxLength={20} autoComplete="username" autoCapitalize="none" spellCheck={false}
+            value={username} onChange={(e) => setUsername(e.target.value.toLowerCase().replace(/[^a-z0-9_]/g, ""))} aria-invalid={!!err("handle")} aria-describedby="handle-help" />)}
         {field("district", "District", "Only your district is shown.",
           <select id="district" name="district" required defaultValue={defaults.district} className={fieldClass} aria-invalid={!!err("district")} aria-describedby="district-help">
             <option value="" disabled>Pick your district</option>
@@ -99,20 +108,10 @@ function ProfileForm({ defaults, isNew, result, origin }: { defaults: Route.Comp
               </optgroup>
             ))}
           </select>)}
-        {field("handle", "Username",
-          <>
-            <span className="break-all">{host}/p/<span className="font-semibold text-ink">{username || "username"}</span></span>
-            {!isNew && username !== defaults.handle && <span className="block font-semibold text-ink">Your old card link will stop working.</span>}
-          </>,
-          // Lowercase and strip anything not allowed as they type, so the rule needs no sentence.
-          <Input id="handle" name="handle" required minLength={3} maxLength={20} autoComplete="username" autoCapitalize="none" spellCheck={false}
-            value={username} onChange={(e) => setUsername(e.target.value.toLowerCase().replace(/[^a-z0-9_]/g, ""))} aria-invalid={!!err("handle")} aria-describedby="handle-help" />, true)}
         {field("bggUsername", "BoardGameGeek username (optional)", "For Hotness and importing your collection.",
-          <Input id="bggUsername" name="bggUsername" maxLength={40} defaultValue={defaults.bggUsername} aria-invalid={!!err("bggUsername")} aria-describedby="bggUsername-help" />, true)}
+          <Input id="bggUsername" name="bggUsername" maxLength={40} defaultValue={defaults.bggUsername} aria-invalid={!!err("bggUsername")} aria-describedby="bggUsername-help" />)}
         {field("bio", "About you (optional)", null,
           <Textarea id="bio" name="bio" maxLength={280} rows={3} placeholder="What do you like to play?" defaultValue={defaults.bio} aria-invalid={!!err("bio")} />, true)}
-        {field("avatar", "Photo (optional)", "JPG, PNG or WebP, max 2 MB.",
-          <Input id="avatar" name="avatar" type="file" accept="image/jpeg,image/png,image/webp" aria-invalid={!!err("avatar")} aria-describedby="avatar-help" />, true)}
       </div>
       {result && !result.ok && result.fieldErrors && <p role="alert" className="text-destructive">{result.message}</p>}
       <div className="flex justify-end">
@@ -213,7 +212,7 @@ export default function EditCard({ loaderData, actionData }: Route.ComponentProp
       </div>
 
       <section aria-label="Profile" className="panel p-5">
-        <ProfileForm defaults={defaults} isNew={isNew} result={profileResult} origin={loaderData.origin} />
+        <ProfileForm defaults={defaults} isNew={isNew} result={profileResult} />
       </section>
 
       {card && (
