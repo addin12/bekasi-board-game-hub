@@ -1,0 +1,28 @@
+// Cloudflare Worker config. Secrets (BGG_TOKEN, BETTER_AUTH_SECRET, GOOGLE_*, MAIL_*) are NOT here:
+// locally they live in .dev.vars, in production run `wrangler secret put <NAME>`.
+{
+	"$schema": "node_modules/wrangler/config-schema.json",
+	"name": "bekasi-board-game-hub",
+	"compatibility_date": "2026-11-17",
+	"compatibility_flags": ["nodejs_compat"],
+	"main": "./workers/app.ts",
+	"vars": {
+		"APP_NAME": "Bekasi Board Game Hub",
+		// Comma-separated emails that may open /admin.
+		"ADMIN_EMAILS": ""
+	},
+	"d1_databases": [
+		{
+			"binding": "DB",
+			"database_name": "bekasi-bgh",
+			// Placeholder until `wrangler d1 create bekasi-bgh` is run for production.
+			"database_id": "00000000-0000-0000-0000-000000000000",
+			"migrations_dir": "drizzle"
+		}
+	],
+	"r2_buckets": [
+		{ "binding": "UPLOADS", "bucket_name": "bekasi-bgh-uploads" }
+	],
+	"observability": { "enabled": true },
+	"upload_source_maps": true
+}

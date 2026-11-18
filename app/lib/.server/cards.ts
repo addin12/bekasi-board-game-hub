@@ -1,0 +1,139 @@
+import { and, asc, eq, inArray, sql } from "drizzle-orm";
+import { game, profile, user, userGame, type Kind } from "@/db/schema";
+import { chooseHot, type HotSource } from "@/lib/hotness";
+import { BggBusy, ensureGames, hotList, recentPlays } from "./bgg";
+import type { Db } from "./db";
+import type { FindMode, MatchReason } from "@/lib/find";
+export type { FindMode, MatchReason };
+
+export type GameLite = { bggId: number; name: string; year: number | null; thumbnail: string | null };
+export type CardGame = GameLite & { kind: Kind; price: number | null; condition: string | null; note: string | null };
+export type PersonLite = {
+  userId: string; handle: string; displayName: string; district: string; avatar: string | null; verified: boolean;
+};
+
+const personCols = {
+  userId: profile.userId, handle: profile.handle, displayName: profile.displayName, district: profile.district,
+  avatarKey: profile.avatarKey, image: user.image, verifiedAt: profile.verifiedAt,
+};
+const toPerson = (r: { userId: string; handle: string; displayName: string; district: string; avatarKey: string | null; image: string | null; verifiedAt: Date | null }): PersonLite => ({
+  userId: r.userId, handle: r.handle, displayName: r.displayName, district: r.district,
+  avatar: r.avatarKey ? `/img/${r.avatarKey}` : r.image, verified: Boolean(r.verifiedAt),
+});
+
+async function hotFallback(db: Db): Promise<GameLite[]> {
+  try {
+    const ids = (await hotList()).slice(0, 3);
+    await ensureGames(db, ids);
+    const rows = await db.select({ bggId: game.bggId, name: game.name, year: game.year, thumbnail: game.thumbnail }).from(game).where(inArray(game.bggId, ids));
+    return ids.map((id) => rows.find((r) => r.bggId === id)).filter((g): g is GameLite => Boolean(g));
+  } catch {
+    return []; // BGG down: the card simply shows no hotness.
+  }
+}
+
+export async function loadCard(db: Db, where: { handle: string } | { userId: string }) {
+  const [p] = await db
+    .select({ ...personCols, bio: profile.bio, bggUsername: profile.bggUsername, hotSource: profile.hotSource })
+    .from(profile)
+    .innerJoin(user, eq(user.id, profile.userId))
+    .where("handle" in where ? eq(profile.handle, where.handle) : eq(profile.userId, where.userId))
+    .limit(1);
+  if (!p) return null;
+  const games: CardGame[] = await db
+    .select({
+      bggId: game.bggId, name: game.name, year: game.year, thumbnail: game.thumbnail,
+      kind: userGame.kind, price: userGame.price, condition: userGame.condition, note: userGame.note,
+    })
+    .from(userGame)
+    .innerJoin(game, eq(game.bggId, userGame.bggId))
+    .where(eq(userGame.userId, p.userId))
+    .orderBy(asc(userGame.position), asc(game.name));
+  const by = (k: Kind) => games.filter((g) => g.kind === k);
+  let hotSource: HotSource | null = p.hotSource;
+  let hot: GameLite[] = by("hot");
+  if (!hot.length) {
+    hot = await hotFallback(db);
+    hotSource = hot.length ? "bgg_hot" : null;
+  }
+  return {
+    person: toPerson(p), bio: p.bio, bggUsername: p.bggUsername, hotSource,
+    favorite: by("favorite"), hot, want: by("want"), own: by("own"), sell: by("sell"), buy: by("buy"),
+  };
+}
+export type Card = NonNullable<Awaited<ReturnType<typeof loadCard>>>;
+
+/** Recomputes a member's hot games. Only sessions and their own BGG plays are stored; the global hot list is shown, never stored. */
+export async function refreshHot(db: Db, userId: string, bggUsername: string | null) {
+  let bggPlays = null;
+  if (bggUsername) {
+    try { bggPlays = await recentPlays(bggUsername); } catch (e) { if (!(e instanceof BggBusy)) console.warn("BGG plays", e); }
+  }
+  // Phase 2 adds logged sessions here.
+  const pick = chooseHot({ sessionPlays: [], bggPlays, bggHot: [] });
+  await db.delete(userGame).where(and(eq(userGame.userId, userId), eq(userGame.kind, "hot")));
+  if (pick.source !== "bgg_hot" && pick.ids.length) {
+    await ensureGames(db, pick.ids);
+    await db.insert(userGame).values(pick.ids.map((bggId, position) => ({ userId, bggId, kind: "hot" as const, position })));
+  }
+  await db.update(profile).set({ hotSource: pick.ids.length ? pick.source : null, hotUpdatedAt: new Date() }).where(eq(profile.userId, userId));
+}
+
+/** Everyone who has this game on their card, by kind. */
+export async function gamePeople(db: Db, bggId: number) {
+  const rows = await db
+    .select({ ...personCols, kind: userGame.kind, price: userGame.price, condition: userGame.condition })
+    .from(userGame)
+    .innerJoin(profile, eq(profile.userId, userGame.userId))
+    .innerJoin(user, eq(user.id, userGame.userId))
+    .where(eq(userGame.bggId, bggId))
+    .orderBy(asc(profile.displayName));
+  return rows.map((r) => ({ ...toPerson(r), kind: r.kind, price: r.price, condition: r.condition }));
+}
+
+// ---------- Find ----------
+
+type Row = { user_id: string; bgg_id: number; reason: MatchReason; price: number | null };
+
+function matchSql(mode: FindMode, me: string, bggId: number | null) {
+  if (bggId) {
+    const kinds = { like: ["favorite", "hot"], play: ["want", "own"], trade: ["sell", "buy"] }[mode];
+    return sql`SELECT user_id, bgg_id, price, CASE kind WHEN 'favorite' THEN 'loves' WHEN 'hot' THEN 'loves' WHEN 'want' THEN 'wants'
+      WHEN 'own' THEN 'owns' WHEN 'sell' THEN 'sells' ELSE 'buys' END AS reason
+      FROM user_game WHERE bgg_id = ${bggId} AND user_id != ${me} AND kind IN ${kinds}`;
+  }
+  const pair = (theirs: string[], mine: string[], reason: MatchReason) => sql`
+    SELECT t.user_id, t.bgg_id, t.price, ${reason} AS reason FROM user_game t
+    JOIN user_game m ON m.bgg_id = t.bgg_id AND m.user_id = ${me} AND m.kind IN ${mine}
+    WHERE t.user_id != ${me} AND t.kind IN ${theirs}`;
+  if (mode === "like") return pair(["favorite", "hot"], ["favorite", "hot"], "shared_love");
+  if (mode === "play")
+    return sql`${pair(["own"], ["want"], "owns_your_want")} UNION ${pair(["want"], ["want"], "wants_too")} UNION ${pair(["want"], ["own"], "wants_your_game")}`;
+  return sql`${pair(["sell"], ["buy"], "sells_your_buy")} UNION ${pair(["buy"], ["sell"], "buys_your_sell")}`;
+}
+
+export async function findPeople(
+  db: Db,
+  input: { me: string; mode: FindMode; bggId: number | null; district: string | null; verifiedOnly: boolean },
+) {
+  const rows = (await db.all(matchSql(input.mode, input.me, input.bggId))) as Row[];
+  if (!rows.length) return [];
+  const userIds = [...new Set(rows.map((r) => r.user_id))];
+  const gameIds = [...new Set(rows.map((r) => r.bgg_id))];
+  const [people, games] = await Promise.all([
+    db.select(personCols).from(profile).innerJoin(user, eq(user.id, profile.userId)).where(inArray(profile.userId, userIds)),
+    db.select({ bggId: game.bggId, name: game.name, year: game.year, thumbnail: game.thumbnail }).from(game).where(inArray(game.bggId, gameIds)),
+  ]);
+  const gameById = new Map(games.map((g) => [g.bggId, g]));
+  return people
+    .map(toPerson)
+    .filter((p) => (!input.district || p.district === input.district) && (!input.verifiedOnly || p.verified))
+    .map((p) => {
+      const matches = rows
+        .filter((r) => r.user_id === p.userId && gameById.has(r.bgg_id))
+        .map((r) => ({ ...gameById.get(r.bgg_id)!, reason: r.reason, price: r.price }));
+      return { ...p, matches, score: new Set(matches.map((m) => m.bggId)).size };
+    })
+    .filter((p) => p.matches.length)
+    .sort((a, b) => b.score - a.score || a.displayName.localeCompare(b.displayName));
+}
