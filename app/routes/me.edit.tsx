@@ -72,8 +72,9 @@ function ProfileForm({ defaults, isNew, result, origin }: { defaults: Route.Comp
   const busy = nav.state !== "idle" && nav.formData?.get("intent") === "profile";
   const [username, setUsername] = useState(defaults.handle);
   const err = (k: string) => (result && !result.ok && result.fieldErrors?.[k]) || null;
-  const field = (name: string, label: string, help: React.ReactNode, input: React.ReactNode) => (
-    <div className="grid gap-2">
+  // content-start: in the 2-column grid a field must not stretch to its taller neighbour (that spread Name's label/box/hint apart).
+  const field = (name: string, label: string, help: React.ReactNode, input: React.ReactNode, wide = false) => (
+    <div className={`grid content-start gap-2 ${wide ? "sm:col-span-2" : ""}`}>
       <Label htmlFor={name}>{label}</Label>
       {input}
       {err(name) ? <p className="text-sm text-destructive" role="alert">{err(name)}</p> : <div id={`${name}-help`} className="grid gap-1 text-sm text-muted-foreground">{help}</div>}
@@ -90,9 +91,6 @@ function ProfileForm({ defaults, isNew, result, origin }: { defaults: Route.Comp
       <input type="hidden" name="intent" value="profile" />
       <div className="grid gap-5 sm:grid-cols-2">
         {field("displayName", "Name", "As friends know you, e.g. Malik.", <Input id="displayName" name="displayName" required maxLength={40} defaultValue={defaults.displayName} aria-invalid={!!err("displayName")} />)}
-        {field("handle", "Username", usernameHelp,
-          <Input id="handle" name="handle" required minLength={3} maxLength={20} autoComplete="username" autoCapitalize="none" spellCheck={false}
-            value={username} onChange={(e) => setUsername(e.target.value.toLowerCase())} aria-invalid={!!err("handle")} aria-describedby="handle-help" />)}
         {field("district", "District", "Only the district shows. Never your address.",
           <select id="district" name="district" required defaultValue={defaults.district} className={fieldClass} aria-invalid={!!err("district")}>
             <option value="" disabled>Pick your district</option>
@@ -102,7 +100,10 @@ function ProfileForm({ defaults, isNew, result, origin }: { defaults: Route.Comp
               </optgroup>
             ))}
           </select>)}
-        {field("bggUsername", "BoardGameGeek username (optional)", "Links your BGG profile and fills Hotness from your plays.", <Input id="bggUsername" name="bggUsername" maxLength={40} defaultValue={defaults.bggUsername} aria-invalid={!!err("bggUsername")} />)}
+        {field("handle", "Username", usernameHelp,
+          <Input id="handle" name="handle" required minLength={3} maxLength={20} autoComplete="username" autoCapitalize="none" spellCheck={false}
+            value={username} onChange={(e) => setUsername(e.target.value.toLowerCase())} aria-invalid={!!err("handle")} aria-describedby="handle-help" />, true)}
+        {field("bggUsername", "BoardGameGeek username (optional)", "Links your BGG profile and fills Hotness from your plays.", <Input id="bggUsername" name="bggUsername" maxLength={40} defaultValue={defaults.bggUsername} aria-invalid={!!err("bggUsername")} />, true)}
       </div>
       {field("bio", "About you (optional)", "Up to 280 characters. What do you like to play?", <Textarea id="bio" name="bio" maxLength={280} rows={3} defaultValue={defaults.bio} aria-invalid={!!err("bio")} />)}
       {field("avatar", "Profile picture (optional)", "JPG, PNG or WebP, under 2 MB.", <Input id="avatar" name="avatar" type="file" accept="image/jpeg,image/png,image/webp" aria-invalid={!!err("avatar")} />)}
