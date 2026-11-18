@@ -12,7 +12,7 @@ export const profileSchema = z.object({
     .trim()
     .toLowerCase()
     .regex(HANDLE_RE, "Use 3–20 lowercase letters, numbers or _.")
-    .refine((h) => !RESERVED.has(h), "That handle is reserved. Pick another."),
+    .refine((h) => !RESERVED.has(h), "That username is reserved. Pick another."),
   district: z.string().refine((d) => DISTRICTS.includes(d), "Pick your district from the list."),
   bggUsername: z
     .string()

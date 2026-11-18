@@ -32,6 +32,7 @@ export async function loader({ request }: Route.LoaderArgs) {
       bio: v.profile?.bio ?? "",
     },
     card,
+    origin: new URL(request.url).origin, // for the live "Your card's link" preview
   };
 }
 
@@ -66,23 +67,32 @@ function useResultToast(data: ActionResult | undefined) {
 
 const fieldClass = "h-11 w-full rounded-lg border-2 border-input bg-white px-3 text-base";
 
-function ProfileForm({ defaults, isNew, result }: { defaults: Route.ComponentProps["loaderData"]["defaults"]; isNew: boolean; result?: ActionResult }) {
+function ProfileForm({ defaults, isNew, result, origin }: { defaults: Route.ComponentProps["loaderData"]["defaults"]; isNew: boolean; result?: ActionResult; origin: string }) {
   const nav = useNavigation();
   const busy = nav.state !== "idle" && nav.formData?.get("intent") === "profile";
+  const [username, setUsername] = useState(defaults.handle);
   const err = (k: string) => (result && !result.ok && result.fieldErrors?.[k]) || null;
-  const field = (name: string, label: string, help: string, input: React.ReactNode) => (
+  const field = (name: string, label: string, help: React.ReactNode, input: React.ReactNode) => (
     <div className="grid gap-2">
       <Label htmlFor={name}>{label}</Label>
       {input}
-      {err(name) ? <p className="text-sm text-destructive" role="alert">{err(name)}</p> : <p className="text-sm text-muted-foreground">{help}</p>}
+      {err(name) ? <p className="text-sm text-destructive" role="alert">{err(name)}</p> : <div id={`${name}-help`} className="grid gap-1 text-sm text-muted-foreground">{help}</div>}
     </div>
+  );
+  const usernameHelp = (
+    <>
+      <p>Your card's link: <span className="break-all font-semibold text-ink">{origin}/p/{username || "username"}</span></p>
+      <p>Shown as @{username || "username"} on your card. Lowercase letters, numbers and _ only.{!isNew && " Changing it changes your link, so links you already shared stop working."}</p>
+    </>
   );
   return (
     <Form method="post" encType="multipart/form-data" className="grid gap-5">
       <input type="hidden" name="intent" value="profile" />
       <div className="grid gap-5 sm:grid-cols-2">
         {field("displayName", "Name", "As friends know you, e.g. Malik.", <Input id="displayName" name="displayName" required maxLength={40} defaultValue={defaults.displayName} aria-invalid={!!err("displayName")} />)}
-        {field("handle", "Handle", "Your link: /p/handle. Lowercase letters, numbers, _.", <Input id="handle" name="handle" required maxLength={20} defaultValue={defaults.handle} aria-invalid={!!err("handle")} />)}
+        {field("handle", "Username", usernameHelp,
+          <Input id="handle" name="handle" required minLength={3} maxLength={20} autoComplete="username" autoCapitalize="none" spellCheck={false}
+            value={username} onChange={(e) => setUsername(e.target.value.toLowerCase())} aria-invalid={!!err("handle")} aria-describedby="handle-help" />)}
         {field("district", "District", "Only the district shows. Never your address.",
           <select id="district" name="district" required defaultValue={defaults.district} className={fieldClass} aria-invalid={!!err("district")}>
             <option value="" disabled>Pick your district</option>
@@ -191,7 +201,7 @@ export default function EditCard({ loaderData, actionData }: Route.ComponentProp
       </div>
 
       <section className="panel p-5">
-        <ProfileForm defaults={defaults} isNew={isNew} result={profileResult} />
+        <ProfileForm defaults={defaults} isNew={isNew} result={profileResult} origin={loaderData.origin} />
       </section>
 
       {card && (

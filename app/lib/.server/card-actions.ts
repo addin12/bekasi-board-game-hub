@@ -25,7 +25,7 @@ export async function saveProfile(db: Db, userId: string, form: FormData, existi
   }
   const v = parsed.data;
   const [taken] = await db.select({ id: profile.userId }).from(profile).where(and(eq(profile.handle, v.handle), ne(profile.userId, userId))).limit(1);
-  if (taken) return { ok: false, message: "Check the fields marked below.", fieldErrors: { handle: "Someone already uses this handle." } };
+  if (taken) return { ok: false, message: "Check the fields marked below.", fieldErrors: { handle: "Someone already uses this username. Try adding a number or your district." } };
 
   let avatarKey = existing?.avatarKey ?? null;
   const file = form.get("avatar");
