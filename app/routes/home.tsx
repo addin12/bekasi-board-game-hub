@@ -1,7 +1,6 @@
 import { desc, eq } from "drizzle-orm";
-import { Flame, MapPin, MessageCircle, ShoppingBag } from "lucide-react";
+import { Flame, Heart, MapPin, MessageCircle, ShoppingBag } from "lucide-react";
 import { Link, redirect } from "react-router";
-import { CharcoalSatin } from "@/components/charcoal-satin";
 import { PersonAvatar } from "@/components/game-thumb";
 import { Button } from "@/components/ui/button";
 import { profile, user } from "@/db/schema";
@@ -35,26 +34,54 @@ const POINTS = [
   { icon: <ShoppingBag className="size-6 text-trade" aria-hidden />, title: "Buy and sell within the group", text: "List games you sell or look for. Matches find each other; you settle the deal on WhatsApp." },
 ];
 
+/** A small example card for the hero, tossed on the table. Clearly marked as an example. */
+function ExampleCard() {
+  const row = (icon: React.ReactNode, label: string, color: string, games: string[]) => (
+    <div className="grid gap-1 border-t-2 border-dashed border-ink/20 pt-3">
+      <p className={`flex items-center gap-1.5 font-display text-sm font-extrabold uppercase ${color}`}>{icon}{label}</p>
+      <p className="font-semibold">{games.join(" · ")}</p>
+    </div>
+  );
+  return (
+    <div aria-hidden className="sticker relative w-full max-w-xs rotate-3 overflow-hidden">
+      <span className="absolute right-3 top-3 rounded-full border-2 border-ink bg-white px-2 py-0.5 text-xs font-bold">Example</span>
+      <div className="card-band h-16 border-b-2 border-ink" />
+      <div className="grid gap-3 px-4 pb-4">
+        <span className="-mt-8 grid size-16 place-items-center rounded-full border-[3px] border-ink bg-primary font-display text-2xl font-extrabold shadow-[3px_3px_0_var(--color-ink)]">M</span>
+        <div>
+          <p className="font-display text-2xl font-extrabold uppercase leading-none">Malik</p>
+          <p className="flex items-center gap-1 text-sm text-muted-foreground"><MapPin className="size-3.5" />Bekasi Timur</p>
+        </div>
+        {row(<Heart className="size-4" />, "Favorites", "text-fav", ["Arnak", "Wingspan", "Everdell"])}
+        {row(<Flame className="size-4" />, "Hotness", "text-hot", ["The Crew", "Harmonies"])}
+        {row(<MessageCircle className="size-4" />, "Want to play", "text-want", ["Oath"])}
+      </div>
+    </div>
+  );
+}
+
 export default function Home({ loaderData }: Route.ComponentProps) {
   return (
     <div className="grid gap-12">
-      <CharcoalSatin className="-mx-4 rounded-none sm:mx-0 sm:rounded-3xl">
-        {/* Dark scrim keeps the headline readable over the bright satin highlights. */}
-        <div className="grid gap-5 bg-gradient-to-r from-black/80 via-black/60 to-black/20 px-6 py-14 sm:px-10 sm:py-20">
-          <p className="text-sm font-medium uppercase tracking-wider text-white/80">For the Bekasi board game community</p>
-          <h1 className="max-w-2xl text-4xl font-semibold tracking-tight text-white text-balance sm:text-5xl">Find your next table in Bekasi</h1>
-          <p className="max-w-xl text-lg text-white/85">Every member has a player card. Cards are matched so you can find people to play with, games to borrow, and games to buy.</p>
+      <section className="grid items-center gap-10 py-4 md:grid-cols-[1.4fr_1fr] md:py-10">
+        <div className="grid gap-5">
+          <p className="w-fit -rotate-2 rounded-full border-2 border-ink bg-secondary px-3 py-1 text-sm font-bold">For the Bekasi board game community</p>
+          <h1 className="max-w-2xl text-5xl font-extrabold leading-[1.05] sm:text-6xl">
+            Find your next <span className="relative inline-block"><span className="relative z-10">table</span><span aria-hidden className="absolute inset-x-[-4px] bottom-1 -z-0 h-4 -rotate-1 rounded bg-primary" /></span> in Bekasi
+          </h1>
+          <p className="max-w-xl text-lg leading-relaxed">Every member has a player card. Cards get matched, so you find people to play with, games to borrow, and games to buy.</p>
           <div className="flex flex-wrap gap-3">
-            <Button asChild size="lg" className="bg-white text-black hover:bg-white/90"><Link to="/sign-in">Make my player card</Link></Button>
+            <Button asChild size="lg"><Link to="/sign-in">Make my player card</Link></Button>
           </div>
         </div>
-      </CharcoalSatin>
+        <div className="flex justify-center py-4 md:justify-end"><ExampleCard /></div>
+      </section>
 
-      <section className="grid gap-4 md:grid-cols-3">
-        {POINTS.map((p) => (
-          <div key={p.title} className="grid content-start gap-3 rounded-2xl border border-border bg-card p-5">
-            {p.icon}
-            <h2 className="text-xl font-semibold">{p.title}</h2>
+      <section className="grid gap-5 md:grid-cols-3">
+        {POINTS.map((p, i) => (
+          <div key={p.title} className={`grid content-start gap-3 sticker p-5 ${["md:-rotate-1", "md:rotate-1", "md:-rotate-[0.5deg]"][i]}`}>
+            <span className="grid size-12 place-items-center rounded-xl border-2 border-ink bg-accent">{p.icon}</span>
+            <h2 className="text-xl font-extrabold">{p.title}</h2>
             <p className="leading-relaxed text-muted-foreground">{p.text}</p>
           </div>
         ))}
@@ -66,7 +93,7 @@ export default function Home({ loaderData }: Route.ComponentProps) {
           <ul className="grid gap-3 sm:grid-cols-2 lg:grid-cols-4">
             {loaderData.members.map((m) => (
               <li key={m.handle}>
-                <Link to={`/p/${m.handle}`} className="flex items-center gap-3 rounded-xl border border-border bg-card p-3 hover:bg-secondary/60">
+                <Link to={`/p/${m.handle}`} className="flex items-center gap-3 sticker-sm liftable p-3">
                   <PersonAvatar src={m.avatar} name={m.displayName} />
                   <span className="min-w-0">
                     <span className="block font-medium">{m.displayName}</span>

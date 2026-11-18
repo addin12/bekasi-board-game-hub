@@ -33,8 +33,8 @@ export default function Admin({ loaderData, actionData }: Route.ComponentProps) 
   const busy = useNavigation().state !== "idle";
   return (
     <div className="mx-auto grid max-w-xl gap-8">
-      <h1 className="text-3xl font-semibold tracking-tight">Admin</h1>
-      <section className="grid gap-4 rounded-2xl border border-border bg-card p-5">
+      <h1 className="text-3xl font-extrabold">Admin</h1>
+      <section className="grid gap-4 sticker p-5">
         <div className="grid gap-1">
           <h2 className="text-xl font-semibold">Member passcode</h2>
           <p className="text-muted-foreground">{loaderData.isSet ? "A passcode is set. Change it from time to time, for example monthly." : "No passcode yet. Members can't get verified until you set one."}</p>

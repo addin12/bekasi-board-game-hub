@@ -49,12 +49,12 @@ export default function SignIn({ loaderData }: Route.ComponentProps) {
   return (
     <div className="mx-auto grid max-w-md gap-6">
       <div className="grid gap-2">
-        <h1 className="text-3xl font-semibold tracking-tight">Sign in</h1>
+        <h1 className="text-3xl font-extrabold">Sign in</h1>
         <p className="text-muted-foreground">New here? Signing in creates your account. Next you'll set up your player card.</p>
       </div>
 
       {!google && !loaderData.email && (
-        <div role="status" className="grid gap-1 rounded-xl border border-border bg-card p-4">
+        <div role="status" className="grid gap-1 sticker-sm p-4">
           <p className="font-medium">Sign-in opens soon.</p>
           <p className="text-muted-foreground">The admins are still setting it up. Player cards and game pages can already be viewed.</p>
         </div>

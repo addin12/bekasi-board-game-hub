@@ -64,7 +64,7 @@ export default function GamePage({ loaderData }: Route.ComponentProps) {
       <div className="flex flex-wrap items-start gap-5">
         <GameThumb src={g.image ?? g.thumbnail} name={g.name} className="size-32 rounded-2xl sm:size-40" />
         <div className="grid min-w-0 flex-1 gap-3">
-          <h1 className="text-3xl font-semibold tracking-tight">{g.name}</h1>
+          <h1 className="text-3xl font-extrabold">{g.name}</h1>
           {facts.length > 0 && <p className="text-muted-foreground">{facts.join(" · ")}</p>}
           <a className="w-fit underline underline-offset-4" href={`https://boardgamegeek.com/boardgame/${g.bggId}`} target="_blank" rel="noreferrer">See it on BoardGameGeek</a>
           <ShareButtons title={`Who plays ${g.name} in Bekasi`} path={`/g/${g.bggId}`} />
@@ -72,9 +72,9 @@ export default function GamePage({ loaderData }: Route.ComponentProps) {
       </div>
 
       <Tabs defaultValue={first} className="grid gap-4">
-        <TabsList className="flex h-auto w-full flex-wrap justify-start gap-1">
+        <TabsList className="flex h-auto w-full flex-wrap justify-start gap-2 bg-transparent p-0">
           {groups.map((t) => (
-            <TabsTrigger key={t.key} value={t.key} className="h-11 flex-none px-3 text-base">
+            <TabsTrigger key={t.key} value={t.key} className="h-11 flex-none rounded-full border-2 border-ink/20 bg-card px-4 text-base">
               {t.label} <span className="ml-1 tabular-nums text-muted-foreground">{t.list.length}</span>
             </TabsTrigger>
           ))}
@@ -87,7 +87,7 @@ export default function GamePage({ loaderData }: Route.ComponentProps) {
               <ul className="grid gap-2 sm:grid-cols-2">
                 {t.list.map((p) => (
                   <li key={p.userId}>
-                    <Link to={`/p/${p.handle}`} className="flex min-h-16 items-center gap-3 rounded-xl border border-border bg-card p-3 hover:bg-secondary/60">
+                    <Link to={`/p/${p.handle}`} className="flex min-h-16 items-center gap-3 sticker-sm liftable p-3">
                       <PersonAvatar src={p.avatar} name={p.displayName} />
                       <span className="min-w-0 flex-1">
                         <span className="block font-medium">{p.displayName}{p.verified && <span className="ml-2 text-sm text-muted-foreground">Verified</span>}</span>

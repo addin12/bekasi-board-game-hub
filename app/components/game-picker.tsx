@@ -37,10 +37,10 @@ export function GamePicker({ label, help, onPick, disabled }: { label: string; h
         {status === "loading" ? "Searching BoardGameGeek…" : status === "error" ? "BoardGameGeek isn't answering. Try again in a minute." : status === "none" ? "No games found. Check the spelling." : help}
       </p>
       {hits.length > 0 && (
-        <ul className="grid max-h-72 overflow-y-auto rounded-lg border border-border">
+        <ul className="grid max-h-72 overflow-y-auto rounded-xl border-2 border-ink bg-white">
           {hits.map((h) => (
-            <li key={h.bggId} className="border-b border-border last:border-0">
-              <button type="button" className="flex min-h-11 w-full items-center justify-between gap-3 px-3 py-2 text-left hover:bg-secondary"
+            <li key={h.bggId} className="border-b border-ink/15 last:border-0">
+              <button type="button" className="flex min-h-11 w-full items-center justify-between gap-3 px-3 py-2 text-left hover:bg-accent"
                 onClick={() => { onPick(h); setQ(""); setHits([]); }}>
                 <span className="font-medium">{h.name}</span>
                 <span className="text-sm text-muted-foreground">{h.year ?? ""}</span>

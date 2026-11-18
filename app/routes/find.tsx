@@ -53,20 +53,20 @@ export default function Find({ loaderData }: Route.ComponentProps) {
   return (
     <div className="grid gap-8">
       <div className="grid gap-2">
-        <h1 className="text-3xl font-semibold tracking-tight">Find</h1>
+        <h1 className="text-3xl font-extrabold">Find</h1>
         <p className="text-muted-foreground">Matches come from player cards. The more you add to yours, the better they get.</p>
       </div>
 
       <nav aria-label="What to find" className="grid gap-2 sm:grid-cols-3">
         {MODES.map((m) => (
           <Link key={m.key} to={withParams({ mode: m.key })} aria-current={m.key === mode ? "page" : undefined}
-            className={cn("flex min-h-14 items-center gap-3 rounded-xl border border-border p-3 hover:bg-secondary/60", m.key === mode && "border-foreground/40 bg-secondary")}>
+            className={cn("sticker-sm liftable flex min-h-14 items-center gap-3 p-3", m.key === mode && "bg-primary")}>
             {m.icon}<span className="font-medium">{m.label}</span>
           </Link>
         ))}
       </nav>
 
-      <section aria-label="Filters" className="grid gap-4 rounded-2xl border border-border bg-card p-5">
+      <section aria-label="Filters" className="grid gap-4 sticker p-5">
         <div className="grid gap-4 md:grid-cols-[2fr_1fr_auto] md:items-start">
           <GamePicker label="One game (optional)" help={gameName ? `Showing: ${gameName}` : "Leave empty to match on your whole card."} onPick={(h) => navigate(withParams({ game: String(h.bggId) }))} />
           <Form method="get" className="contents">
@@ -75,7 +75,7 @@ export default function Find({ loaderData }: Route.ComponentProps) {
             <div className="grid gap-2">
               <Label htmlFor="district">District</Label>
               <select id="district" name="district" defaultValue={district ?? ""} onChange={(e) => e.currentTarget.form?.requestSubmit()}
-                className="h-11 w-full rounded-lg border border-input bg-input/30 px-3 text-base">
+                className="h-11 w-full rounded-xl border-2 border-input bg-white px-3 text-base">
                 <option value="">All of Bekasi</option>
                 {DISTRICT_GROUPS.map((g) => (
                   <optgroup key={g.label} label={g.label}>{g.items.map((d) => <option key={d} value={d}>{d}</option>)}</optgroup>
@@ -90,9 +90,9 @@ export default function Find({ loaderData }: Route.ComponentProps) {
         </div>
         {hasFilters && (
           <div className="flex flex-wrap items-center gap-2">
-            {gameName && <Link className="rounded-full bg-secondary px-3 py-2 text-sm" to={withParams({ game: null })}>Game: {gameName} ✕</Link>}
-            {district && <Link className="rounded-full bg-secondary px-3 py-2 text-sm" to={withParams({ district: null })}>District: {district} ✕</Link>}
-            {verifiedOnly && <Link className="rounded-full bg-secondary px-3 py-2 text-sm" to={withParams({ verified: null })}>Verified only ✕</Link>}
+            {gameName && <Link className="rounded-full border-2 border-ink bg-accent px-3 py-2 text-sm font-semibold" to={withParams({ game: null })}>Game: {gameName} ✕</Link>}
+            {district && <Link className="rounded-full border-2 border-ink bg-accent px-3 py-2 text-sm font-semibold" to={withParams({ district: null })}>District: {district} ✕</Link>}
+            {verifiedOnly && <Link className="rounded-full border-2 border-ink bg-accent px-3 py-2 text-sm font-semibold" to={withParams({ verified: null })}>Verified only ✕</Link>}
             <Button asChild variant="ghost" size="sm"><Link to={`/find?mode=${mode}`}>Clear filters</Link></Button>
           </div>
         )}
@@ -101,7 +101,7 @@ export default function Find({ loaderData }: Route.ComponentProps) {
       <section className="grid gap-4" aria-live="polite">
         <h2 className="text-xl font-semibold">{results.length} {results.length === 1 ? "match" : "matches"} · {current.label}</h2>
         {results.length === 0 ? (
-          <div className="grid gap-2 rounded-2xl border border-dashed border-border p-6">
+          <div className="grid gap-2 rounded-2xl border-2 border-dashed border-ink/40 bg-card p-6">
             <p className="font-medium">No matches yet.</p>
             <p className="text-muted-foreground">{current.help} Add more games to your card, or try another game or district.</p>
             <Button asChild variant="outline" className="w-fit"><Link to="/me/edit">Add games to my card</Link></Button>
@@ -109,7 +109,7 @@ export default function Find({ loaderData }: Route.ComponentProps) {
         ) : (
           <ul className="grid gap-3 md:grid-cols-2">
             {results.map((p) => (
-              <li key={p.userId} className="grid gap-3 rounded-2xl border border-border bg-card p-4">
+              <li key={p.userId} className="grid gap-3 sticker p-4">
                 <Link to={`/p/${p.handle}`} className="flex items-center gap-3">
                   <PersonAvatar src={p.avatar} name={p.displayName} />
                   <span className="min-w-0">

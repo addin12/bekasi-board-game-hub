@@ -18,7 +18,9 @@ Status: Phase 1 live on two sites (sandbox + real), see README. Full report: [do
 | 12 | 2026-11-18 | The global BGG hot list is shown on a card as a fallback but never stored in user_game | Otherwise every new member would "match" on the same 3 games in Find |
 | 14 | 2026-11-18 | Two sites: sandbox (`env.staging`, own D1/R2/secrets, fake demo members, `name@sandbox.test` + code 000000, noindex, looser code limit) and real. Sandbox sign-in only when `SANDBOX="1"`; the real site sets `"0"` | Owner wants a place to test and simulate without touching real data |
 | 15 | 2026-11-18 | Sign-in page hides a method that isn't configured and says "Sign-in opens soon" when none is | Better Auth answers "sent" even when the mail send fails, so people would wait for codes that never arrive |
-| 13 | 2026-11-18 | One dark theme; every control at least 44px tall (shadcn sizes raised) | Brand look + owner's UI rules for real users |
+| 13 | 2026-11-18 | ~~One dark theme~~ (replaced by 16); every control at least 44px tall (shadcn sizes raised) | Owner's UI rules for real users |
+| 16 | 2026-11-18 | Design "game night table": light paper background with a dot grid, chunky ink outlines + offset shadows (`.sticker`), yellow main buttons, the sketch's orange on card headers (`.card-band`), Bricolage Grotesque headings + Nunito body, category colors darkened to pass 4.5:1. Charcoal Satin no longer used (files kept, not imported, so not shipped) | Owner: dark direction didn't feel right; wants "playful community hobbyist". Sticker outlines echo the owner's own card sketch |
+| 17 | 2026-11-18 | Email-code limits: real site keeps Better Auth's 3 sign-ins/min and 3 code requests/5 min per IP; sandbox allows 30 | Real site resists code guessing and mail spam; sandbox testers share one Wi-Fi |
 
 ## Design kit
 

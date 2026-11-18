@@ -32,9 +32,9 @@ export default function Settings({ loaderData, actionData }: Route.ComponentProp
   const busy = useNavigation().state !== "idle";
   return (
     <div className="mx-auto grid max-w-xl gap-8">
-      <h1 className="text-3xl font-semibold tracking-tight">Settings</h1>
+      <h1 className="text-3xl font-extrabold">Settings</h1>
 
-      <section className="grid gap-2 rounded-2xl border border-border bg-card p-5">
+      <section className="grid gap-2 sticker p-5">
         <h2 className="text-xl font-semibold">Account</h2>
         <p className="text-muted-foreground">Signed in as <span className="text-foreground">{loaderData.email}</span></p>
         <div className="flex flex-wrap gap-2 pt-2">
@@ -43,7 +43,7 @@ export default function Settings({ loaderData, actionData }: Route.ComponentProp
         </div>
       </section>
 
-      <section className="grid gap-4 rounded-2xl border border-border bg-card p-5">
+      <section className="grid gap-4 sticker p-5">
         <div className="grid gap-1">
           <h2 className="text-xl font-semibold">Verified member</h2>
           <p className="text-muted-foreground">Members of our WhatsApp group get a passcode from the admins. Enter it here to get the verified badge.</p>

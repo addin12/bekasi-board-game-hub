@@ -5,12 +5,12 @@ import "./app.css";
 
 export function Layout({ children }: { children: React.ReactNode }) {
   return (
-    // Dark charcoal is the brand look; one theme on purpose.
-    <html lang="en" className="dark">
+    // One light "game night table" theme on purpose.
+    <html lang="en">
       <head>
         <meta charSet="utf-8" />
         <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
-        <meta name="theme-color" content="#0b0c0f" />
+        <meta name="theme-color" content="#fff8ee" />
         <Meta />
         <Links />
       </head>

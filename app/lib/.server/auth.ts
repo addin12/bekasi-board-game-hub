@@ -28,6 +28,8 @@ function createAuth() {
         expiresIn: 10 * 60,
         allowedAttempts: 5,
         storeOTP: "hashed",
+        // Plugin default is 3 per minute per IP for its routes; sandbox testers share Wi-Fi, so loosen it there only.
+        rateLimit: isSandboxOn(env.SANDBOX) ? { window: 60, max: 30 } : undefined,
         // Sandbox only: fixed code for name@sandbox.test (undefined → Better Auth's random code).
         generateOTP: ({ email }) => (isSandboxEmail(email, isSandboxOn(env.SANDBOX)) ? SANDBOX_CODE : undefined),
         async sendVerificationOTP({ email, otp }) {

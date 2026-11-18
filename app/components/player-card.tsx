@@ -1,6 +1,5 @@
 import { ArrowDown, ArrowUp, BadgeCheck, Flame, Heart, MapPin, MessageCircle, ShoppingBag } from "lucide-react";
 import { Link } from "react-router";
-import { CharcoalSatin } from "@/components/charcoal-satin";
 import { GameThumb, PersonAvatar } from "@/components/game-thumb";
 import { HOT_SOURCE_LABEL } from "@/lib/hotness";
 import { formatRupiah } from "@/lib/validate";
@@ -8,8 +7,8 @@ import type { Card } from "@/lib/.server/cards";
 
 function Section({ icon, label, color, children, empty }: { icon: React.ReactNode; label: string; color: string; children: React.ReactNode; empty: boolean }) {
   return (
-    <section className="grid gap-3 border-t border-border pt-5">
-      <h2 className={`flex items-center gap-2 text-sm font-semibold uppercase tracking-wider ${color}`}>
+    <section className="grid gap-3 border-t-2 border-dashed border-ink/20 pt-5">
+      <h2 className={`flex items-center gap-2 font-display text-base font-extrabold uppercase tracking-wide ${color}`}>
         {icon}
         {label}
       </h2>
@@ -21,7 +20,7 @@ function Section({ icon, label, color, children, empty }: { icon: React.ReactNod
 function GameLine({ g, extra }: { g: { bggId: number; name: string; thumbnail: string | null }; extra?: React.ReactNode }) {
   return (
     <li>
-      <Link to={`/g/${g.bggId}`} className="flex min-h-11 items-center gap-3 rounded-lg py-1 hover:bg-secondary/60">
+      <Link to={`/g/${g.bggId}`} className="flex min-h-11 items-center gap-3 rounded-lg py-1 hover:bg-accent">
         <GameThumb src={g.thumbnail} name={g.name} className="size-10" />
         <span className="min-w-0 flex-1 font-medium">{g.name}</span>
         {extra}
@@ -33,17 +32,17 @@ function GameLine({ g, extra }: { g: { bggId: number; name: string; thumbnail: s
 export function PlayerCard({ card }: { card: Card }) {
   const { person } = card;
   return (
-    <article className="overflow-hidden rounded-2xl border border-border bg-card">
-      <CharcoalSatin className="h-28 sm:h-32" />
+    <article className="sticker overflow-hidden">
+      <div className="card-band h-28 border-b-2 border-ink sm:h-32" />
       <div className="grid gap-5 px-5 pb-6">
         <div className="relative z-10 -mt-12 flex items-end gap-4">
-          <PersonAvatar src={person.avatar} name={person.displayName} className="size-24 border-4 border-card text-3xl" />
+          <PersonAvatar src={person.avatar} name={person.displayName} className="size-24 border-[3px] border-ink bg-primary font-display text-4xl font-extrabold shadow-[3px_3px_0_var(--color-ink)]" />
         </div>
         <div className="grid gap-1">
-          <h1 className="flex flex-wrap items-center gap-2 text-3xl font-semibold tracking-tight">
+          <h1 className="flex flex-wrap items-center gap-2 text-3xl font-extrabold uppercase">
             {person.displayName}
             {person.verified && (
-              <span className="inline-flex items-center gap-1 rounded-full bg-secondary px-2.5 py-1 text-sm font-medium">
+              <span className="inline-flex items-center gap-1 rounded-full border-2 border-ink bg-primary px-2.5 py-0.5 font-sans text-sm font-bold normal-case">
                 <BadgeCheck className="size-4" aria-hidden /> Verified member
               </span>
             )}
@@ -66,7 +65,7 @@ export function PlayerCard({ card }: { card: Card }) {
         {card.bio && <p className="max-w-prose leading-relaxed">{card.bio}</p>}
 
         <Section icon={<Heart className="size-4" aria-hidden />} label="Favorites" color="text-fav" empty={!card.favorite.length}>
-          <ul className="flex flex-wrap gap-4">
+          <ul className="flex flex-wrap gap-3">
             {card.favorite.map((g) => (
               <li key={g.bggId}>
                 <Link to={`/g/${g.bggId}`} className="grid w-24 gap-2 text-sm">
