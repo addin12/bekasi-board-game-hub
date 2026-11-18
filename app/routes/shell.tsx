@@ -78,7 +78,8 @@ export default function Shell({ loaderData }: Route.ComponentProps) {
           <a href="/" className="mb-2 inline-flex min-h-11 min-w-0 items-center text-base font-extrabold uppercase leading-tight sm:text-lg">
             Bekasi Board Game Hub
           </a>
-          <nav aria-label="Main" className="flex flex-wrap items-center gap-x-3">
+          {/* Members: icons stay on one row beside the title even at 320px; the title wraps instead. */}
+          <nav aria-label="Main" className={cn("flex items-center", member ? "shrink-0 flex-nowrap gap-x-1 md:gap-x-3" : "flex-wrap gap-x-3")}>
             {member ? (
               <>
                 {/* Phone uses the bottom bar for these. */}

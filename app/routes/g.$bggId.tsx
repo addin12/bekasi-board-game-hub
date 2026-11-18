@@ -80,7 +80,8 @@ export default function GamePage({ loaderData }: Route.ComponentProps) {
       <div className="flex flex-wrap items-start gap-5">
         {/* Box cover stays square here: on its own page the game is a box, not a token. */}
         <GameThumb src={g.image ?? g.thumbnail} name={g.name} size={144} square />
-        <div className="grid min-w-0 flex-1 gap-3">
+        {/* min-w-56: below about 330px the title block drops under the cover instead of squeezing beside it. */}
+        <div className="grid min-w-56 flex-1 gap-3">
           <h1 className="text-3xl font-extrabold leading-tight sm:text-4xl">{g.name}</h1>
           {facts.length > 0 && <p className="font-semibold text-muted-foreground tabular-nums">{facts.join(" · ")}</p>}
           <a className="inline-flex min-h-11 w-fit items-center font-semibold underline underline-offset-4" href={`https://boardgamegeek.com/boardgame/${g.bggId}`} target="_blank" rel="noreferrer">See it on BoardGameGeek</a>

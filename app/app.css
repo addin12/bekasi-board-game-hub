@@ -81,6 +81,11 @@
   h1, h2, h3 {
     text-wrap: balance;
   }
+  /* A grid with no column definition sizes its one column to its widest unbreakable child (a button, a file input),
+     which pushed whole pages sideways on 320px phones. This pins it to the width of its container. */
+  .grid:not([class*="grid-cols"]) {
+    grid-template-columns: minmax(0, 1fr);
+  }
   /* One visible focus ring for every focusable element (keyboard users). */
   :focus-visible {
     outline: 3px solid var(--ring);
