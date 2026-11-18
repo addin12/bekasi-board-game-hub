@@ -6,7 +6,7 @@ Beyond the card: log plays (confirmed by the people on them, which feeds Hotness
 
 Stack: React Router 8 on Cloudflare Workers, D1 (SQLite) through Drizzle, R2 for pictures, Better Auth (email code + Google), shadcn/ui + Tailwind 4. Game data from the BoardGameGeek XML API.
 
-**Before the next real-site deploy:** this code needs migration `0001_phase2` on the real database first (`npm run db:migrate:remote`), then `npm run deploy`. The sandbox already has both.
+Both sites are on migration `0001_phase2` and the same code (shipped 2026-11-18). Order for any later migration: sandbox first, then `npm run db:migrate:remote`, then `npm run deploy`.
 
 ## Quick start
 

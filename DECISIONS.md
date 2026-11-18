@@ -1,6 +1,6 @@
 # Decisions
 
-Status: Phase 1 live on two sites (sandbox + real), see README. Full report: [docs/brainstorm-report.html](docs/brainstorm-report.html), published at https://claude.ai/artifact/EZBiTBdn9ftLUgYtMtmjig
+Status: Phase 1 to 3 live on two sites (sandbox + real), see README. Real site shipped 2026-11-18; sign-in still closed there until Google keys or a mail relay are set. Full report: [docs/brainstorm-report.html](docs/brainstorm-report.html), published at https://claude.ai/artifact/EZBiTBdn9ftLUgYtMtmjig
 
 | # | Date | Decision | Why |
 |---|------|----------|-----|
