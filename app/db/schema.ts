@@ -121,3 +121,106 @@ export const passcodeAttempt = sqliteTable("passcode_attempt", {
   userId: text("user_id").notNull().references(() => user.id, { onDelete: "cascade" }),
   at: ts("at").notNull().default(now),
 }, (t) => [index("passcode_attempt_user_at").on(t.userId, t.at)]);
+
+// ---- Phase 2: places, tables (scheduled sessions), plays, feed, reports, notifications ----
+
+/** A venue members can play at: cafe, shop, community space. Public. */
+export const place = sqliteTable("place", {
+  id: text("id").primaryKey(),
+  name: text("name").notNull(),
+  district: text("district").notNull(),
+  address: text("address").notNull().default(""),
+  mapUrl: text("map_url"),
+  note: text("note").notNull().default(""), // opening hours, table fees, anything useful
+  createdBy: text("created_by").references(() => user.id, { onDelete: "set null" }),
+  createdAt: ts("created_at").notNull().default(now),
+}, (t) => [index("place_district").on(t.district)]);
+
+export const TABLE_STATUS = ["open", "done", "cancelled"] as const;
+
+/** A table: someone opens a session for a game at a time and place; others join. */
+export const playTable = sqliteTable("play_table", {
+  id: text("id").primaryKey(),
+  hostId: text("host_id").notNull().references(() => user.id, { onDelete: "cascade" }),
+  bggId: integer("bgg_id").notNull().references(() => game.bggId),
+  placeId: text("place_id").references(() => place.id, { onDelete: "set null" }),
+  startsAt: ts("starts_at").notNull(),
+  seats: integer("seats").notNull(), // including the host
+  note: text("note").notNull().default(""),
+  status: text("status", { enum: TABLE_STATUS }).notNull().default("open"),
+  createdAt: ts("created_at").notNull().default(now),
+}, (t) => [index("play_table_status_start").on(t.status, t.startsAt), index("play_table_host").on(t.hostId)]);
+
+export const tablePlayer = sqliteTable("table_player", {
+  tableId: text("table_id").notNull().references(() => playTable.id, { onDelete: "cascade" }),
+  userId: text("user_id").notNull().references(() => user.id, { onDelete: "cascade" }),
+  createdAt: ts("created_at").notNull().default(now),
+}, (t) => [primaryKey({ columns: [t.tableId, t.userId] }), index("table_player_user").on(t.userId)]);
+
+/** A logged play. Counts toward hotness and badges only for players who confirmed it. */
+export const play = sqliteTable("play", {
+  id: text("id").primaryKey(),
+  bggId: integer("bgg_id").notNull().references(() => game.bggId),
+  playedOn: text("played_on").notNull(), // YYYY-MM-DD, Jakarta date
+  placeId: text("place_id").references(() => place.id, { onDelete: "set null" }),
+  tableId: text("table_id").references(() => playTable.id, { onDelete: "set null" }),
+  loggedBy: text("logged_by").references(() => user.id, { onDelete: "set null" }),
+  durationMin: integer("duration_min"),
+  createdAt: ts("created_at").notNull().default(now),
+}, (t) => [index("play_game").on(t.bggId), index("play_played_on").on(t.playedOn)]);
+
+export const playPlayer = sqliteTable("play_player", {
+  id: text("id").primaryKey(),
+  playId: text("play_id").notNull().references(() => play.id, { onDelete: "cascade" }),
+  userId: text("user_id").references(() => user.id, { onDelete: "cascade" }), // null for a guest
+  guestName: text("guest_name"),
+  winner: integer("winner", { mode: "boolean" }).notNull().default(false),
+  score: integer("score"),
+  confirmed: integer("confirmed", { mode: "boolean" }).notNull().default(false),
+}, (t) => [index("play_player_play").on(t.playId), index("play_player_user").on(t.userId, t.confirmed)]);
+
+export const POST_KINDS = ["status", "play", "table", "trade"] as const;
+
+export const post = sqliteTable("post", {
+  id: text("id").primaryKey(),
+  userId: text("user_id").notNull().references(() => user.id, { onDelete: "cascade" }),
+  kind: text("kind", { enum: POST_KINDS }).notNull(),
+  body: text("body").notNull().default(""),
+  imageKey: text("image_key"),
+  refId: text("ref_id"), // play id, table id, or bgg id for a trade
+  createdAt: ts("created_at").notNull().default(now),
+}, (t) => [index("post_created").on(t.createdAt), index("post_user").on(t.userId)]);
+
+export const postLike = sqliteTable("post_like", {
+  postId: text("post_id").notNull().references(() => post.id, { onDelete: "cascade" }),
+  userId: text("user_id").notNull().references(() => user.id, { onDelete: "cascade" }),
+}, (t) => [primaryKey({ columns: [t.postId, t.userId] })]);
+
+export const postComment = sqliteTable("post_comment", {
+  id: text("id").primaryKey(),
+  postId: text("post_id").notNull().references(() => post.id, { onDelete: "cascade" }),
+  userId: text("user_id").notNull().references(() => user.id, { onDelete: "cascade" }),
+  body: text("body").notNull(),
+  createdAt: ts("created_at").notNull().default(now),
+}, (t) => [index("post_comment_post").on(t.postId, t.createdAt)]);
+
+export const REPORT_TARGETS = ["member", "post", "comment", "table", "place", "play"] as const;
+
+export const report = sqliteTable("report", {
+  id: text("id").primaryKey(),
+  reporterId: text("reporter_id").references(() => user.id, { onDelete: "set null" }),
+  targetType: text("target_type", { enum: REPORT_TARGETS }).notNull(),
+  targetId: text("target_id").notNull(),
+  reason: text("reason").notNull(),
+  status: text("status", { enum: ["open", "handled"] }).notNull().default("open"),
+  createdAt: ts("created_at").notNull().default(now),
+}, (t) => [index("report_status").on(t.status, t.createdAt)]);
+
+export const notification = sqliteTable("notification", {
+  id: text("id").primaryKey(),
+  userId: text("user_id").notNull().references(() => user.id, { onDelete: "cascade" }),
+  text: text("text").notNull(),
+  href: text("href").notNull(),
+  readAt: ts("read_at"),
+  createdAt: ts("created_at").notNull().default(now),
+}, (t) => [index("notification_user").on(t.userId, t.readAt, t.createdAt)]);

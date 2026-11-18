@@ -13,7 +13,7 @@ export const meta = () => [{ title: "Sign in · Bekasi Board Game Hub" }];
 
 export async function loader({ request }: Route.LoaderArgs) {
   const next = safeNext(new URL(request.url).searchParams.get("next"));
-  if (await getViewer(request)) throw redirect(next === "/" ? "/find" : next);
+  if (await getViewer(request)) throw redirect(next === "/" ? "/feed" : next);
   return { google: googleEnabled(), email: emailEnabled(), next };
 }
 
@@ -24,7 +24,7 @@ export default function SignIn({ loaderData }: Route.ComponentProps) {
   const [code, setCode] = useState("");
   const [busy, setBusy] = useState(false);
   const [error, setError] = useState<string | null>(null);
-  const after = next === "/" ? "/find" : next;
+  const after = next === "/" ? "/feed" : next;
 
   async function sendCode(e: React.FormEvent) {
     e.preventDefault();

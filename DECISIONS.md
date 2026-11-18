@@ -22,7 +22,16 @@ Status: Phase 1 live on two sites (sandbox + real), see README. Full report: [do
 | 16 | 2026-11-18 | ~~"Game night table" sticker design~~ (replaced by 18 after the anti-slop audit) | Owner found it generic and template-like |
 | 18 | 2026-11-18 | Design comes from the owner's player card sketch, written down in `DESIGN.md`: Montserrat, orange card header, round game tokens, numbered black markers, one shadow (the card), flat everything else. Audits live in `docs/anti-slop/` | Anti-Slop audit 001: the previous pass stacked trend tropes instead of using the owner's own design language |
 | 19 | 2026-11-18 | Design changes are made by hand in source, never by replacement scripts | Anti-Slop R-33 |
-| 17 | 2026-11-18 | Email-code limits: real site keeps Better Auth's 3 sign-ins/min and 3 code requests/5 min per IP; sandbox allows 30 | Real site resists code guessing and mail spam; sandbox testers share one Wi-Fi |
+| 17 | 2026-11-18 | Email-code limits: real site keeps Better Auth's 3 sign-ins/min and 3 code requests/5 min per IP; sandbox allows 200 per 5 min | Real site resists code guessing and mail spam; sandbox testers share one Wi-Fi and test runs sign in many users |
+| 20 | 2026-11-18 | Phase 2 and 3 built together (migration 0001, additive only): game-page one-tap actions, plays with confirmation, tables, places, feed with likes and comments, search, reports, in-app notifications, privacy/terms/safety pages, phone bottom bar with "+" | Owner said "start it all" after the Reroll comparison (`docs/reroll-comparison.md`) |
+| 21 | 2026-11-18 | A play counts for a member (hotness, badges) only after that member confirms it; the logger is confirmed automatically, guests need no account. Unconfirmed members are not named in the feed post | Reroll's rule: nobody can put numbers on your profile by typing your name |
+| 22 | 2026-11-18 | Hotness order: confirmed plays logged here (3 or more), then the member's BGG plays, then BGG's hot list (shown, never stored) | Owner's rule, now with real plays behind it |
+| 23 | 2026-11-18 | Badges are computed from counts on every card view (no badge table): First Roll, Regular, Host, Explorer, Wide Shelf, Trader | Nothing to keep in sync; thresholds are small because the community is |
+| 24 | 2026-11-18 | Notifications are in-app only (bell + page). Web push is not built | Push needs a service worker, VAPID keys and iOS home-screen install: a separate piece of work |
+| 25 | 2026-11-18 | Tables and places: tables are public to read (shareable in WhatsApp) but joining needs an account; plays, feed, search and the member directory are members-only; places are public and in the sitemap | Owner wants exposure from non-members without exposing members' activity |
+| 26 | 2026-11-18 | All times are Jakarta time, formatted by hand (`app/lib/dates.ts`), not with Intl | Intl differs between server and browser and caused hydration errors on another project |
+| 27 | 2026-11-18 | Delete account is in Settings (type your username to confirm); removes card, photo, posts, comments, hosted tables, picture files and takes the member off plays | Privacy page promises it |
+| 28 | 2026-11-18 | Privacy, terms and safety pages are plain-language drafts written by Claude, **not reviewed by a lawyer**; contact is "ask an admin in the WhatsApp group" (no email published) | Owner to review before launch and decide the public contact |
 
 ## Design kit
 

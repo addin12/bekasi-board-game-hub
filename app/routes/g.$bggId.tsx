@@ -8,20 +8,36 @@ import { formatRupiah } from "@/lib/validate";
 import { ensureGames } from "@/lib/.server/bgg";
 import { gamePeople } from "@/lib/.server/cards";
 import { getDb } from "@/lib/.server/db";
-import { getViewer } from "@/lib/.server/viewer";
+import { addGame, removeGame } from "@/lib/.server/card-actions";
+import { getViewer, requireMember } from "@/lib/.server/viewer";
+import { GameActions } from "@/components/game-actions";
 import type { Route } from "./+types/g.$bggId";
 
 export async function loader({ params, request }: Route.LoaderArgs) {
   const bggId = Number(params.bggId);
   if (!Number.isInteger(bggId) || bggId <= 0) throw new Response("Not found", { status: 404 });
   const db = getDb();
+  const v = await getViewer(request);
   // Only members may make us call BGG; visitors see games already cached (so random ids can't burn our quota).
-  if (await getViewer(request)) {
+  if (v) {
     try { await ensureGames(db, [bggId]); } catch { /* BGG down: show what we have */ }
   }
   const [g] = await db.select().from(game).where(eq(game.bggId, bggId)).limit(1);
   if (!g) throw new Response("Not found", { status: 404 });
-  return { game: g, people: await gamePeople(db, bggId), url: new URL(request.url).toString() };
+  const people = await gamePeople(db, bggId);
+  // Which lists this game is on for the viewer: lets the page show pressed buttons.
+  const mine = v?.profile ? people.filter((p) => p.userId === v.user.id && p.kind !== "hot").map((p) => p.kind) : [];
+  return { game: g, people, mine, signedIn: Boolean(v), hasCard: Boolean(v?.profile), url: new URL(request.url).toString() };
+}
+
+export async function action({ request, params }: Route.ActionArgs) {
+  const v = await requireMember(request);
+  const form = await request.formData();
+  const db = getDb();
+  form.set("bggId", params.bggId); // the page's own game, whatever the form says
+  if (form.get("intent") === "add") return addGame(db, v.user.id, form);
+  if (form.get("intent") === "remove") return removeGame(db, v.user.id, form);
+  return { ok: false as const, message: "Unknown action." };
 }
 
 export const meta = ({ loaderData: data }: Route.MetaArgs) => {
@@ -45,7 +61,7 @@ const TABS = [
 ] as const;
 
 export default function GamePage({ loaderData }: Route.ComponentProps) {
-  const { game: g, people } = loaderData;
+  const { game: g, people, mine, signedIn, hasCard } = loaderData;
   const facts = [
     g.year && `${g.year}`,
     g.minPlayers && `${g.minPlayers}${g.maxPlayers && g.maxPlayers !== g.minPlayers ? `–${g.maxPlayers}` : ""} players`,
@@ -71,6 +87,8 @@ export default function GamePage({ loaderData }: Route.ComponentProps) {
           <ShareButtons title={`Who plays ${g.name} in Bekasi`} path={`/g/${g.bggId}`} />
         </div>
       </div>
+
+      <GameActions bggId={g.bggId} signedIn={signedIn} hasCard={hasCard} mine={mine} />
 
       <Tabs defaultValue={first}>
         <TabsList>

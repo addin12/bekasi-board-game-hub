@@ -12,7 +12,7 @@ import type { Kind } from "@/db/schema";
 import { DISTRICT_GROUPS } from "@/lib/districts";
 import { HOT_SOURCE_LABEL } from "@/lib/hotness";
 import { formatRupiah, suggestHandle } from "@/lib/validate";
-import { addGame, importOwnedGames, removeGame, saveProfile, type ActionResult } from "@/lib/.server/card-actions";
+import { addGame, importOwnedGames, markSold, removeGame, saveProfile, type ActionResult } from "@/lib/.server/card-actions";
 import { loadCard, refreshHot } from "@/lib/.server/cards";
 import { getDb } from "@/lib/.server/db";
 import { requireViewer } from "@/lib/.server/viewer";
@@ -49,6 +49,7 @@ export async function action({ request }: Route.ActionArgs): Promise<ActionResul
   if (!v.profile) return { ok: false, message: "Save your card details first." };
   if (intent === "add") return addGame(db, v.user.id, form);
   if (intent === "remove") return removeGame(db, v.user.id, form);
+  if (intent === "sold") return markSold(db, v.user.id, form);
   if (intent === "import-owned") return importOwnedGames(db, v.user.id, v.profile.bggUsername);
   if (intent === "refresh-hot") {
     await refreshHot(db, v.user.id, v.profile.bggUsername);
@@ -156,6 +157,11 @@ function GameList({ kind, addLabel, games, max, price }: { kind: Kind; addLabel:
                   <span className="block text-sm text-muted-foreground">{[g.price ? formatRupiah(g.price) : null, g.condition].filter(Boolean).join(" · ")}</span>
                 )}
               </span>
+              {kind === "sell" && (
+                <Button variant="outline" size="sm" disabled={busy} onClick={() => fetcher.submit({ intent: "sold", bggId: String(g.bggId) }, { method: "post" })}>
+                  Sold<span className="sr-only"> {g.name}</span>
+                </Button>
+              )}
               <Button variant="ghost" size="sm" disabled={busy} onClick={() => fetcher.submit({ intent: "remove", kind, bggId: String(g.bggId) }, { method: "post" })}>
                 Remove<span className="sr-only"> {g.name}</span>
               </Button>

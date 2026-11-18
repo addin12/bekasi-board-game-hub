@@ -1,5 +1,7 @@
-import { and, asc, eq, inArray, sql } from "drizzle-orm";
-import { game, profile, user, userGame, type Kind } from "@/db/schema";
+import { and, asc, eq, gte, inArray, sql } from "drizzle-orm";
+import { game, play, playPlayer, profile, user, userGame, type Kind } from "@/db/schema";
+import { earnedBadges, type BadgeStats } from "@/lib/badges";
+import { todayWib } from "@/lib/dates";
 import { chooseHot, type HotSource } from "@/lib/hotness";
 import { BggBusy, ensureGames, hotList, recentPlays } from "./bgg";
 import type { Db } from "./db";
@@ -12,11 +14,11 @@ export type PersonLite = {
   userId: string; handle: string; displayName: string; district: string; avatar: string | null; verified: boolean;
 };
 
-const personCols = {
+export const personCols = {
   userId: profile.userId, handle: profile.handle, displayName: profile.displayName, district: profile.district,
   avatarKey: profile.avatarKey, image: user.image, verifiedAt: profile.verifiedAt,
 };
-const toPerson = (r: { userId: string; handle: string; displayName: string; district: string; avatarKey: string | null; image: string | null; verifiedAt: Date | null }): PersonLite => ({
+export const toPerson = (r: { userId: string; handle: string; displayName: string; district: string; avatarKey: string | null; image: string | null; verifiedAt: Date | null }): PersonLite => ({
   userId: r.userId, handle: r.handle, displayName: r.displayName, district: r.district,
   avatar: r.avatarKey ? `/img/${r.avatarKey}` : r.image, verified: Boolean(r.verifiedAt),
 });
@@ -56,27 +58,57 @@ export async function loadCard(db: Db, where: { handle: string } | { userId: str
     hot = await hotFallback(db);
     hotSource = hot.length ? "bgg_hot" : null;
   }
+  const stats = await badgeStatsFor(db, p.userId);
   return {
     person: toPerson(p), bio: p.bio, bggUsername: p.bggUsername, hotSource,
     favorite: by("favorite"), hot, want: by("want"), own: by("own"), sell: by("sell"), buy: by("buy"),
+    stats, badges: earnedBadges(stats).map(({ code, name, rule }) => ({ code, name, rule })), // plain data: it crosses to the browser
   };
 }
 export type Card = NonNullable<Awaited<ReturnType<typeof loadCard>>>;
 
-/** Recomputes a member's hot games. Only sessions and their own BGG plays are stored; the global hot list is shown, never stored. */
+/** Counts behind the badges. Only plays the member confirmed count. */
+export async function badgeStatsFor(db: Db, userId: string): Promise<BadgeStats> {
+  const rows = (await db.all(sql`
+    SELECT
+      (SELECT COUNT(DISTINCT pp.play_id) FROM play_player pp WHERE pp.user_id = ${userId} AND pp.confirmed = 1) AS plays,
+      (SELECT COUNT(DISTINCT p.bgg_id) FROM play_player pp JOIN play p ON p.id = pp.play_id WHERE pp.user_id = ${userId} AND pp.confirmed = 1) AS games,
+      (SELECT COUNT(DISTINCT p.place_id) FROM play_player pp JOIN play p ON p.id = pp.play_id WHERE pp.user_id = ${userId} AND pp.confirmed = 1 AND p.place_id IS NOT NULL) AS places,
+      (SELECT COUNT(*) FROM play_table WHERE host_id = ${userId} AND status = 'done') AS hosted,
+      (SELECT COUNT(*) FROM post WHERE user_id = ${userId} AND kind = 'trade' AND body LIKE 'sold %') AS sold
+  `)) as BadgeStats[];
+  return rows[0] ?? { plays: 0, games: 0, places: 0, hosted: 0, sold: 0 };
+}
+
+/** Recomputes a member's hot games. Logged plays win once there are enough, then their BGG plays; the global hot list is shown, never stored. */
 export async function refreshHot(db: Db, userId: string, bggUsername: string | null) {
   let bggPlays = null;
   if (bggUsername) {
     try { bggPlays = await recentPlays(bggUsername); } catch (e) { if (!(e instanceof BggBusy)) console.warn("BGG plays", e); }
   }
-  // Phase 2 adds logged sessions here.
-  const pick = chooseHot({ sessionPlays: [], bggPlays, bggHot: [] });
+  const since = todayWib(Date.now() - 90 * 86400_000);
+  const logged = await db
+    .select({ bggId: play.bggId, date: play.playedOn })
+    .from(playPlayer)
+    .innerJoin(play, eq(play.id, playPlayer.playId))
+    .where(and(eq(playPlayer.userId, userId), eq(playPlayer.confirmed, true), gte(play.playedOn, since)));
+  const pick = chooseHot({ sessionPlays: logged, bggPlays, bggHot: [] });
   await db.delete(userGame).where(and(eq(userGame.userId, userId), eq(userGame.kind, "hot")));
   if (pick.source !== "bgg_hot" && pick.ids.length) {
     await ensureGames(db, pick.ids);
     await db.insert(userGame).values(pick.ids.map((bggId, position) => ({ userId, bggId, kind: "hot" as const, position })));
   }
   await db.update(profile).set({ hotSource: pick.ids.length ? pick.source : null, hotUpdatedAt: new Date() }).where(eq(profile.userId, userId));
+}
+
+/** refreshHot for callers that only know the member (a play was confirmed or removed). Never throws: hotness is a bonus. */
+export async function refreshHotFor(db: Db, userId: string) {
+  try {
+    const [p] = await db.select({ bgg: profile.bggUsername }).from(profile).where(eq(profile.userId, userId)).limit(1);
+    if (p) await refreshHot(db, userId, p.bgg);
+  } catch (e) {
+    console.warn("refreshHotFor", e);
+  }
 }
 
 /** Everyone who has this game on their card, by kind. */

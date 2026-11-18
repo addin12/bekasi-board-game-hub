@@ -1,10 +1,11 @@
 import { env } from "cloudflare:workers";
 import { and, count, eq, ne } from "drizzle-orm";
-import { profile, userGame, KINDS, type Kind } from "@/db/schema";
-import { parseRupiah, profileSchema } from "@/lib/validate";
+import { game, profile, userGame, KINDS, type Kind } from "@/db/schema";
+import { formatRupiah, parseRupiah, profileSchema } from "@/lib/validate";
 import { BggBusy, ensureGames, importOwned } from "./bgg";
 import { refreshHot } from "./cards";
 import type { Db } from "./db";
+import { tradePost } from "./feed";
 
 export type ActionResult = { ok: true; message: string } | { ok: false; message: string; fieldErrors?: Record<string, string> };
 
@@ -60,10 +61,26 @@ export async function addGame(db: Db, userId: string, form: FormData): Promise<A
   } catch {
     return { ok: false, message: "BoardGameGeek isn't answering. Try again in a minute." };
   }
+  const [already] = await db.select({ b: userGame.bggId }).from(userGame).where(and(eq(userGame.userId, userId), eq(userGame.bggId, bggId), eq(userGame.kind, kind))).limit(1);
   await db.insert(userGame).values({ userId, bggId, kind, position: n, price, condition }).onConflictDoUpdate({
     target: [userGame.userId, userGame.bggId, userGame.kind], set: { price, condition },
   });
+  if (kind === "sell" && !already) {
+    const [g] = await db.select({ name: game.name }).from(game).where(eq(game.bggId, bggId)).limit(1);
+    if (g) await tradePost(db, userId, bggId, `is selling ${g.name}${price ? ` for ${formatRupiah(price)}` : ""}`);
+  }
   return { ok: true, message: "Added." };
+}
+
+/** The deal happened: take it off the card and say so in the feed. Counts toward the Trader badge. */
+export async function markSold(db: Db, userId: string, form: FormData): Promise<ActionResult> {
+  const bggId = Number(form.get("bggId"));
+  const [row] = await db.select({ name: game.name }).from(userGame).innerJoin(game, eq(game.bggId, userGame.bggId))
+    .where(and(eq(userGame.userId, userId), eq(userGame.kind, "sell"), eq(userGame.bggId, bggId))).limit(1);
+  if (!row) return { ok: false, message: "That game isn't on your selling list." };
+  await db.delete(userGame).where(and(eq(userGame.userId, userId), eq(userGame.kind, "sell"), eq(userGame.bggId, bggId)));
+  await tradePost(db, userId, bggId, `sold ${row.name}`);
+  return { ok: true, message: "Marked as sold." };
 }
 
 export async function removeGame(db: Db, userId: string, form: FormData): Promise<ActionResult> {

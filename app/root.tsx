@@ -41,7 +41,7 @@ export function ErrorBoundary({ error }: Route.ErrorBoundaryProps) {
     <main className="mx-auto grid max-w-xl gap-4 px-4 py-16">
       <h1 className="text-3xl font-semibold">{title}</h1>
       <p className="text-muted-foreground">{details}</p>
-      <a className="underline underline-offset-4" href="/">Go to the home page</a>
+      <a className="inline-flex min-h-11 w-fit items-center underline underline-offset-4" href="/">Go to the home page</a>
     </main>
   );
 }

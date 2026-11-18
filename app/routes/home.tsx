@@ -20,7 +20,7 @@ export const meta = () => {
 
 export async function loader({ request }: Route.LoaderArgs) {
   const v = await getViewer(request);
-  if (v) throw redirect(v.profile ? "/find" : "/me/edit");
+  if (v) throw redirect(v.profile ? "/feed" : "/me/edit");
   const members = await getDb()
     .select({ handle: profile.handle, displayName: profile.displayName, district: profile.district, avatarKey: profile.avatarKey, image: user.image })
     .from(profile).innerJoin(user, eq(user.id, profile.userId))

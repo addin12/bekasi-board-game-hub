@@ -2,7 +2,11 @@
 
 A community site for Bekasi board gamers. Every member has a **player card** (favorites, hotness, want to play, trade list), and the site matches cards: like-minded players, people to play with, and buyers/sellers.
 
-Stack: React Router 8 on Cloudflare Workers, D1 (SQLite) through Drizzle, R2 for avatars, Better Auth (email code + Google), shadcn/ui + Tailwind 4. Game data from the BoardGameGeek XML API.
+Beyond the card: log plays (confirmed by the people on them, which feeds Hotness and badges), open tables others can join, a places directory, a community feed with likes and comments, search, reports for admins, in-app notifications, and one-tap "add to my card" on every game page.
+
+Stack: React Router 8 on Cloudflare Workers, D1 (SQLite) through Drizzle, R2 for pictures, Better Auth (email code + Google), shadcn/ui + Tailwind 4. Game data from the BoardGameGeek XML API.
+
+**Before the next real-site deploy:** this code needs migration `0001_phase2` on the real database first (`npm run db:migrate:remote`), then `npm run deploy`. The sandbox already has both.
 
 ## Quick start
 

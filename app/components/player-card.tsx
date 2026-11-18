@@ -58,6 +58,7 @@ export function PlayerCard({ card }: { card: Card }) {
               <MapPin className="size-4" style={fill} stroke="var(--color-brand)" aria-hidden /> {person.district}
             </p>
           )}
+          {card.stats.plays > 0 && <p className="text-sm font-semibold text-ink tabular-nums">{card.stats.plays} {card.stats.plays === 1 ? "play" : "plays"} logged</p>}
           {person.verified && (
             <p className="mt-1 inline-flex w-fit items-center gap-1 rounded-full bg-ink px-2.5 py-1 text-xs font-bold text-white">
               <BadgeCheck className="size-4" aria-hidden /> Verified member
@@ -116,6 +117,16 @@ export function PlayerCard({ card }: { card: Card }) {
             ))}
           </ul>
         </Section>
+
+        {card.badges.length > 0 && (
+          <Section icon={null} label="Badges" color="text-ink" empty={false}>
+            <ul className="grid gap-1.5">
+              {card.badges.map((b) => (
+                <li key={b.code} className="flex flex-wrap items-baseline gap-x-2"><span className="font-extrabold">{b.name}</span><span className="text-sm text-muted-foreground">{b.rule}</span></li>
+              ))}
+            </ul>
+          </Section>
+        )}
       </div>
     </article>
   );

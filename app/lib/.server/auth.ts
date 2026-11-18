@@ -29,7 +29,7 @@ function createAuth() {
         allowedAttempts: 5,
         storeOTP: "hashed",
         // Plugin default is 3 per minute per IP for its routes; sandbox testers share Wi-Fi, so loosen it there only.
-        rateLimit: isSandboxOn(env.SANDBOX) ? { window: 60, max: 30 } : undefined,
+        rateLimit: isSandboxOn(env.SANDBOX) ? { window: 60, max: 120 } : undefined,
         // Sandbox only: fixed code for name@sandbox.test (undefined → Better Auth's random code).
         generateOTP: ({ email }) => (isSandboxEmail(email, isSandboxOn(env.SANDBOX)) ? SANDBOX_CODE : undefined),
         async sendVerificationOTP({ email, otp }) {
@@ -44,7 +44,7 @@ function createAuth() {
     ],
     // Workers have no shared memory between requests, so limits live in D1.
     // Sandbox testers often share one Wi-Fi (one IP), so the code-request limit is looser there.
-    rateLimit: { enabled: true, storage: "database", window: 60, max: 30, customRules: { "/email-otp/send-verification-otp": { window: 300, max: isSandboxOn(env.SANDBOX) ? 30 : 3 } } },
+    rateLimit: { enabled: true, storage: "database", window: 60, max: 30, customRules: { "/email-otp/send-verification-otp": { window: 300, max: isSandboxOn(env.SANDBOX) ? 200 : 3 } } },
     advanced: { ipAddress: { ipAddressHeaders: ["cf-connecting-ip"] } },
   });
 }

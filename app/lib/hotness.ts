@@ -32,7 +32,7 @@ export function chooseHot(input: {
 }
 
 export const HOT_SOURCE_LABEL: Record<HotSource, string> = {
-  sessions: "From sessions logged here",
+  sessions: "From plays logged here",
   bgg_plays: "From recent BGG plays",
   bgg_hot: "Hot on BGG right now",
 };

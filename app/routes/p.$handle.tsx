@@ -1,5 +1,6 @@
 import { Link } from "react-router";
 import { PlayerCard } from "@/components/player-card";
+import { ReportButton } from "@/components/report-button";
 import { ShareButtons } from "@/components/share-button";
 import { Button } from "@/components/ui/button";
 import { loadCard } from "@/lib/.server/cards";
@@ -13,7 +14,7 @@ export async function loader({ request, params }: Route.LoaderArgs) {
   const v = await getViewer(request);
   const origin = new URL(request.url).origin;
   const image = card.person.avatar ?? card.favorite[0]?.thumbnail ?? null;
-  return { card, isMe: v?.user.id === card.person.userId, ogImage: image ? new URL(image, origin).toString() : null, url: `${origin}/p/${card.person.handle}` };
+  return { card, isMe: v?.user.id === card.person.userId, member: Boolean(v?.profile), ogImage: image ? new URL(image, origin).toString() : null, url: `${origin}/p/${card.person.handle}` };
 }
 
 // Public page: these tags make the WhatsApp / Instagram link preview.
@@ -35,7 +36,7 @@ export const meta = ({ loaderData: data }: Route.MetaArgs) => {
 };
 
 export default function PlayerPage({ loaderData }: Route.ComponentProps) {
-  const { card, isMe } = loaderData;
+  const { card, isMe, member } = loaderData;
   return (
     <div className="mx-auto grid max-w-2xl gap-4">
       <div className="flex flex-wrap justify-between gap-2">
@@ -43,6 +44,7 @@ export default function PlayerPage({ loaderData }: Route.ComponentProps) {
         {isMe && <Button asChild><Link to="/me/edit">Edit my card</Link></Button>}
       </div>
       <PlayerCard card={card} />
+      {member && !isMe && <div><ReportButton type="member" id={card.person.handle} what={card.person.displayName} /></div>}
     </div>
   );
 }
