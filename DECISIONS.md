@@ -44,6 +44,8 @@ A later row replaces each struck-through row. The row numbers are not in date or
 
 | 36 | 2026-11-19 | We reviewed all 338 UI strings against the `copyskills` ux-copy skill and the `marketingskills` copywriting skill. We changed 15 strings. An error message now says what failed and what to do next. A destructive button names its action. A button that said "Add" now says "Add game" or "Add guest". | The owner asked for a copy pass with popular copywriting skills. Most of the text already met the rules. |
 
+| 37 | 2026-11-19 | We moved both sites to the bekasibgcom@gmail.com Cloudflare account (subdomain `bbgc`). We created new D1 databases and R2 buckets, ran all migrations, and seeded the sandbox. The real database had no members, so we copied no data. | The owner wants the project under the community email. |
+
 ## Design kit
 
 - Charcoal Satin is in `app/components/charcoal-satin.tsx` and `app/lib/gradient-engine/`. The shadcn CLI put the engine folders in one flat `app/lib` folder, and the shader files overwrote each other. We rewrote the engine from `design-kit/gradient/gradient-engine.registry.json` with its real paths. If you add it again with the CLI, it breaks again.

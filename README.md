@@ -68,8 +68,8 @@ Secrets are in `.dev.vars` on your computer (see `.dev.vars.example`). In produc
 
 | Site | URL | Data | Sign-in |
 |---|---|---|---|
-| Sandbox (test and simulation) | https://bekasi-board-game-hub-staging.addinalayubi12.workers.dev | Fake demo members. The data can be wiped. | Any `name@sandbox.test` with code `000000`. Example: `raka@sandbox.test`. The admin is `admin@sandbox.test`. |
-| Real | https://bekasi-board-game-hub.addinalayubi12.workers.dev | Real members | Google or email code, after you configure them |
+| Sandbox (test and simulation) | https://bekasi-board-game-hub-staging.bbgc.workers.dev | Fake demo members. The data can be wiped. | Any `name@sandbox.test` with code `000000`. Example: `raka@sandbox.test`. The admin is `admin@sandbox.test`. |
+| Real | https://bekasi-board-game-hub.bbgc.workers.dev | Real members | Google or email code, after you configure them |
 
 Each site has its own Worker, D1 database, R2 bucket, and secrets. In `wrangler.jsonc`, the top level is the real site and `env.staging` is the sandbox. The sandbox sends `X-Robots-Tag: noindex`.
 
@@ -92,6 +92,6 @@ Set a secret on the real site with `wrangler secret put NAME`. Set it on the san
 - Set now: `BGG_TOKEN`, `BETTER_AUTH_SECRET` (a different value on each site), and `BETTER_AUTH_URL`.
 - Not set yet: `GOOGLE_CLIENT_ID`, `GOOGLE_CLIENT_SECRET`, `MAIL_RELAY_URL`, and `MAIL_RELAY_SECRET`.
 
-### State on 2026-11-19
+### State on 2026-11-19 (updated)
 
-Both sites run migration `0002_admin_log` and the same code. The real site has no sign-in yet. Google OAuth and the move to the bekasibgcom@gmail.com Cloudflare account are pending.
+Both sites run in the bekasibgcom@gmail.com Cloudflare account (workers.dev subdomain `bbgc`). They run migration `0002_admin_log` and the same code. The real site has no sign-in yet. It waits for the Google OAuth secrets. The old resources in the addinalayubi12 account still exist.
