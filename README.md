@@ -90,8 +90,9 @@ To reset the demo members, run `npm run seed:sandbox`.
 Set a secret on the real site with `wrangler secret put NAME`. Set it on the sandbox with `wrangler secret put NAME --env staging`.
 
 - Set now: `BGG_TOKEN`, `BETTER_AUTH_SECRET` (a different value on each site), and `BETTER_AUTH_URL`.
-- Not set yet: `GOOGLE_CLIENT_ID`, `GOOGLE_CLIENT_SECRET`, `MAIL_RELAY_URL`, and `MAIL_RELAY_SECRET`.
+- Set on the real site only: `GOOGLE_CLIENT_ID` and `GOOGLE_CLIENT_SECRET`. The sandbox has no Google redirect URI.
+- Not set yet: `MAIL_RELAY_URL` and `MAIL_RELAY_SECRET`.
 
 ### State on 2026-11-19 (updated)
 
-Both sites run in the bekasibgcom@gmail.com Cloudflare account (workers.dev subdomain `bbgc`). They run migration `0002_admin_log` and the same code. The real site has no sign-in yet. It waits for the Google OAuth secrets. We deleted the old resources in the addinalayubi12 account on 2026-11-19.
+Both sites run in the bekasibgcom@gmail.com Cloudflare account (workers.dev subdomain `bbgc`). They run migration `0002_admin_log` and the same code. The real site signs in with Google only. Google sign-in is on (secrets set 2026-11-19). We deleted the old resources in the addinalayubi12 account on 2026-11-19.
