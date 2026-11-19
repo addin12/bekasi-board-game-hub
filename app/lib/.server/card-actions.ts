@@ -49,7 +49,7 @@ export async function saveProfile(db: Db, userId: string, form: FormData, existi
 export async function addGame(db: Db, userId: string, form: FormData): Promise<ActionResult> {
   const kind = String(form.get("kind")) as Kind;
   const bggId = Number(form.get("bggId"));
-  if (!EDITABLE.includes(kind) || !Number.isInteger(bggId) || bggId <= 0) return { ok: false, message: "That game couldn't be added" };
+  if (!EDITABLE.includes(kind) || !Number.isInteger(bggId) || bggId <= 0) return { ok: false, message: "We could not add that game. Try again." };
   const [{ n }] = await db.select({ n: count() }).from(userGame).where(and(eq(userGame.userId, userId), eq(userGame.kind, kind)));
   if (n >= LIMITS[kind]) return { ok: false, message: kind === "favorite" ? "You can pick 3 favorites. Remove one first." : `This list is full (${LIMITS[kind]}).` };
   const rawPrice = String(form.get("price") ?? "");
@@ -86,7 +86,7 @@ export async function markSold(db: Db, userId: string, form: FormData): Promise<
 export async function removeGame(db: Db, userId: string, form: FormData): Promise<ActionResult> {
   const kind = String(form.get("kind")) as Kind;
   const bggId = Number(form.get("bggId"));
-  if (!KINDS.includes(kind) || kind === "hot") return { ok: false, message: "That game couldn't be removed" };
+  if (!KINDS.includes(kind) || kind === "hot") return { ok: false, message: "We could not remove that game. Try again." };
   await db.delete(userGame).where(and(eq(userGame.userId, userId), eq(userGame.kind, kind), eq(userGame.bggId, bggId)));
   return { ok: true, message: "Removed" };
 }

@@ -12,7 +12,7 @@ export function ReportButton({ type, id, what }: { type: "member" | "post" | "co
   useEffect(() => {
     if (!fetcher.data) return;
     if (fetcher.data.ok) { toast.success("Thanks. An admin will look at it."); setOpen(false); }
-    else toast.error(fetcher.data.message ?? "The report couldn't be sent");
+    else toast.error(fetcher.data.message ?? "We could not send the report. Try again.");
   }, [fetcher.data]);
 
   if (!open) {

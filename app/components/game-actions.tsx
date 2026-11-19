@@ -79,7 +79,7 @@ export function GameActions({ bggId, signedIn, hasCard, mine }: { bggId: number;
           </div>
           <div className="flex justify-between gap-2">
             <Button type="button" variant="ghost" onClick={() => setPriceFor(null)}>Cancel</Button>
-            <Button type="submit">Add</Button>
+            <Button type="submit">Add game</Button>
           </div>
         </form>
       )}

@@ -61,7 +61,7 @@ export default function AdminPlace({ loaderData, actionData }: Route.ComponentPr
           <Field id="note" label="Good to know" error={err("note")} className="sm:col-span-2"><Textarea id="note" name="note" maxLength={200} rows={2} defaultValue={p.note} /></Field>
         </div>
         <div className="flex flex-wrap items-center justify-between gap-3">
-          <ConfirmButton size="default" label="Delete place" confirmLabel="Delete for good" disabled={del.state !== "idle"} onConfirm={() => del.submit({ intent: "delete" }, { method: "post" })} />
+          <ConfirmButton size="default" label="Delete place" confirmLabel="Yes, delete place" disabled={del.state !== "idle"} onConfirm={() => del.submit({ intent: "delete" }, { method: "post" })} />
           <Button type="submit" disabled={busy}>Save</Button>
         </div>
       </Form>

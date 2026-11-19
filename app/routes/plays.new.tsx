@@ -43,7 +43,7 @@ export async function loader({ request }: Route.LoaderArgs) {
 export async function action({ request }: Route.ActionArgs) {
   const v = await requireMember(request);
   let raw: unknown;
-  try { raw = JSON.parse(String((await request.formData()).get("payload") ?? "")); } catch { return { ok: false as const, message: "That didn't send properly. Try again." }; }
+  try { raw = JSON.parse(String((await request.formData()).get("payload") ?? "")); } catch { return { ok: false as const, message: "We could not send this play. Try again." }; }
   const parsed = playSchema().safeParse(raw);
   if (!parsed.success) return { ok: false as const, message: parsed.error.issues[0]?.message ?? "Check the form" };
   const res = await createPlay(getDb(), v.user.id, parsed.data);
@@ -130,7 +130,7 @@ export default function LogPlay({ loaderData, actionData }: Route.ComponentProps
                 <label htmlFor="guest" className="text-sm font-semibold">Add a guest</label>
                 <div className="flex gap-2">
                   <Input id="guest" value={guest} maxLength={30} placeholder="Name" onChange={(e) => setGuest(e.target.value)} onKeyDown={(e) => { if (e.key === "Enter") { e.preventDefault(); addGuest(); } }} />
-                  <Button type="button" variant="outline" onClick={addGuest}>Add</Button>
+                  <Button type="button" variant="outline" onClick={addGuest}>Add guest</Button>
                 </div>
               </div>
             </div>

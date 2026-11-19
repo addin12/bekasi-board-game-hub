@@ -191,7 +191,7 @@ function GameList({ kind, addLabel, games, max, price }: { kind: Kind; addLabel:
           </div>
           <div className="flex justify-between gap-2">
             <Button type="button" variant="ghost" onClick={() => setPending(null)}>Cancel</Button>
-            <Button type="submit">Add</Button>
+            <Button type="submit">Add game</Button>
           </div>
         </form>
       ) : (

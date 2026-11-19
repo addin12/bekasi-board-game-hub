@@ -32,7 +32,7 @@ export default function SignIn({ loaderData }: Route.ComponentProps) {
     setError(null);
     const { error } = await authClient.emailOtp.sendVerificationOtp({ email: email.trim(), type: "sign-in" });
     setBusy(false);
-    if (error) return setError(error.status === 429 ? "Too many codes asked. Wait a few minutes, then try again." : error.message ?? "We couldn't send the code. Check the address and try again.");
+    if (error) return setError(error.status === 429 ? "Too many code requests. Wait a few minutes, then try again." : error.message ?? "We couldn't send the code. Check the address and try again.");
     setStep("code");
   }
 

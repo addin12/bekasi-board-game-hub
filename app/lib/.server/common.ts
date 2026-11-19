@@ -6,7 +6,7 @@ import type { Db } from "./db";
 /** Short random id for URLs (16 hex chars). Not a secret: access is always checked separately. */
 export const newId = () => crypto.randomUUID().replace(/-/g, "").slice(0, 16);
 
-export const LIMIT_MSG = "You're doing that a lot. Try again in a little while.";
+export const LIMIT_MSG = "Too many requests. Try again in a few minutes.";
 
 export type Result<T extends object = object> = ({ ok: true } & T) | { ok: false; message: string };
 

@@ -40,7 +40,7 @@ export default function PlayPage({ loaderData }: Route.ComponentProps) {
   const { play, viewerId, isAdmin } = loaderData;
   const f = useFetcher<{ ok: boolean; message?: string }>();
   const [confirmDelete, setConfirmDelete] = useState(false);
-  useEffect(() => { if (f.data && !f.data.ok) toast.error(f.data.message ?? "That didn't work"); }, [f.data]);
+  useEffect(() => { if (f.data && !f.data.ok) toast.error(f.data.message ?? "We could not save that change. Try again."); }, [f.data]);
   const me = play.players.find((p) => p.userId === viewerId);
   const busy = f.state !== "idle";
   const act = (intent: string) => f.submit({ intent }, { method: "post" });

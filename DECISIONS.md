@@ -42,6 +42,8 @@ A later row replaces each struck-through row. The row numbers are not in date or
 | 28 | 2026-11-18 | The privacy, terms, and safety pages are plain-language drafts that Claude wrote. **A lawyer has not reviewed them.** The contact is "ask an admin in the WhatsApp group". The pages publish no email. | The owner must review them before the site opens and decide the public contact. |
 | 35 | 2026-11-19 | Write the README, DESIGN.md, and DECISIONS.md in ASD-STE100 style. Do not apply it to the UI copy of the site. | The owner asked for it. The skill excludes marketing and creative copy. |
 
+| 36 | 2026-11-19 | We reviewed all 338 UI strings against the `copyskills` ux-copy skill and the `marketingskills` copywriting skill. We changed 15 strings. An error message now says what failed and what to do next. A destructive button names its action. A button that said "Add" now says "Add game" or "Add guest". | The owner asked for a copy pass with popular copywriting skills. Most of the text already met the rules. |
+
 ## Design kit
 
 - Charcoal Satin is in `app/components/charcoal-satin.tsx` and `app/lib/gradient-engine/`. The shadcn CLI put the engine folders in one flat `app/lib` folder, and the shader files overwrote each other. We rewrote the engine from `design-kit/gradient/gradient-engine.registry.json` with its real paths. If you add it again with the CLI, it breaks again.

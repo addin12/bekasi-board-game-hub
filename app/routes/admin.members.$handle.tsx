@@ -95,7 +95,7 @@ export default function AdminMember({ loaderData, actionData }: Route.ComponentP
         ) : (
           <>
             <p className="text-muted-foreground">Removes the card, photo, posts, comments and hosted tables. It can't be undone, and the member is not told.</p>
-            <div><ConfirmButton size="default" label="Delete this account" confirmLabel="Delete for good" disabled={f.state !== "idle"} onConfirm={() => act("delete")} /></div>
+            <div><ConfirmButton size="default" label="Delete this account" confirmLabel="Yes, delete account" disabled={f.state !== "idle"} onConfirm={() => act("delete")} /></div>
           </>
         )}
       </section>

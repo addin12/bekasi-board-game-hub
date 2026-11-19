@@ -87,7 +87,7 @@ export default function Settings({ loaderData, actionData: result }: Route.Compo
               <Input id="confirm" name="confirm" autoComplete="off" autoCapitalize="none" spellCheck={false} required aria-invalid={!!deleteError} />
               {deleteError && <p role="alert" className="text-sm text-destructive">{deleteError}</p>}
             </div>
-            <div className="flex justify-end"><Button type="submit" variant="destructive" disabled={busy}>Delete everything</Button></div>
+            <div className="flex justify-end"><Button type="submit" variant="destructive" disabled={busy}>Delete my account</Button></div>
           </Form>
         </details>
       </section>

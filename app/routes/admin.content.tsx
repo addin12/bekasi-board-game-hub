@@ -62,7 +62,7 @@ export default function AdminContent({ loaderData }: Route.ComponentProps) {
                 <span className="flex flex-wrap items-center gap-2">
                   {look && <Button asChild variant="outline" size="sm"><Link to={look}>{type === "places" ? "Edit" : "Look at it"}</Link></Button>}
                   {!(type === "tables" && r.meta.endsWith("cancelled")) && !(type === "tables" && r.meta.endsWith("done")) && (
-                    <ConfirmButton label={type === "tables" ? "Cancel" : "Delete"} confirmLabel={type === "tables" ? "Cancel table" : "Delete for good"} disabled={f.state !== "idle"} onConfirm={() => f.submit({ intent: "remove", type, id: r.id }, { method: "post" })} />
+                    <ConfirmButton label={type === "tables" ? "Cancel" : "Delete"} confirmLabel={type === "tables" ? "Cancel table" : "Yes, delete it"} disabled={f.state !== "idle"} onConfirm={() => f.submit({ intent: "remove", type, id: r.id }, { method: "post" })} />
                   )}
                 </span>
               </li>

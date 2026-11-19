@@ -18,7 +18,7 @@ export default function Privacy() {
           <li><strong>Your card:</strong> the games you list as favorites, wanted, owned, for sale or wanted to buy, with the prices you enter.</li>
           <li><strong>What you do here:</strong> plays you log or are added to, tables you open or join, posts, comments, likes, places you add, reports you send, and notifications for you.</li>
           <li><strong>BoardGameGeek:</strong> if you enter your BGG username, we read your public collection and plays from BoardGameGeek to fill in your card.</li>
-          <li><strong>Your device:</strong> one cookie that keeps you signed in. No advertising, no tracking pixels, no analytics.</li>
+          <li><strong>Your device:</strong> one cookie that keeps you signed in. The site shows no ads and uses no tracking pixels or analytics.</li>
         </ul>
       </section>
 
