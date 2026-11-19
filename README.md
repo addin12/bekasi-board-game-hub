@@ -1,14 +1,34 @@
 # Bekasi Board Game Hub
 
-A community site for Bekasi board gamers. Every member has a **player card** (favorites, hotness, want to play, trade list), and the site matches cards: like-minded players, people to play with, and buyers/sellers.
+This is a community site for board gamers in Bekasi. Each member has a **player card**. The card shows favorite games, hotness, games the member wants to play, and a trade list. The site matches cards to find like-minded players, people to play with, and buyers and sellers.
 
-Beyond the card: log plays (confirmed by the people on them, which feeds Hotness and badges), open tables others can join, a places directory, a community feed with likes and comments, search, reports for admins, in-app notifications, and one-tap "add to my card" on every game page.
+The site also has these features:
 
-**Back office** (`/admin`, admins only, the emails in `ADMIN_EMAILS`): overview and reports, members (search, verify, edit details, remove photo, delete account), content (delete posts, comments, plays; cancel tables; edit or delete places), site text (home headline and intro, banner, contact line, footer, member passcode) and a log of every admin action.
+- Members log plays. The people in a play confirm it. Confirmed plays set Hotness and badges.
+- Members open tables that other members can join.
+- A places directory.
+- A community feed with likes and comments.
+- Search, reports for admins, and in-app notifications.
+- A one-tap "add to my card" button on each game page.
 
-Stack: React Router 8 on Cloudflare Workers, D1 (SQLite) through Drizzle, R2 for pictures, Better Auth (email code + Google), shadcn/ui + Tailwind 4. Game data from the BoardGameGeek XML API.
+## Back office
 
-The real site is on migration `0001_phase2`; the sandbox is on `0002_admin_log` with newer code (back office and the unslop pass), waiting for "ship it". Order for any later migration: sandbox first, then `npm run db:migrate:remote`, then `npm run deploy`.
+The back office is at `/admin`. Only the emails in `ADMIN_EMAILS` can open it. An admin can do these tasks:
+
+- Read the overview and the report queue.
+- Search members, verify them, edit their details, remove a photo, or delete an account.
+- Delete posts, comments, and plays. Cancel tables. Edit or delete places.
+- Edit the site text: home headline, intro, banner, contact line, footer, and member passcode.
+- Read the log of every admin action.
+
+## Stack
+
+- React Router 8 on Cloudflare Workers.
+- D1 (SQLite) through Drizzle.
+- R2 for pictures.
+- Better Auth (email code and Google).
+- shadcn/ui and Tailwind 4.
+- Game data from the BoardGameGeek XML API.
 
 ## Quick start
 
@@ -19,42 +39,59 @@ npm run db:migrate:local           # creates the local D1 database
 npm run dev                        # http://localhost:5173
 ```
 
-Without a mail relay, sign-in codes are printed in the dev server console.
+Without a mail relay, the dev server prints sign-in codes in its console.
 
 ## Scripts
 
-| Command | What it does |
+| Command | Action |
 |---|---|
-| `npm run dev` | Dev server with local D1 and R2 |
-| `npm run typecheck` | Worker types, route types, `tsc` |
-| `npm test` | Unit tests (Vitest) |
-| `npm run db:generate` | New SQL migration from `app/db/schema.ts` |
+| `npm run dev` | Start the dev server with local D1 and R2 |
+| `npm run typecheck` | Check Worker types, route types, and `tsc` |
+| `npm test` | Run unit tests (Vitest) |
+| `npm run db:generate` | Create a SQL migration from `app/db/schema.ts` |
 | `npm run db:migrate:local` / `:remote` | Apply migrations |
 | `npm run deploy` | Build and deploy the Worker |
 
 ## Configuration
 
-Secrets live in `.dev.vars` locally (see `.dev.vars.example`) and as Worker secrets in production (`wrangler secret put NAME`). Plain settings (`APP_NAME`, `ADMIN_EMAILS`) are in `wrangler.jsonc`.
+Secrets are in `.dev.vars` on your computer (see `.dev.vars.example`). In production, they are Worker secrets (`wrangler secret put NAME`). Plain settings (`APP_NAME`, `ADMIN_EMAILS`) are in `wrangler.jsonc`.
 
 ## Where things are
 
-- `app/db/schema.ts`: all tables. The `user_game` table (person + game + kind) drives every filter.
+- `app/db/schema.ts`: all tables. The `user_game` table (person, game, kind) drives every filter.
 - `app/lib/.server/`: server-only code (auth, BGG client, card queries, passcode).
-- `app/lib/*.ts`: pure logic shared by server and browser (tested in `tests/unit`).
+- `app/lib/*.ts`: pure logic. The server and the browser share it. Tests are in `tests/unit`.
 - `app/routes/`: pages. `routes.ts` lists them.
-- `docs/brainstorm-report.html`, `DECISIONS.md`: why things are the way they are.
+- `docs/brainstorm-report.html` and `DECISIONS.md`: the reasons for each choice.
 
 ## The two live sites
 
 | Site | URL | Data | Sign-in |
 |---|---|---|---|
-| Sandbox (test + simulation) | https://bekasi-board-game-hub-staging.addinalayubi12.workers.dev | Fake demo members, may be wiped | Any `name@sandbox.test` with code `000000` (e.g. `raka@sandbox.test`, admin: `admin@sandbox.test`) |
-| Real | https://bekasi-board-game-hub.addinalayubi12.workers.dev | Real members | Google and/or email code, once configured |
+| Sandbox (test and simulation) | https://bekasi-board-game-hub-staging.addinalayubi12.workers.dev | Fake demo members. The data can be wiped. | Any `name@sandbox.test` with code `000000`. Example: `raka@sandbox.test`. The admin is `admin@sandbox.test`. |
+| Real | https://bekasi-board-game-hub.addinalayubi12.workers.dev | Real members | Google or email code, after you configure them |
 
-Each has its own Worker, D1 database, R2 bucket and secrets (`wrangler.jsonc`: top level = real, `env.staging` = sandbox). The sandbox sends `X-Robots-Tag: noindex`.
+Each site has its own Worker, D1 database, R2 bucket, and secrets. In `wrangler.jsonc`, the top level is the real site and `env.staging` is the sandbox. The sandbox sends `X-Robots-Tag: noindex`.
 
-**Release flow:** change → `npm run typecheck && npm test` → `npm run deploy:sandbox` → try it on the sandbox → `npm run deploy`.
-New migration: `npm run db:migrate:sandbox` first, then `npm run db:migrate:remote`.
-Reset the demo members: `npm run seed:sandbox`.
+### Release flow
 
-Secrets per site: `wrangler secret put NAME` (real) or `wrangler secret put NAME --env staging` (sandbox). Set today: `BGG_TOKEN`, `BETTER_AUTH_SECRET` (different per site), `BETTER_AUTH_URL`. Still to add: `GOOGLE_CLIENT_ID` + `GOOGLE_CLIENT_SECRET`, `MAIL_RELAY_URL` + `MAIL_RELAY_SECRET`.
+1. Change the code.
+2. Run `npm run typecheck && npm test`.
+3. Run `npm run deploy:sandbox`.
+4. Test the change on the sandbox.
+5. Run `npm run deploy`.
+
+For a new migration, run `npm run db:migrate:sandbox` first. Then run `npm run db:migrate:remote`.
+
+To reset the demo members, run `npm run seed:sandbox`.
+
+### Secrets
+
+Set a secret on the real site with `wrangler secret put NAME`. Set it on the sandbox with `wrangler secret put NAME --env staging`.
+
+- Set now: `BGG_TOKEN`, `BETTER_AUTH_SECRET` (a different value on each site), and `BETTER_AUTH_URL`.
+- Not set yet: `GOOGLE_CLIENT_ID`, `GOOGLE_CLIENT_SECRET`, `MAIL_RELAY_URL`, and `MAIL_RELAY_SECRET`.
+
+### State on 2026-11-19
+
+Both sites run migration `0002_admin_log` and the same code. The real site has no sign-in yet. Google OAuth and the move to the bekasibgcom@gmail.com Cloudflare account are pending.
