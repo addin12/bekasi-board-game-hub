@@ -94,4 +94,4 @@ Set a secret on the real site with `wrangler secret put NAME`. Set it on the san
 
 ### State on 2026-11-19 (updated)
 
-Both sites run in the bekasibgcom@gmail.com Cloudflare account (workers.dev subdomain `bbgc`). They run migration `0002_admin_log` and the same code. The real site has no sign-in yet. It waits for the Google OAuth secrets. The old resources in the addinalayubi12 account still exist.
+Both sites run in the bekasibgcom@gmail.com Cloudflare account (workers.dev subdomain `bbgc`). They run migration `0002_admin_log` and the same code. The real site has no sign-in yet. It waits for the Google OAuth secrets. We deleted the old resources in the addinalayubi12 account on 2026-11-19.

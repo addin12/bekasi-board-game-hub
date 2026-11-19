@@ -44,7 +44,7 @@ A later row replaces each struck-through row. The row numbers are not in date or
 
 | 36 | 2026-11-19 | We reviewed all 338 UI strings against the `copyskills` ux-copy skill and the `marketingskills` copywriting skill. We changed 15 strings. An error message now says what failed and what to do next. A destructive button names its action. A button that said "Add" now says "Add game" or "Add guest". | The owner asked for a copy pass with popular copywriting skills. Most of the text already met the rules. |
 
-| 37 | 2026-11-19 | We moved both sites to the bekasibgcom@gmail.com Cloudflare account (subdomain `bbgc`). We created new D1 databases and R2 buckets, ran all migrations, and seeded the sandbox. The real database had no members, so we copied no data. | The owner wants the project under the community email. |
+| 37 | 2026-11-19 | We moved both sites to the bekasibgcom@gmail.com Cloudflare account (subdomain `bbgc`). We created new D1 databases and R2 buckets, ran all migrations, and seeded the sandbox. The real database had no members, so we copied no data. We then deleted the 6 old resources in the addinalayubi12 account (2 Workers, 2 D1 databases, 2 R2 buckets). The other projects in that account stay. | The owner wants the project under the community email. |
 
 ## Design kit
 
