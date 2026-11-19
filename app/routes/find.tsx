@@ -10,6 +10,7 @@ import { DISTRICT_GROUPS, DISTRICTS } from "@/lib/districts";
 import { cn } from "@/lib/utils";
 import { formatRupiah } from "@/lib/validate";
 import { REASON_LABEL, type FindMode } from "@/lib/find";
+import { STYLES } from "@/lib/play-style";
 import { findPeople } from "@/lib/.server/cards";
 import { getDb } from "@/lib/.server/db";
 import { requireMember } from "@/lib/.server/viewer";
@@ -121,7 +122,7 @@ export default function Find({ loaderData }: Route.ComponentProps) {
                   <PersonAvatar src={p.avatar} name={p.displayName} size={48} />
                   <span className="min-w-0">
                     <span className="block font-extrabold group-hover:underline group-hover:underline-offset-4">{p.displayName}{p.verified && <span className="ml-2 text-sm font-semibold text-muted-foreground">Verified</span>}</span>
-                    <span className="block text-sm text-muted-foreground">@{p.handle} · {p.district}</span>
+                    <span className="block text-sm text-muted-foreground">@{p.handle} · {p.district}{p.sameStyle && p.playStyle ? ` · Same play style: ${STYLES[p.playStyle].name}` : ""}</span>
                   </span>
                 </Link>
                 <ul className="grid gap-2 border-t border-line pt-3">

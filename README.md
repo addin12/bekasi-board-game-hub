@@ -8,7 +8,8 @@ The site also has these features:
 - Members open tables that other members can join.
 - A places directory.
 - A community feed with likes and comments.
-- Search, reports for admins, and in-app notifications.
+- Search, reports for admins, in-app notifications, and phone push notifications.
+- A play-style quiz. The result shows on the card and helps Find.
 - A one-tap "add to my card" button on each game page.
 
 ## Back office
@@ -51,6 +52,7 @@ Without a mail relay, the dev server prints sign-in codes in its console.
 | `npm run db:generate` | Create a SQL migration from `app/db/schema.ts` |
 | `npm run db:migrate:local` / `:remote` | Apply migrations |
 | `npm run deploy` | Build and deploy the Worker |
+| `npm run vapid` | Print a new web push key pair |
 
 ## Configuration
 
@@ -91,7 +93,9 @@ Set a secret on the real site with `wrangler secret put NAME`. Set it on the san
 
 - Set now: `BGG_TOKEN`, `BETTER_AUTH_SECRET` (a different value on each site), and `BETTER_AUTH_URL`.
 - Set on the real site only: `GOOGLE_CLIENT_ID` and `GOOGLE_CLIENT_SECRET`. The sandbox has no Google redirect URI.
-- Not set yet: `MAIL_RELAY_URL` and `MAIL_RELAY_SECRET`.
+- `VAPID_PUBLIC_KEY` and `VAPID_PRIVATE_KEY` (web push). Each site has its own pair.
+- `GMAIL_USER` and `GMAIL_APP_PASSWORD` (email sign-in codes). Not set yet.
+- `MAIL_RELAY_URL` and `MAIL_RELAY_SECRET` (optional second choice). Not set.
 
 ### State on 2026-11-19 (updated)
 

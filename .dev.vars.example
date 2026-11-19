@@ -11,3 +11,9 @@ GOOGLE_CLIENT_SECRET=
 # Optional: mail relay for sign-in codes (POST {to,subject,text}, Bearer secret). Empty in dev = codes print in the console.
 MAIL_RELAY_URL=
 MAIL_RELAY_SECRET=
+# Optional: send sign-in codes through Gmail. Needs 2-Step Verification and an app password (myaccount.google.com/apppasswords).
+GMAIL_USER=
+GMAIL_APP_PASSWORD=
+# Optional: web push. Generate a pair with `npm run vapid`. The private key is a secret. Each site needs its own pair.
+VAPID_PUBLIC_KEY=
+VAPID_PRIVATE_KEY=

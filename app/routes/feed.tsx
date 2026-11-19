@@ -36,6 +36,7 @@ export async function loader({ request }: Route.LoaderArgs) {
     { label: "Import your games from BoardGameGeek", done: owned[0].n > 0, to: "/me/edit" },
     { label: "Enter the member passcode", done: Boolean(v.profile.verifiedAt), to: "/settings" },
     { label: "Log your first play", done: stats.plays > 0, to: "/plays/new" },
+    { label: "Take the play-style quiz", done: Boolean(v.profile.playStyle), to: "/me/style" },
   ];
   return { viewerId: v.user.id, isAdmin: v.isAdmin, ...feed, pending, steps: steps.every((s) => s.done) ? [] : steps, paged: Boolean(before) };
 }

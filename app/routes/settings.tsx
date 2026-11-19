@@ -1,5 +1,8 @@
+import { env } from "cloudflare:workers";
 import { Form, Link, redirect, useNavigation } from "react-router";
+import { PushToggle } from "@/components/push-toggle";
 import { Button } from "@/components/ui/button";
+import { pushEnabled } from "@/lib/.server/push";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { deleteAccount } from "@/lib/.server/account";
@@ -12,7 +15,8 @@ export const meta = () => [{ title: "Settings · Bekasi Board Game Hub" }];
 
 export async function loader({ request }: Route.LoaderArgs) {
   const v = await requireMember(request);
-  return { email: v.user.email, verified: Boolean(v.profile.verifiedAt), handle: v.profile.handle };
+  // The public key is not a secret: the browser needs it to subscribe. Null when this site has no push key.
+  return { email: v.user.email, verified: Boolean(v.profile.verifiedAt), handle: v.profile.handle, pushKey: pushEnabled() ? env.VAPID_PUBLIC_KEY : null };
 }
 
 const MESSAGES = {
@@ -50,9 +54,20 @@ export default function Settings({ loaderData, actionData: result }: Route.Compo
         <p className="text-muted-foreground">Signed in as <span className="text-foreground">{loaderData.email}</span></p>
         <div className="flex flex-wrap gap-2 pt-2">
           <Button asChild variant="outline"><Link to="/me/edit">Edit my card</Link></Button>
+          <Button asChild variant="outline"><Link to="/me/style">Play style quiz</Link></Button>
           <Form method="post" action="/sign-out"><Button variant="ghost" type="submit">Sign out</Button></Form>
         </div>
       </section>
+
+      {loaderData.pushKey && (
+        <section className="panel grid gap-3 p-5">
+          <div className="grid gap-1">
+            <h2 className="text-xl font-extrabold">Phone notifications</h2>
+            <p className="text-muted-foreground">Get a message on this device when someone joins your table, adds you to a play, or comments on your post. Each device has its own switch.</p>
+          </div>
+          <PushToggle publicKey={loaderData.pushKey} />
+        </section>
+      )}
 
       <section className="panel grid gap-4 p-5">
         <div className="grid gap-1">

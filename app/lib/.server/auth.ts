@@ -5,11 +5,11 @@ import { emailOTP } from "better-auth/plugins/email-otp";
 import * as schema from "@/db/schema";
 import { isSandboxEmail, isSandboxOn, SANDBOX_CODE } from "@/lib/sandbox";
 import { getDb } from "./db";
-import { sendMail } from "./mail";
+import { mailConfigured, sendMail } from "./mail";
 
 export const googleEnabled = () => Boolean(env.GOOGLE_CLIENT_ID && env.GOOGLE_CLIENT_SECRET);
 /** Email codes can actually arrive: a relay is set, or sandbox test addresses, or local dev (console). */
-export const emailEnabled = () => Boolean(env.MAIL_RELAY_URL) || isSandboxOn(env.SANDBOX) || import.meta.env.DEV;
+export const emailEnabled = () => mailConfigured() || isSandboxOn(env.SANDBOX) || import.meta.env.DEV;
 
 function createAuth() {
   return betterAuth({

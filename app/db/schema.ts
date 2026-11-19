@@ -72,6 +72,8 @@ export const profile = sqliteTable("profile", {
   verifiedAt: ts("verified_at"),
   hotSource: text("hot_source", { enum: ["sessions", "bgg_plays", "bgg_hot"] }),
   hotUpdatedAt: ts("hot_updated_at"),
+  /** Result of the play-style quiz (a code from app/lib/play-style.ts). Null until the member takes it. */
+  playStyle: text("play_style"),
   createdAt: ts("created_at").notNull().default(now),
   updatedAt: ts("updated_at").notNull().default(now),
 }, (t) => [index("profile_district").on(t.district)]);
@@ -235,3 +237,13 @@ export const notification = sqliteTable("notification", {
   readAt: ts("read_at"),
   createdAt: ts("created_at").notNull().default(now),
 }, (t) => [index("notification_user").on(t.userId, t.readAt, t.createdAt)]);
+
+/** One row per phone or browser that turned on push notifications. A member may have several. */
+export const pushSubscription = sqliteTable("push_subscription", {
+  id: text("id").primaryKey(),
+  userId: text("user_id").notNull().references(() => user.id, { onDelete: "cascade" }),
+  endpoint: text("endpoint").notNull().unique(),
+  p256dh: text("p256dh").notNull(),
+  auth: text("auth").notNull(),
+  createdAt: ts("created_at").notNull().default(now),
+}, (t) => [index("push_subscription_user").on(t.userId)]);

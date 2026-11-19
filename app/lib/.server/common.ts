@@ -2,6 +2,7 @@ import { env } from "cloudflare:workers";
 import { and, count, eq, isNull } from "drizzle-orm";
 import { notification } from "@/db/schema";
 import type { Db } from "./db";
+import { pushInBackground } from "./push";
 
 /** Short random id for URLs (16 hex chars). Not a secret: access is always checked separately. */
 export const newId = () => crypto.randomUUID().replace(/-/g, "").slice(0, 16);
@@ -12,6 +13,8 @@ export type Result<T extends object = object> = ({ ok: true } & T) | { ok: false
 
 export async function notify(db: Db, userId: string, text: string, href: string) {
   await db.insert(notification).values({ id: newId(), userId, text: text.slice(0, 200), href });
+  // The same notice also goes to the member's phones, if they turned push on.
+  pushInBackground(db, userId, { title: env.APP_NAME, body: text, url: href, tag: href.slice(0, 40) });
 }
 
 export async function unreadCount(db: Db, userId: string): Promise<number> {

@@ -2,6 +2,7 @@ import { ArrowDown, ArrowUp, BadgeCheck, Flame, Heart, MapPin, MessageCircle, Sh
 import { Link } from "react-router";
 import { GameThumb, PersonAvatar } from "@/components/game-thumb";
 import { HOT_SOURCE_LABEL } from "@/lib/hotness";
+import { STYLES } from "@/lib/play-style";
 import { formatRupiah } from "@/lib/validate";
 import type { Card } from "@/lib/.server/cards";
 
@@ -58,6 +59,7 @@ export function PlayerCard({ card }: { card: Card }) {
               <MapPin className="icon" style={fill} stroke="var(--color-brand)" aria-hidden /> {person.district}
             </p>
           )}
+          {person.playStyle && <p className="text-sm font-semibold text-ink">Play style: {STYLES[person.playStyle].name}</p>}
           {card.stats.plays > 0 && <p className="text-sm font-semibold text-ink tabular-nums">{card.stats.plays} {card.stats.plays === 1 ? "play" : "plays"} logged</p>}
           {person.verified && (
             <p className="mt-1 inline-flex w-fit items-center gap-1 rounded-full bg-ink px-3 py-1 text-xs font-bold text-white">

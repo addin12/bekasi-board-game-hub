@@ -6,21 +6,23 @@ import { chooseHot, type HotSource } from "@/lib/hotness";
 import { BggBusy, ensureGames, hotList, recentPlays } from "./bgg";
 import type { Db } from "./db";
 import { uniqueMatches, type FindMode, type MatchReason } from "@/lib/find";
+import { isStyle, type StyleCode } from "@/lib/play-style";
 export type { FindMode, MatchReason };
 
 export type GameLite = { bggId: number; name: string; year: number | null; thumbnail: string | null };
 export type CardGame = GameLite & { kind: Kind; price: number | null; condition: string | null; note: string | null };
 export type PersonLite = {
-  userId: string; handle: string; displayName: string; district: string; avatar: string | null; verified: boolean;
+  userId: string; handle: string; displayName: string; district: string; avatar: string | null; verified: boolean; playStyle: StyleCode | null;
 };
 
 export const personCols = {
   userId: profile.userId, handle: profile.handle, displayName: profile.displayName, district: profile.district,
-  avatarKey: profile.avatarKey, image: user.image, verifiedAt: profile.verifiedAt,
+  avatarKey: profile.avatarKey, image: user.image, verifiedAt: profile.verifiedAt, playStyle: profile.playStyle,
 };
-export const toPerson = (r: { userId: string; handle: string; displayName: string; district: string; avatarKey: string | null; image: string | null; verifiedAt: Date | null }): PersonLite => ({
+export const toPerson = (r: { userId: string; handle: string; displayName: string; district: string; avatarKey: string | null; image: string | null; verifiedAt: Date | null; playStyle: string | null }): PersonLite => ({
   userId: r.userId, handle: r.handle, displayName: r.displayName, district: r.district,
   avatar: r.avatarKey ? `/img/${r.avatarKey}` : r.image, verified: Boolean(r.verifiedAt),
+  playStyle: isStyle(r.playStyle) ? r.playStyle : null,
 });
 
 async function hotFallback(db: Db): Promise<GameLite[]> {
@@ -157,14 +159,18 @@ export async function findPeople(
     db.select({ bggId: game.bggId, name: game.name, year: game.year, thumbnail: game.thumbnail }).from(game).where(inArray(game.bggId, gameIds)),
   ]);
   const gameById = new Map(games.map((g) => [g.bggId, g]));
+  // Same play style is a tie-breaker for people who match on games. It never adds a person who has no game in common.
+  const [mine] = await db.select({ style: profile.playStyle }).from(profile).where(eq(profile.userId, input.me)).limit(1);
+  const myStyle = input.mode === "trade" || !isStyle(mine?.style) ? null : mine.style;
   return people
     .map(toPerson)
     .filter((p) => (!input.district || p.district === input.district) && (!input.verifiedOnly || p.verified))
     .map((p) => {
       const matches = uniqueMatches(rows.filter((r) => r.user_id === p.userId && gameById.has(r.bgg_id)))
         .map((r) => ({ ...gameById.get(r.bgg_id)!, reason: r.reason, price: r.price }));
-      return { ...p, matches, score: new Set(matches.map((m) => m.bggId)).size };
+      const sameStyle = myStyle !== null && p.playStyle === myStyle;
+      return { ...p, matches, sameStyle, score: new Set(matches.map((m) => m.bggId)).size };
     })
     .filter((p) => p.matches.length)
-    .sort((a, b) => b.score - a.score || a.displayName.localeCompare(b.displayName));
+    .sort((a, b) => b.score - a.score || Number(b.sameStyle) - Number(a.sameStyle) || a.displayName.localeCompare(b.displayName));
 }
