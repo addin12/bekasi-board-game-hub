@@ -14,7 +14,7 @@
 		"SANDBOX": "0"
 	},
 	"d1_databases": [
-		{ "binding": "DB", "database_name": "bekasi-bgh", "database_id": "e15cf85e-ac10-407b-8ba3-2c01af8ae9a3", "migrations_dir": "drizzle" }
+		{ "binding": "DB", "database_name": "bekasi-bgh", "database_id": "d795dcf3-535d-4cf6-b95f-072cb4ba8621", "migrations_dir": "drizzle" }
 	],
 	"r2_buckets": [{ "binding": "UPLOADS", "bucket_name": "bekasi-bgh-uploads" }],
 	"observability": { "enabled": true },
@@ -28,7 +28,7 @@
 				"SANDBOX": "1"
 			},
 			"d1_databases": [
-				{ "binding": "DB", "database_name": "bekasi-bgh-staging", "database_id": "d9482541-9471-479e-bbc4-ea1b7a12f782", "migrations_dir": "drizzle" }
+				{ "binding": "DB", "database_name": "bekasi-bgh-staging", "database_id": "c8a6431b-5fcd-48a5-8718-35a869dba332", "migrations_dir": "drizzle" }
 			],
 			"r2_buckets": [{ "binding": "UPLOADS", "bucket_name": "bekasi-bgh-staging-uploads" }]
 		}
