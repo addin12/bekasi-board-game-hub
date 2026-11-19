@@ -16,7 +16,7 @@ The site also has these features:
 The back office is at `/admin`. Only the emails in `ADMIN_EMAILS` can open it. An admin can do these tasks:
 
 - Read the overview and the report queue.
-- Search members, verify them, edit their details, remove a photo, or delete an account.
+- Search members, add the Verified badge, edit their details, delete a photo, or delete an account.
 - Delete posts, comments, and plays. Cancel tables. Edit or delete places.
 - Edit the site text: home headline, intro, banner, contact line, footer, and member passcode.
 - Read the log of every admin action.
@@ -46,7 +46,7 @@ Without a mail relay, the dev server prints sign-in codes in its console.
 | Command | Action |
 |---|---|
 | `npm run dev` | Start the dev server with local D1 and R2 |
-| `npm run typecheck` | Check Worker types, route types, and `tsc` |
+| `npm run typecheck` | Run the TypeScript compiler on Worker types, route types, and the app |
 | `npm test` | Run unit tests (Vitest) |
 | `npm run db:generate` | Create a SQL migration from `app/db/schema.ts` |
 | `npm run db:migrate:local` / `:remote` | Apply migrations |
