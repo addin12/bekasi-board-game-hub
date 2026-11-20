@@ -113,6 +113,7 @@ export default function LogPlay({ loaderData, actionData }: Route.ComponentProps
               <li key={r.key} className="grid grid-cols-[1fr_auto] items-center gap-x-3 gap-y-2 border-b border-line pb-3 last:border-0 last:pb-0 sm:grid-cols-[1fr_auto_6rem_auto]">
                 <span className="min-w-0 font-bold">{r.name}{r.handle && <span className="ml-2 text-sm font-medium text-muted-foreground">@{r.handle}</span>}{r.guest && <span className="ml-2 text-sm font-medium text-muted-foreground">guest</span>}{r.userId === me.userId && <span className="ml-2 text-sm font-medium text-muted-foreground">you</span>}</span>
                 <label className="flex min-h-11 items-center gap-2 text-sm font-semibold"><input type="checkbox" className="size-5" checked={r.winner} onChange={(e) => patch(r.key, { winner: e.target.checked })} />Won</label>
+                {/* biome-ignore lint/a11y/noLabelWithoutControl: the label wraps the Input component */}
                 <label className="col-span-1 grid gap-1 text-sm font-semibold sm:col-span-1"><span className="sr-only">Score for {r.name}</span>
                   <Input type="number" inputMode="numeric" placeholder="Score" aria-label={`Score for ${r.name}`} value={r.score} onChange={(e) => patch(r.key, { score: e.target.value })} />
                 </label>

@@ -50,11 +50,12 @@ export function orderDump(sql: string): string {
   const rows = new Map<string, string[]>();
   const other: string[] = [];
   for (const s of splitStatements(sql)) {
-    let m: RegExpExecArray | null;
+    const table = createTable.exec(s);
+    const insert = insertInto.exec(s);
     if (/^PRAGMA\b/i.test(s)) pragmas.push(s);
-    else if ((m = createTable.exec(s))) tables.set(m[1], s);
+    else if (table) tables.set(table[1], s);
     else if (/^CREATE\s+(UNIQUE\s+)?INDEX\b/i.test(s)) indexes.push(s);
-    else if ((m = insertInto.exec(s))) (rows.get(m[1]) ?? rows.set(m[1], []).get(m[1])!).push(s);
+    else if (insert) rows.set(insert[1], [...(rows.get(insert[1]) ?? []), s]);
     else other.push(s); // views, triggers, and anything else go last
   }
   const order = tableOrder(tables);

@@ -27,6 +27,7 @@ export default function Notifications({ loaderData }: Route.ComponentProps) {
   const { items } = loaderData;
   const markRead = useFetcher();
   // The page shows which messages were new. Once it is on screen, the browser tells the site they were read.
+  // biome-ignore lint/correctness/useExhaustiveDependencies: it runs once, when the page first shows
   useEffect(() => {
     if (items.some((n) => n.isNew)) markRead.submit({}, { method: "post" });
   }, []);

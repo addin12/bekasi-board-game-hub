@@ -61,8 +61,8 @@ for (const m of MEMBERS) {
   sql.push(`INSERT INTO user (id,name,email,emailVerified,createdAt,updatedAt) VALUES (${[uid, m.name, `${m.id}@sandbox.test`, 1, now, now].map(q).join(",")});`);
   sql.push(`INSERT INTO profile (user_id,handle,display_name,bio,district,verified_at,hot_source,hot_updated_at,created_at,updated_at) VALUES (${[uid, m.id === "admin" ? "sandbox_admin" : m.id, m.name, m.bio, m.district, m.verified ? now : null, m.hot.length ? "sessions" : null, now, now, now].map(q).join(",")});`);
   const rows = [];
-  for (const kind of ["favorite", "hot", "want", "own", "buy"]) m[kind].forEach((k, i) => rows.push([uid, G[k], kind, i, null, null]));
-  m.sell.forEach(([k, price, condition], i) => rows.push([uid, G[k], "sell", i, price, condition]));
+  for (const kind of ["favorite", "hot", "want", "own", "buy"]) m[kind].forEach((k, i) => { rows.push([uid, G[k], kind, i, null, null]); });
+  m.sell.forEach(([k, price, condition], i) => { rows.push([uid, G[k], "sell", i, price, condition]); });
   for (const r of rows) sql.push(`INSERT INTO user_game (user_id,bgg_id,kind,position,price,condition,created_at) VALUES (${[...r, now].map(q).join(",")});`);
 }
 // ---- Phase 2 demo data: places, tables, plays, posts, notifications. All clearly fake. ----

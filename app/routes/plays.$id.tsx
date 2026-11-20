@@ -93,7 +93,7 @@ export default function PlayPage({ loaderData }: Route.ComponentProps) {
       <div className="flex flex-wrap items-center justify-between gap-3">
         <Button asChild variant="outline"><Link to={`/plays/new?game=${play.bggId}`}>Log another play of this game</Link></Button>
         <div className="flex flex-wrap items-center gap-x-4">
-          {me && me.confirmed && (
+          {me?.confirmed && (
             <button type="button" disabled={busy} onClick={() => act("remove-me")} className="inline-flex h-11 items-center text-sm font-semibold text-muted-foreground underline underline-offset-4 hover:text-ink">Remove me from this play</button>
           )}
           {(play.loggedBy === viewerId || isAdmin) && (confirmDelete ? (

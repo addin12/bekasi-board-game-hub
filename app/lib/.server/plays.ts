@@ -5,7 +5,7 @@ import { likePattern, type playSchema } from "@/lib/validate";
 import { ensureGames } from "./bgg";
 import { personCols, refreshHotFor, toPerson } from "./cards";
 import { LIMIT_MSG, newId, notify, type Result } from "./common";
-import type { Db } from "./db";
+import { runBatch, type Db } from "./db";
 
 export type PlayInput = z.infer<ReturnType<typeof playSchema>>;
 
@@ -53,11 +53,11 @@ export async function createPlay(db: Db, loggerId: string, input: PlayInput): Pr
     ...ordered.map((uid) => ({ id: newId(), playId: id, userId: uid, guestName: null, winner: members.get(uid)!.winner, score: members.get(uid)!.score, confirmed: uid === loggerId })),
     ...input.players.filter((p) => p.guest).map((p) => ({ id: newId(), playId: id, userId: null, guestName: p.guest!, winner: p.winner, score: p.score, confirmed: true })),
   ];
-  await db.batch([
+  await runBatch(db, [
     db.insert(play).values({ id, bggId: input.bggId, playedOn: input.playedOn, placeId: input.placeId, loggedBy: loggerId, durationMin: input.durationMin }),
     db.insert(playPlayer).values(rows),
     db.insert(post).values({ id: newId(), userId: loggerId, kind: "play", refId: id }),
-  ] as [any, ...any[]]);
+  ]);
 
   const loggerName = known.find((k) => k.id === loggerId)?.name ?? "A member";
   for (const uid of memberIds.filter((m) => m !== loggerId)) await notify(db, uid, `${loggerName} added you to a ${g.name} play. Confirm it or remove yourself.`, `/plays/${id}`);
@@ -82,7 +82,7 @@ export async function removeMeFromPlay(db: Db, userId: string, playId: string): 
 }
 
 async function dropPlay(db: Db, playId: string) {
-  await db.batch([db.delete(post).where(and(eq(post.kind, "play"), eq(post.refId, playId))), db.delete(play).where(eq(play.id, playId))] as [any, ...any[]]);
+  await runBatch(db, [db.delete(post).where(and(eq(post.kind, "play"), eq(post.refId, playId))), db.delete(play).where(eq(play.id, playId))]);
 }
 
 /** Only whoever logged it (or an admin) can delete a play for everyone. */

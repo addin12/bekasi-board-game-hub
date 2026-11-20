@@ -13,6 +13,7 @@ const ITEMS = [
 export function CreateMenu({ variant }: { variant: "bar" | "header" }) {
   const [open, setOpen] = useState(false);
   const loc = useLocation();
+  // biome-ignore lint/correctness/useExhaustiveDependencies: the menu closes whenever the page address changes
   useEffect(() => setOpen(false), [loc.pathname, loc.hash]);
   useEffect(() => {
     if (!open) return;
@@ -33,6 +34,7 @@ export function CreateMenu({ variant }: { variant: "bar" | "header" }) {
         {variant === "bar" ? <span className="sr-only">Create</span> : "Create"}
       </button>
       {open && (
+        // biome-ignore lint/a11y/noNoninteractiveElementToInteractiveRole: a menu button opens a list with the menu role
         <ul role="menu" className={cn("panel absolute z-40 grid w-56 gap-1 border-ink p-2", variant === "bar" ? "bottom-[4.5rem] left-1/2 -translate-x-1/2" : "right-0 top-12")}>
           {ITEMS.map((i) => (
             <li key={i.to} role="none">

@@ -119,9 +119,10 @@ describe("sendOne", () => {
     let seen: { url: unknown; init: RequestInit } | undefined;
     const status = await sendOne(device(), { title: "T", body: "B" }, vapid(), { fetchImpl: (async (url: unknown, init: RequestInit) => { seen = { url, init }; return new Response("", { status: 201 }); }) as typeof fetch });
     expect(status).toBe(201);
-    expect(seen?.url).toBe("https://fcm.googleapis.com/fcm/send/xyz");
-    expect((seen?.init.headers as Record<string, string>)["content-encoding"]).toBe("aes128gcm");
-    expect((seen?.init.body as Uint8Array).length).toBeGreaterThan(80);
+    const call = seen as unknown as { url: unknown; init: RequestInit };
+    expect(call.url).toBe("https://fcm.googleapis.com/fcm/send/xyz");
+    expect((call.init.headers as Record<string, string>)["content-encoding"]).toBe("aes128gcm");
+    expect((call.init.body as Uint8Array).length).toBeGreaterThan(80);
   });
   it("hands back 410 so the device can be dropped, and 0 when the push service is down", async () => {
     expect(await sendOne(device(), { title: "T", body: "" }, vapid(), { fetchImpl: (async () => new Response("", { status: 410 })) as typeof fetch })).toBe(410);

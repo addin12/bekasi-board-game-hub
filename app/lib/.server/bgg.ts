@@ -2,7 +2,7 @@ import { env } from "cloudflare:workers";
 import { inArray, sql } from "drizzle-orm";
 import { game } from "@/db/schema";
 import { parseCollection, parseHot, parsePlays, parseSearch, parseThings, type GameInfo, type Play, type SearchHit } from "@/lib/bgg-parse";
-import type { Db } from "./db";
+import { runBatch, type Db } from "./db";
 
 const BASE = "https://boardgamegeek.com/xmlapi2";
 const STALE_MS = 30 * 24 * 60 * 60 * 1000;
@@ -82,6 +82,6 @@ export async function importOwned(db: Db, username: string, limit = 300): Promis
   const games = parseCollection(await bgg(`/collection?username=${encodeURIComponent(username)}&own=1&subtype=boardgame&excludesubtype=boardgameexpansion`, 0)).slice(0, limit);
   // Insert only unknown games: collection rows lack player counts, so never overwrite fuller /thing data.
   const stmts = games.map((g) => db.insert(game).values({ ...g, fetchedAt: new Date(0) }).onConflictDoNothing());
-  for (let i = 0; i < stmts.length; i += 50) await db.batch(stmts.slice(i, i + 50) as [any, ...any[]]);
+  for (let i = 0; i < stmts.length; i += 50) await runBatch(db, stmts.slice(i, i + 50));
   return games.map((g) => g.bggId);
 }

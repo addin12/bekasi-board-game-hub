@@ -22,7 +22,7 @@ export function GamePicker({ label, help, onPick, disabled }: { label: string; h
         const data = (await res.json()) as { hits: Hit[] };
         setHits(data.hits);
         setStatus(res.ok ? (data.hits.length ? "idle" : "none") : "error");
-      } catch (e) {
+      } catch {
         if (!ctrl.signal.aborted) setStatus("error");
       }
     }, 350);

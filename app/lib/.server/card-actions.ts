@@ -4,7 +4,7 @@ import { game, profile, userGame, KINDS, type Kind } from "@/db/schema";
 import { formatRupiah, parseRupiah, profileSchema } from "@/lib/validate";
 import { BggBusy, ensureGames, importOwned } from "./bgg";
 import { refreshHot } from "./cards";
-import type { Db } from "./db";
+import { runBatch, type Db } from "./db";
 import { tradePost } from "./feed";
 import { saveImage } from "./common";
 
@@ -94,7 +94,7 @@ export async function importOwnedGames(db: Db, userId: string, bggUsername: stri
     const ids = await importOwned(db, bggUsername, LIMITS.own);
     if (!ids.length) return { ok: true, message: "BGG shows no owned games for this username" };
     const rows = ids.map((bggId, position) => db.insert(userGame).values({ userId, bggId, kind: "own" as const, position }).onConflictDoNothing());
-    for (let i = 0; i < rows.length; i += 50) await db.batch(rows.slice(i, i + 50) as [any, ...any[]]);
+    for (let i = 0; i < rows.length; i += 50) await runBatch(db, rows.slice(i, i + 50));
     return { ok: true, message: `Imported ${ids.length} owned games from BGG.` };
   } catch (e) {
     if (e instanceof BggBusy) return { ok: false, message: "BGG is preparing your collection. Try again in about a minute." };

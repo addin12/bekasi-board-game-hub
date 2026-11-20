@@ -6,7 +6,7 @@ import type { tableSchema } from "@/lib/validate";
 import { ensureGames } from "./bgg";
 import { personCols, toPerson } from "./cards";
 import { LIMIT_MSG, newId, notify, type Result } from "./common";
-import type { Db } from "./db";
+import { runBatch, type Db } from "./db";
 
 export type TableInput = z.infer<ReturnType<typeof tableSchema>>;
 
@@ -27,11 +27,11 @@ export async function createTable(db: Db, hostId: string, input: TableInput): Pr
     return { ok: false, message: "BoardGameGeek isn't answering. Try again in a minute." };
   }
   const id = newId();
-  await db.batch([
+  await runBatch(db, [
     db.insert(playTable).values({ id, hostId, bggId: input.bggId, placeId: input.placeId, startsAt: new Date(input.startsAt), seats: input.seats, note: input.note }),
     db.insert(tablePlayer).values({ tableId: id, userId: hostId }),
     db.insert(post).values({ id: newId(), userId: hostId, kind: "table", refId: id }),
-  ] as [any, ...any[]]);
+  ]);
   return { ok: true, id };
 }
 

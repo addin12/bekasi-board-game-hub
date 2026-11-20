@@ -21,7 +21,8 @@
     "seed:sandbox": "node scripts/seed-sandbox.mjs && wrangler d1 execute bekasi-bgh-staging --env staging --remote --file .wrangler/seed-sandbox.sql",
     "backup": "node scripts/backup.mjs",
     "restore-check": "node scripts/restore-check.mjs",
-    "restore-prepare": "node scripts/restore-prepare.mjs"
+    "restore-prepare": "node scripts/restore-prepare.mjs",
+    "lint": "biome lint"
   },
   "dependencies": {
     "@fontsource-variable/montserrat": "^5.3.0",
@@ -41,6 +42,7 @@
     "zod": "^4.6.7"
   },
   "devDependencies": {
+    "@biomejs/biome": "2.6.8",
     "@cloudflare/vite-plugin": "^1.70.0",
     "@react-router/dev": "^8.5.1",
     "@tailwindcss/vite": "^4.2.2",

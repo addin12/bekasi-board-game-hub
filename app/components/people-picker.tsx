@@ -12,6 +12,7 @@ export function PeoplePicker({ label, onPick, exclude }: { label: string; onPick
   const [hits, setHits] = useState<PickedPerson[]>([]);
   const [status, setStatus] = useState<"idle" | "loading" | "none" | "error">("idle");
 
+  // biome-ignore lint/correctness/useExhaustiveDependencies: exclude is a new array on every render, so its joined text is the dependency
   useEffect(() => {
     const term = q.trim();
     if (term.length < 2) { setHits([]); setStatus("idle"); return; }
@@ -29,7 +30,7 @@ export function PeoplePicker({ label, onPick, exclude }: { label: string; onPick
       }
     }, 300);
     return () => { clearTimeout(t); ctrl.abort(); };
-  }, [q, exclude.join(",")]); // eslint-disable-line react-hooks/exhaustive-deps
+  }, [q, exclude.join(",")]);
 
   return (
     <div className="grid gap-2">

@@ -47,7 +47,7 @@ function PendingBar() {
 function BarItem({ to, label, icon: Icon, active }: { to: string; label: string; icon: typeof Newspaper; active?: boolean }) {
   return (
     <NavLink to={to} aria-current={active ? "page" : undefined} className={({ isActive }) => cn("flex min-h-14 flex-col items-center justify-center gap-0.5 text-xs font-bold", (active ?? isActive) ? "text-ink" : "text-muted-foreground")}>
-      {({ isActive }) => (
+      {() => (
         <>
           <Icon className="icon" aria-hidden />
           {label}
