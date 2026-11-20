@@ -7,6 +7,7 @@ Design Read: a community hub web app for Bekasi board gamers. It is phone first 
 ## Identity
 
 - **The player card is the hero object.** It has a white card, an orange header, a big bold name, and thin black rules between sections. It is the only element with a drop shadow, because it is the one physical object on the table.
+- **Logo and app icon.** The owner supplied the logo: a white lowercase "b" that holds a die with five pips, on a dark purple field (#2c1132). We use it for the app icon, the favicon, the Home Screen icon, and the Google sign-in screen. The source file is `branding/logo-source.jpg`. The purple belongs to the icon only. The site header keeps its text wordmark until the owner asks us to place the logo there.
 - **Game tokens.** Game covers are round, with a thin ink ring, as in the sketch. Favorites overlap like a stack of tokens.
 - **Numbered black markers.** A marker is a solid black circle with a white number. Use it only to point at a part of a card, as in the sketch.
 - **Category labels.** Labels are uppercase and bold. Each has a filled icon and one color: Favorites red, Hotness orange, Want to play blue, Trade green. Use them on the card and in Find results only.
