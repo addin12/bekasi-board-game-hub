@@ -14,7 +14,7 @@ The site also has these features:
 
 ## Back office
 
-The back office is at `/admin`. Only the emails in `ADMIN_EMAILS` can open it. An admin can do these tasks:
+The back office is at `/admin`. Only the emails in the secret `ADMIN_EMAILS` can open it. The list is not in the code. An admin can do these tasks:
 
 - Read the overview and the report queue.
 - Search members, add the Verified badge, edit their details, delete a photo, or delete an account.
@@ -62,7 +62,7 @@ Without a mail relay, the dev server prints sign-in codes in its console.
 
 ## Configuration
 
-Secrets are in `.dev.vars` on your computer (see `.dev.vars.example`). In production, they are Worker secrets (`wrangler secret put NAME`). Plain settings (`APP_NAME`, `ADMIN_EMAILS`) are in `wrangler.jsonc`.
+Secrets are in `.dev.vars` on your computer (see `.dev.vars.example`). In production, they are Worker secrets (`wrangler secret put NAME`). Plain settings (`APP_NAME`, `SANDBOX`) are in `wrangler.jsonc`. The admin list (`ADMIN_EMAILS`) is a secret.
 
 ## Where things are
 
@@ -108,10 +108,14 @@ Set a secret on the real site with `wrangler secret put NAME`. Set it on the san
 - `R2_FREE_BYTES` (optional). It replaces the 10 GB free storage that the 80% and 95% rules use.
 - `MAIL_RELAY_URL` and `MAIL_RELAY_SECRET` (optional second choice). Not set.
 
+### License
+
+The code is under the MIT license (see `LICENSE`). The logo and the brand pictures (`branding/` and the icon files in `public/`) are not part of that license.
+
 ### Code and CI
 
 The code is in a private GitHub repository: `addin12/bekasi-board-game-hub`. Each push runs CI: typecheck, lint, unit tests, `npm audit` for shipped packages, and a secret scan. Dependabot opens update pull requests each week. Read each one before you merge it.
 
 ### State on 2026-11-19 (updated)
 
-Both sites run in the bekasibgcom@gmail.com Cloudflare account (workers.dev subdomain `bbgc`). They run migration `0002_admin_log` and the same code. The real site signs in with Google only. Google sign-in is on (secrets set 2026-11-19). We deleted the old resources in the addinalayubi12 account on 2026-11-19.
+Both sites run in the Cloudflare account of the community Google account (workers.dev subdomain `bbgc`). They run migration `0002_admin_log` and the same code. The real site signs in with Google only. Google sign-in is on (secrets set 2026-11-19). We deleted the old resources in the addinalayubi12 account on 2026-11-19.

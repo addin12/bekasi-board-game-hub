@@ -17,6 +17,7 @@ Without the copy in a password manager, a lost PC takes the secrets with it. The
 
 | Name | Used for | If you lose it | How to replace it |
 |---|---|---|---|
+| `ADMIN_EMAILS` | The addresses that may open `/admin` and that get the free-plan alert email. Kept out of the code. | Nobody can open `/admin`. | `wrangler secret put ADMIN_EMAILS` (comma-separated), for each site. The saved copy in `.dev.vars.<site>` has it. |
 | `BETTER_AUTH_SECRET` | Signs the sign-in session cookie. | Everybody signs in again. Nothing else breaks. | `node scripts/rotate-secrets.mjs --env production` |
 | `PASSCODE_KEY` | Keys the hash of the member passcode. | The stored passcode stops working. An admin sets a new one in Admin, Site. | The same command. Then set the passcode again. |
 | `VAPID_PUBLIC_KEY`, `VAPID_PRIVATE_KEY` | Sign phone notifications. | Every phone must turn notifications on again in Settings. | The same command. |
@@ -39,7 +40,7 @@ Effect: everybody signs in again, the member passcode must be set again, and eve
 
 ## The two accounts
 
-- **Cloudflare** (bekasibgcom@gmail.com) and **Google** (the same address) control the site. Turn on two-step verification on both. Save the recovery codes in the password manager.
+- **Cloudflare** and **Google** (the community Google account, one address for both) control the site. Turn on two-step verification on both. Save the recovery codes in the password manager.
 - If the owner of these accounts is not available, nobody can fix the site. Decide who else holds the recovery codes.
 
 ## Rules

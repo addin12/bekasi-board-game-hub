@@ -56,7 +56,7 @@ The overview shows the time of the last check and what happened to the last emai
 
 ### The email
 
-The email goes to every address in `ADMIN_EMAILS`. It needs the Gmail secrets (`GMAIL_USER`, `GMAIL_APP_PASSWORD`). Without them, the admins still get the bell message and the phone notification, and the overview says "not sent: email is not set up".
+The email goes to every address in the secret `ADMIN_EMAILS`. It needs the Gmail secrets (`GMAIL_USER`, `GMAIL_APP_PASSWORD`). Without them, the admins still get the bell message and the phone notification, and the overview says "not sent: email is not set up".
 
 To change the free amount that the percentages use, set the secret `R2_FREE_BYTES`. The default is 10 GB.
 

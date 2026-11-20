@@ -85,7 +85,7 @@ describe("sandbox sign-in", () => {
     expect(isSandboxEmail("Tester@Sandbox.test ", isSandboxOn("1"))).toBe(true);
     expect(isSandboxEmail("tester@sandbox.test", isSandboxOn("0"))).toBe(false); // real site
     expect(isSandboxEmail("tester@sandbox.test", isSandboxOn(undefined))).toBe(false);
-    expect(isSandboxEmail("bekasibgcom@gmail.com", isSandboxOn("1"))).toBe(false);
+    expect(isSandboxEmail("member@gmail.com", isSandboxOn("1"))).toBe(false);
     expect(isSandboxEmail("x@sandbox.test.evil.com", isSandboxOn("1"))).toBe(false);
   });
 });

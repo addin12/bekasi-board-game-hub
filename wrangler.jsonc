@@ -1,4 +1,4 @@
-// Cloudflare Worker config. Secrets (BGG_TOKEN, BETTER_AUTH_SECRET, BETTER_AUTH_URL, GOOGLE_*, MAIL_*) are NOT here:
+// Cloudflare Worker config. Secrets (ADMIN_EMAILS, BGG_TOKEN, BETTER_AUTH_SECRET, BETTER_AUTH_URL, GOOGLE_*, MAIL_*) are NOT here:
 // locally they live in .dev.vars, deployed: `wrangler secret put <NAME> [--env staging]`.
 // Top level = the real site. `env.staging` = the sandbox (fake data, test sign-in). Bindings and vars are per env.
 {
@@ -9,8 +9,6 @@
 	"main": "./workers/app.ts",
 	"vars": {
 		"APP_NAME": "Bekasi Board Game Hub",
-		// Comma-separated emails that may open /admin.
-		"ADMIN_EMAILS": "bekasibgcom@gmail.com",
 		"SANDBOX": "0"
 	},
 	"d1_databases": [
@@ -25,7 +23,6 @@
 		"staging": {
 			"vars": {
 				"APP_NAME": "Bekasi Board Game Hub (Sandbox)",
-				"ADMIN_EMAILS": "bekasibgcom@gmail.com,admin@sandbox.test",
 				// Turns on test sign-in for name@sandbox.test with code 000000. Never set this on the real site.
 				"SANDBOX": "1"
 			},

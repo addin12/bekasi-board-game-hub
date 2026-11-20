@@ -24,3 +24,5 @@ R2_FREE_BYTES=
 PASSCODE_KEY=
 # Optional: set to report-only to send the page CSP as report-only (a quick way back if a rule breaks a page). Empty means enforced.
 CSP_MODE=
+# Comma-separated addresses that may open /admin and get the free-plan alert email. A secret on the real sites.
+ADMIN_EMAILS=

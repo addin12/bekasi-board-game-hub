@@ -58,7 +58,7 @@ The key is the path inside `pictures/`, for example `avatars/<id>.jpg`. The data
 
 1. Get the code from the private GitHub repository: `git clone`, then `npm install`.
 2. Get the secrets from the password manager (`docs/secrets.md`). Make `.dev.vars`.
-3. Log in: `npx wrangler login` with bekasibgcom@gmail.com.
+3. Log in: `npx wrangler login` with the community Google account.
 4. Create the databases and the buckets (`wrangler d1 create`, `wrangler r2 bucket create`). Put the new ids in `wrangler.jsonc`.
 5. Run the migrations, then restore the data (option B and the pictures step).
 6. Set the secrets (`wrangler secret put <NAME>`), then `npm run deploy`.

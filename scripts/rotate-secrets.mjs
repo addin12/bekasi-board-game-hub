@@ -17,7 +17,11 @@ const ENV_ARGS = site === "staging" ? ["--env", "staging"] : [];
 const local = Object.fromEntries(readFileSync(".dev.vars", "utf8").split(/\r?\n/).filter((l) => /^[A-Z_]+=/.test(l)).map((l) => [l.split("=")[0], l.slice(l.indexOf("=") + 1).trim()]));
 const vapid = Object.fromEntries(execFileSync("node", ["scripts/vapid.mjs"], { encoding: "utf8" }).trim().split("\n").map((l) => [l.split("=")[0], l.slice(l.indexOf("=") + 1)]));
 
+// The admin list comes from .dev.vars (ADMIN_EMAILS). The sandbox also gets the fake admin of its test sign-in.
+const admins = [local.ADMIN_EMAILS, site === "staging" ? "admin@sandbox.test" : ""].filter(Boolean).join(",");
+
 const secrets = {
+  ADMIN_EMAILS: admins,
   BGG_TOKEN: local.BGG_TOKEN,
   BETTER_AUTH_URL: URL,
   BETTER_AUTH_SECRET: randomBytes(32).toString("base64url"),
