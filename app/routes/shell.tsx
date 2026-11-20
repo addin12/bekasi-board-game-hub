@@ -66,13 +66,13 @@ export default function Shell({ loaderData }: Route.ComponentProps) {
   return (
     <div className="flex min-h-dvh flex-col" aria-busy={busy}>
       <PendingBar />
-      {loaderData.sandbox && (
-        <div role="note" className="bg-amber-300 px-4 py-2 text-center text-sm font-semibold text-ink">
-          Sandbox: fake data for testing, may be wiped. Sign in with any name@{SANDBOX_DOMAIN} address and code {SANDBOX_CODE}.
-        </div>
-      )}
-      {site.banner && <div role="note" className="bg-ink px-4 py-2 text-center text-sm font-semibold text-white">{site.banner}</div>}
       <header className="border-b-2 border-ink bg-card pt-[env(safe-area-inset-top)]">
+        {loaderData.sandbox && (
+          <div role="note" className="bg-amber-300 px-4 py-2 text-center text-sm font-semibold text-ink">
+            Sandbox: fake data for testing, may be wiped. Sign in with any name@{SANDBOX_DOMAIN} address and code {SANDBOX_CODE}.
+          </div>
+        )}
+        {site.banner && <div role="note" className="bg-ink px-4 py-2 text-center text-sm font-semibold text-white">{site.banner}</div>}
         <div className={cn("mx-auto flex max-w-5xl items-end justify-between gap-x-3 gap-y-1 px-4 pt-3 sm:gap-x-6", member ? "flex-nowrap md:flex-wrap" : "flex-wrap")}>
           {/* Text wordmark until the community has a real logo (R-23). */}
           <a href="/" className="mb-2 inline-flex min-h-11 min-w-0 items-center text-base font-extrabold uppercase leading-tight sm:text-lg">
