@@ -6,6 +6,7 @@ import { BggBusy, ensureGames, importOwned } from "./bgg";
 import { refreshHot } from "./cards";
 import type { Db } from "./db";
 import { tradePost } from "./feed";
+import { recordUpload, uploadAllowed } from "./limits";
 
 export type ActionResult = { ok: true; message: string } | { ok: false; message: string; fieldErrors?: Record<string, string> };
 
@@ -34,8 +35,11 @@ export async function saveProfile(db: Db, userId: string, form: FormData, existi
     const ext = AVATAR_TYPES[file.type];
     if (!ext) return { ok: false, message: "Check the fields marked below", fieldErrors: { avatar: "Use a JPG, PNG or WebP picture" } };
     if (file.size > MAX_AVATAR) return { ok: false, message: "Check the fields marked below", fieldErrors: { avatar: "Pick a picture under 2 MB." } };
+    const allowed = await uploadAllowed(db, userId, file.size); // free-tier guard: see limits.ts
+    if (!allowed.ok) return { ok: false, message: "Check the fields marked below", fieldErrors: { avatar: allowed.message } };
     const key = `avatars/${crypto.randomUUID()}.${ext}`;
     await env.UPLOADS.put(key, await file.arrayBuffer(), { httpMetadata: { contentType: file.type } });
+    await recordUpload(db, userId, file.size);
     if (avatarKey) await env.UPLOADS.delete(avatarKey);
     avatarKey = key;
   }

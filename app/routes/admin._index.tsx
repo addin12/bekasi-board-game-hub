@@ -2,7 +2,9 @@ import { Link, useFetcher } from "react-router";
 import { Button } from "@/components/ui/button";
 import { formatStamp } from "@/lib/dates";
 import { adminStats, logAdmin, recentLog } from "@/lib/.server/admin";
+import { FreeTierPanel } from "@/components/free-tier-panel";
 import { getDb } from "@/lib/.server/db";
+import { usageReport } from "@/lib/.server/limits";
 import { openReports, removeReported, resolveReport } from "@/lib/.server/moderation";
 import { requireAdmin } from "@/lib/.server/viewer";
 import type { Route } from "./+types/admin._index";
@@ -10,8 +12,8 @@ import type { Route } from "./+types/admin._index";
 export async function loader({ request }: Route.LoaderArgs) {
   await requireAdmin(request);
   const db = getDb();
-  const [stats, reports, log] = await Promise.all([adminStats(db), openReports(db), recentLog(db, 8)]);
-  return { stats, reports, log };
+  const [stats, reports, log, usage] = await Promise.all([adminStats(db), openReports(db), recentLog(db, 8), usageReport(db)]);
+  return { stats, reports, log, usage };
 }
 
 export async function action({ request }: Route.ActionArgs) {
@@ -31,7 +33,7 @@ export async function action({ request }: Route.ActionArgs) {
 const REMOVABLE = new Set(["post", "comment", "table", "place"]);
 
 export default function AdminOverview({ loaderData }: Route.ComponentProps) {
-  const { stats, reports, log } = loaderData;
+  const { stats, reports, log, usage } = loaderData;
   const f = useFetcher();
   const tiles: [string, number][] = [
     ["Members", stats.members], ["Verified", stats.verified], ["Plays", stats.plays], ["Open tables", stats.tables],
@@ -47,6 +49,8 @@ export default function AdminOverview({ loaderData }: Route.ComponentProps) {
           </div>
         ))}
       </dl>
+
+      <FreeTierPanel usage={usage} />
 
       <section aria-labelledby="reports" className="panel grid gap-4 p-5">
         <h2 id="reports" className="text-xl font-extrabold">Reports</h2>

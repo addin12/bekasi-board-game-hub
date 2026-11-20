@@ -76,7 +76,7 @@ export async function createStatusPost(db: Db, userId: string, body: string, fil
   if (n >= 20) return { ok: false, message: LIMIT_MSG };
   let imageKey: string | null = null;
   if (hasFile) {
-    const saved = await saveImage(file, "posts", IMG_MAX);
+    const saved = await saveImage(db, userId, file, "posts", IMG_MAX);
     if ("error" in saved) return { ok: false, message: saved.error };
     imageKey = saved.key;
   }

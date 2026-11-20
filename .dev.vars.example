@@ -17,3 +17,6 @@ GMAIL_APP_PASSWORD=
 # Optional: web push. Generate a pair with `npm run vapid`. The private key is a secret. Each site needs its own pair.
 VAPID_PUBLIC_KEY=
 VAPID_PRIVATE_KEY=
+
+# Optional: lowest of the R2 storage ceiling in bytes (default 8 GB, which is 80% of the free 10 GB).
+R2_CEILING_BYTES=
