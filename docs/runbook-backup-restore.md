@@ -8,7 +8,7 @@ This runbook answers audit finding M1. A backup is not a backup until a restore 
 |---|---|---|
 | Database (members, cards, posts, plays, tables, settings) | Cloudflare D1 | 1. D1 Time Travel: any moment of the last 7 days, same account. 2. A weekly dump on this PC. |
 | Pictures (card photos, post pictures) | Cloudflare R2 | A weekly copy on this PC. The keys come from the database. |
-| Code | `D:\TTRPG\Board Game Hub` | The private GitHub repository (see `docs/secrets.md`). |
+| Code | `D:\TTRPG\Board Game Hub` | The GitHub repository (see `docs/secrets.md`). The old history is in a private repository. |
 | Secrets | Cloudflare Worker secrets | Not backed up by this runbook. See `docs/secrets.md`. |
 
 The dump and the pictures hold personal data (emails, photos). Git ignores the folder `backups/`. Never put it in a public place.
@@ -56,7 +56,7 @@ The key is the path inside `pictures/`, for example `avatars/<id>.jpg`. The data
 
 ## Full disaster order (new PC, or lost Cloudflare account)
 
-1. Get the code from the private GitHub repository: `git clone`, then `npm install`.
+1. Get the code from the GitHub repository: `git clone`, then `npm install`.
 2. Get the secrets from the password manager (`docs/secrets.md`). Make `.dev.vars`.
 3. Log in: `npx wrangler login` with the community Google account.
 4. Create the databases and the buckets (`wrangler d1 create`, `wrangler r2 bucket create`). Put the new ids in `wrangler.jsonc`.

@@ -114,8 +114,8 @@ The code is under the MIT license (see `LICENSE`). The logo and the brand pictur
 
 ### Code and CI
 
-The code is in a private GitHub repository: `addin12/bekasi-board-game-hub`. Each push runs CI: typecheck, lint, unit tests, `npm audit` for shipped packages, and a secret scan. Dependabot opens update pull requests each week. Read each one before you merge it.
+The code is in a public GitHub repository: `addin12/bekasi-board-game-hub`. The full earlier history is in a private repository. Each push runs CI: typecheck, lint, unit tests, `npm audit` for shipped packages, and a secret scan. Dependabot opens update pull requests each week. Read each one before you merge it.
 
 ### State on 2026-11-19 (updated)
 
-Both sites run in the Cloudflare account of the community Google account (workers.dev subdomain `bbgc`). They run migration `0002_admin_log` and the same code. The real site signs in with Google only. Google sign-in is on (secrets set 2026-11-19). We deleted the old resources in the addinalayubi12 account on 2026-11-19.
+Both sites run in the Cloudflare account of the community Google account (workers.dev subdomain `bbgc`). They run migration `0002_admin_log` and the same code. The real site signs in with Google only. Google sign-in is on (secrets set 2026-11-19). We deleted the old resources in the previous Cloudflare account on 2026-11-19.
