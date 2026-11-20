@@ -1,0 +1,28 @@
+# Copy to .dev.vars for local development. Never commit .dev.vars.
+# BoardGameGeek XML API token (boardgamegeek.com/applications).
+BGG_TOKEN=
+# Random 32+ byte string; signs sessions and hashes the member passcode.
+BETTER_AUTH_SECRET=
+# Public URL of the site.
+BETTER_AUTH_URL=http://localhost:5173
+# Optional: Google sign-in shows only when both are set.
+GOOGLE_CLIENT_ID=
+GOOGLE_CLIENT_SECRET=
+# Optional: mail relay for sign-in codes (POST {to,subject,text}, Bearer secret). Empty in dev = codes print in the console.
+MAIL_RELAY_URL=
+MAIL_RELAY_SECRET=
+# Optional: send sign-in codes through Gmail. Needs 2-Step Verification and an app password (myaccount.google.com/apppasswords).
+GMAIL_USER=
+GMAIL_APP_PASSWORD=
+# Optional: web push. Generate a pair with `npm run vapid`. The private key is a secret. Each site needs its own pair.
+VAPID_PUBLIC_KEY=
+VAPID_PRIVATE_KEY=
+
+# Optional: the free R2 storage in bytes that the 80% and 95% rules use (default 10 GB). Change it only if Cloudflare changes the free amount.
+R2_FREE_BYTES=
+# Optional: key for the member passcode hash. Without it the site uses BETTER_AUTH_SECRET. Set it, so rotating one secret does not break the other.
+PASSCODE_KEY=
+# Optional: set to report-only to send the page CSP as report-only (a quick way back if a rule breaks a page). Empty means enforced.
+CSP_MODE=
+# Comma-separated addresses that may open /admin and get the free-plan alert email. A secret on the real sites.
+ADMIN_EMAILS=

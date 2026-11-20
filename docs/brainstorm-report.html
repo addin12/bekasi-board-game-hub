@@ -1,0 +1,362 @@
+<title>Board Game Hub Brainstorm</title>
+<meta name="claude:viewport-fit-sides" content="cover">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:opsz,wght@12..96,500;12..96,700&family=Inter:wght@400;500;600&family=JetBrains+Mono:wght@500&display=swap">
+<style>
+/* Layout: one reading column with wide bands for screenshots and diagrams; dark-first like the Charcoal Satin direction. */
+:root {
+  --bg: #0b0c0f; --surface: #15171c; --line: #2a2e36; --fg: #e9ebef; --muted: #9aa1ad;
+  --accent: #d9dde4; --accent-ink: #0b0c0f;
+  --fav: #ff5a5f; --hot: #ff8a3d; --want: #4aa3ff; --trade: #3ccf7a;
+  --font-display: "Bricolage Grotesque", "Segoe UI", system-ui, sans-serif;
+  --font-body: "Inter", "Segoe UI", system-ui, sans-serif;
+  --font-mono: "JetBrains Mono", ui-monospace, Consolas, monospace;
+  color-scheme: dark;
+}
+@media (prefers-color-scheme: light) { :root:not([data-theme="dark"]) {
+  --bg: #f6f6f4; --surface: #ffffff; --line: #dcdde1; --fg: #15171c; --muted: #5d6470;
+  --accent: #1b1e24; --accent-ink: #ffffff;
+  --fav: #d92d36; --hot: #c75a12; --want: #1f6fd1; --trade: #1a8f4c; color-scheme: light; } }
+:root[data-theme="light"] {
+  --bg: #f6f6f4; --surface: #ffffff; --line: #dcdde1; --fg: #15171c; --muted: #5d6470;
+  --accent: #1b1e24; --accent-ink: #ffffff;
+  --fav: #d92d36; --hot: #c75a12; --want: #1f6fd1; --trade: #1a8f4c; color-scheme: light; }
+
+body { background: var(--bg); color: var(--fg); font: 16px/1.6 var(--font-body); }
+.wrap { max-width: 1040px; margin: 0 auto; padding-block: 48px 96px;
+  padding-left: max(16px, env(safe-area-inset-left, 0px)); padding-right: max(16px, env(safe-area-inset-right, 0px));
+  display: grid; gap: 64px; }
+.prose { max-width: 68ch; }
+h1, h2, h3 { font-family: var(--font-display); text-wrap: balance; line-height: 1.15; margin: 0; }
+h1 { font-size: clamp(2.2rem, 6vw, 3.6rem); font-weight: 700; letter-spacing: -0.02em; }
+h2 { font-size: clamp(1.5rem, 3.5vw, 2rem); font-weight: 700; }
+h3 { font-size: 1.1rem; font-weight: 700; }
+p { margin: 0; }
+section { display: grid; gap: 20px; }
+.eyebrow { font: 500 12px/1 var(--font-mono); letter-spacing: 0.12em; text-transform: uppercase; color: var(--muted); }
+.lede { font-size: 1.15rem; color: var(--muted); max-width: 60ch; }
+.muted { color: var(--muted); }
+ul, ol { margin: 0; padding-left: 1.2em; display: grid; gap: 6px; }
+a { color: var(--fg); text-underline-offset: 3px; }
+code { font: 0.9em var(--font-mono); }
+
+.grid2 { display: grid; grid-template-columns: repeat(auto-fit, minmax(300px, 1fr)); gap: 16px; }
+.grid3 { display: grid; grid-template-columns: repeat(auto-fit, minmax(240px, 1fr)); gap: 16px; }
+.box { background: var(--surface); border: 1px solid var(--line); border-radius: 14px; padding: 20px; display: grid; gap: 10px; align-content: start; min-width: 0; }
+.callout { border-left: 3px solid var(--hot); padding: 4px 0 4px 16px; display: grid; gap: 8px; }
+.tag { display: inline-block; font: 500 11px/1 var(--font-mono); letter-spacing: 0.08em; text-transform: uppercase; padding: 5px 8px; border-radius: 6px; border: 1px solid var(--line); color: var(--muted); }
+.k { font-weight: 600; }
+.fav { color: var(--fav); } .hot { color: var(--hot); } .want { color: var(--want); } .trade { color: var(--trade); }
+
+figure { margin: 0; display: grid; gap: 8px; min-width: 0; }
+figure img { width: 100%; border-radius: 10px; border: 1px solid var(--line); display: block; }
+figcaption { font-size: 13px; color: var(--muted); }
+
+.site { display: grid; gap: 6px; }
+.site h3 { display: flex; justify-content: space-between; gap: 8px; align-items: baseline; flex-wrap: wrap; }
+.site .src { font: 500 11px var(--font-mono); color: var(--muted); }
+.borrow::before { content: "Borrow  "; font: 600 11px var(--font-mono); color: var(--trade); letter-spacing: .06em; }
+.skip::before { content: "Skip  "; font: 600 11px var(--font-mono); color: var(--fav); letter-spacing: .06em; }
+
+.tablewrap { overflow-x: auto; border: 1px solid var(--line); border-radius: 12px; }
+table { border-collapse: collapse; width: 100%; min-width: 640px; font-size: 14px; }
+th, td { text-align: left; padding: 10px 14px; border-bottom: 1px solid var(--line); vertical-align: top; }
+th { font: 600 12px var(--font-mono); letter-spacing: .06em; text-transform: uppercase; color: var(--muted); background: var(--surface); }
+tr:last-child td { border-bottom: 0; }
+
+.diagram { overflow-x: auto; background: var(--surface); border: 1px solid var(--line); border-radius: 14px; padding: 16px; }
+.mermaid { margin: 0; background: transparent; }
+
+.phase { display: grid; grid-template-columns: 120px 1fr; gap: 16px; padding: 18px 0; border-top: 1px solid var(--line); }
+.phase:last-child { border-bottom: 1px solid var(--line); }
+@media (max-width: 560px) { .phase { grid-template-columns: 1fr; gap: 6px; } }
+
+.q { counter-increment: q; display: grid; grid-template-columns: 32px 1fr; gap: 12px; }
+.q::before { content: counter(q); font: 700 1.1rem var(--font-display); color: var(--muted); }
+.qs { counter-reset: q; display: grid; gap: 16px; }
+</style>
+
+<div class="wrap">
+
+<header style="display:grid;gap:16px">
+  <span class="eyebrow">Board Game Hub · Brainstorm v1 · 18 Nov 2026</span>
+  <h1>A hub built around the player card</h1>
+  <p class="lede">The core idea is a player card for every member, and a site that filters those cards. You can find people who love the same games, people who own or want to play the game you want, and people selling the game you're after. Sessions, places, the feed and badges all feed into that one database.</p>
+</header>
+
+<section>
+  <span class="eyebrow">Your goals</span>
+  <div class="grid2">
+    <div class="box"><h3>Meet like-minded players</h3><p class="muted">Match on shared favorites and recently loved games.</p></div>
+    <div class="box"><h3>Connect owners with players</h3><p class="muted">People who own a game meet people who want to play it, and the other way round.</p></div>
+    <div class="box"><h3>Build a list of places to play</h3><p class="muted">Every logged session can tag a place, so the places list grows by itself.</p></div>
+    <div class="box"><h3>Gamify the session</h3><p class="muted">Badges and stats come from logged sessions, not from posting a lot.</p></div>
+  </div>
+</section>
+
+<section>
+  <span class="eyebrow">Your sketches</span>
+  <div class="grid2">
+    <figure><img src="img/player-card.png" alt="Player card sketch: profile photo, name, BGG link, district, favorites, hotness, want to play, trade"><figcaption>Player card: 6 parts</figcaption></figure>
+    <figure><img src="img/flow.png" alt="Flow sketch: log in, registration, user data, main page feed, find, post, badges"><figcaption>App flow: log in → feed → find / post / badges</figcaption></figure>
+  </div>
+</section>
+
+<section class="prose">
+  <span class="eyebrow">First finding</span>
+  <h2>Reroll already does most of the feature list</h2>
+  <div class="callout">
+    <p>Reroll.id already has find players, play logs with winners and scores, a marketplace with auctions, places, events, discussions and a game database, all for Indonesia. If Board Game Hub tries to be the same thing, it competes head-on with a bigger site.</p>
+    <p><span class="k">Where we're different:</span> Reroll is built around listings and the catalog. We're built around <span class="k">people</span>. The player card is the main object, matching is the main action, and the hub starts with your WhatsApp group (verified members) instead of all of Indonesia. Public pages bring in new people.</p>
+  </div>
+</section>
+
+<section>
+  <span class="eyebrow">Inspiration</span>
+  <h2>What to borrow from each site</h2>
+  <p class="muted prose">I captured screenshots and page outlines with local Chrome for the sites that allow it. Letterboxd, Meetup, Board Game Arena, Dicebreaker and Snakes &amp; Lattes block crawlers in robots.txt, and Ludopedia showed a bot check. Notes for those come from what I already know, not from a fresh crawl. BGG is never scraped. Its data comes through your API access.</p>
+
+  <div class="grid2">
+    <figure><img src="img/reroll.png" alt="Reroll home: four big tabs, featured article, list of events with I'm going buttons"><figcaption>Reroll: one-tap “I'm going” on event rows</figcaption></figure>
+    <figure><img src="img/reroll-2.png" alt="Reroll recently played cards with winner chip and score, and game cards with player count, time and weight chips"><figcaption>Reroll: play cards show the winner and score; game cards show players, time and weight</figcaption></figure>
+    <figure><img src="img/geekgroup.png" alt="GeekGroup announcement of GameGrid, shareable images of a collection"><figcaption>GeekGroup: GameGrid turns a collection into an image you can share</figcaption></figure>
+    <figure><img src="img/tabletales.png" alt="Table Tales hero with huge serif title and illustrated art"><figcaption>Table Tales: a collection and play log presented like an art book</figcaption></figure>
+  </div>
+
+  <div class="grid3">
+    <div class="box site"><h3>GeekGroup <span class="src">crawled</span></h3>
+      <p class="borrow">Shareable images of your collection and stats. Our player card should export as an image the same way.</p>
+      <p class="skip">A long loading screen before anything appears.</p></div>
+    <div class="box site"><h3>Reroll <span class="src">crawled</span></h3>
+      <p class="borrow">One-tap RSVP, a winner chip on play cards, and small chips for players, time and weight on game cards.</p>
+      <p class="skip">More than 30 menu items. We keep it to 4 tabs.</p></div>
+    <div class="box site"><h3>Table Tales <span class="src">crawled</span></h3>
+      <p class="borrow">Bold display type for public game and profile pages.</p>
+      <p class="skip">Heavy art on pages people use every day.</p></div>
+    <div class="box site"><h3>Letterboxd <span class="src">from memory</span></h3>
+      <p class="borrow">4 favorites pinned to the profile (your Favorites row is the same idea), and a diary of what you logged.</p>
+      <p class="skip">Long reviews. Our posts stay short.</p></div>
+    <div class="box site"><h3>Strava <span class="src">crawled</span></h3>
+      <p class="borrow">Posts written automatically from an activity, kudos, clubs and a yearly recap. This is the model for “X played Anu with Y and Z.”</p>
+      <p class="skip">Paywalled stats.</p></div>
+    <div class="box site"><h3>Partiful <span class="src">crawled</span></h3>
+      <p class="borrow">One link and everyone's in. Invites open without the app, plus automatic reminders. Good for sharing sessions to the WhatsApp group.</p>
+      <p class="skip">Loud party styling.</p></div>
+    <div class="box site"><h3>Luma <span class="src">crawled</span></h3>
+      <p class="borrow">Clean event cards, discovery by city, and “add to calendar.”</p>
+      <p class="skip">Calendars meant for businesses.</p></div>
+    <div class="box site"><h3>StartPlaying <span class="src">crawled</span></h3>
+      <p class="borrow">Browsing by game, and filter chips.</p>
+      <p class="skip">Payments and booking. Not needed here.</p></div>
+    <div class="box site"><h3>Meetup · BGA · Tabletop.Events <span class="src">partly from memory</span></h3>
+      <p class="borrow">Groups with recurring sessions (Meetup), player rankings (BGA), and scheduling around venues (Tabletop.Events) for later meetups and conventions.</p></div>
+  </div>
+</section>
+
+<section>
+  <span class="eyebrow">The core object</span>
+  <h2>Player card, tightened</h2>
+  <div class="tablewrap"><table>
+    <thead><tr><th>Part</th><th>What it holds</th><th>Rule</th></tr></thead>
+    <tbody>
+      <tr><td>1 · Photo</td><td>Avatar image</td><td>Square crop, resized before upload</td></tr>
+      <tr><td>2 · Identity</td><td>Name, @handle, BGG username (links to BGG), district</td><td>District only, never a street address</td></tr>
+      <tr><td class="fav">3 · Favorites</td><td>Favorite games of all time</td><td>Up to 3, picked by hand, rarely changed</td></tr>
+      <tr><td class="hot">4 · Hotness</td><td>Games you've loved playing lately</td><td>Up to 3. Picked by hand at first; later suggested from your logged sessions</td></tr>
+      <tr><td class="want">5 · Want to play</td><td>Games you're looking for a table for</td><td>No limit. Each one can show “I own it” or “I need someone who owns it”</td></tr>
+      <tr><td class="trade">6 · Trade</td><td>Selling (↑) and looking to buy (↓)</td><td>Each listing has price, condition, and photos (optional)</td></tr>
+      <tr><td>Extra · Owned</td><td>Collection imported from BGG</td><td>Not shown on the card. Used for “who owns this”</td></tr>
+    </tbody>
+  </table></div>
+  <p class="muted prose">Technically, parts 3 to 6 plus Owned are one list: <code>person + game + kind</code>. That one table powers every filter you described.</p>
+</section>
+
+<section>
+  <span class="eyebrow">Site map</span>
+  <h2>Your flow, filled in</h2>
+  <div class="diagram"><pre class="mermaid">
+flowchart LR
+  P[Public pages<br/>no sign-in] --> L[Sign in]
+  L -->|first time| S[Set up player card]
+  S --> F[Feed]
+  L --> F
+  F --> FIND[Find]
+  F --> POST[Post]
+  F --> SES[Sessions]
+  F --> ME[My card · badges]
+  FIND --> F1[Like-minded players<br/>shared favorites and hotness]
+  FIND --> F2[People to play with<br/>want to play and owners]
+  FIND --> F3[Games to buy or sell]
+  POST --> PO1[Photo or status]
+  SES --> PO2[Session report<br/>written automatically]
+  ME --> SET[Settings<br/>member passcode · notifications]
+  </pre></div>
+  <p class="muted prose">Public pages, readable without signing in: player cards, game pages, places, session pages and public posts. Every one has a share button and a link preview image, so links posted in WhatsApp and Instagram bring people in.</p>
+</section>
+
+<section>
+  <span class="eyebrow">Key flows</span>
+  <h2>How each feature works</h2>
+  <div class="grid2">
+    <div class="box"><h3>Find (the core)</h3>
+      <ul>
+        <li><span class="fav">Like-minded:</span> ranked by how many favorite and hot games you share.</li>
+        <li><span class="want">To play with:</span> people who want the same game, plus people who own a game you want to play.</li>
+        <li><span class="trade">Buy/sell:</span> their selling list matched against your looking-to-buy list, and the other way round.</li>
+        <li>Filters: game, district, verified only. Results show player cards.</li>
+      </ul></div>
+    <div class="box"><h3>Game page</h3>
+      <p>Click any game and see tabs for <span class="k">Owns · Loves · Wants to play · Selling · Looking to buy</span>, plus recent sessions and the places it was played. Game details come from BGG and are cached.</p></div>
+    <div class="box"><h3>Session scheduler</h3>
+      <ol>
+        <li>The host picks the game, time, place and number of seats, and whether it's open to anyone or invite only.</li>
+        <li>The host invites people from Find. Others tap “Join.”</li>
+        <li>After the session, the host gets a prompt: who played, the winner (optional), a photo.</li>
+        <li>A post is written automatically: “X played Anu with Y and Z at Place.”</li>
+      </ol></div>
+    <div class="box"><h3>Trade (the selling flow)</h3>
+      <ol>
+        <li>The seller lists a game for sale. People with it on their looking-to-buy list get notified.</li>
+        <li>A buyer taps “Interested,” and the seller sees their WhatsApp contact.</li>
+        <li>The deal happens outside the site. The app never handles money.</li>
+        <li>The seller marks it sold to @buyer and the buyer confirms. Then a post goes up automatically: “M sold Inu to X.”</li>
+      </ol></div>
+    <div class="box"><h3>Places</h3>
+      <p>Members add public venues: cafés, stores, community spaces. A session tags a place, so each place gets a session count and a “games played here” list. Places link out to Google Maps. A private home shows only the district.</p></div>
+    <div class="box"><h3>Verified member badge</h3>
+      <p>Settings has a “Member passcode” field. An admin sets the code and changes it from time to time. The right code gives a verified badge. We store only a hash of the code, limit wrong attempts, and the admin can remove the badge.</p></div>
+    <div class="box"><h3>Push notifications</h3>
+      <p>You're invited to a session. Someone joins your session. You're tagged in a post. A game for sale matches your looking-to-buy list. A session reminder 2 hours before. Each one has its own on/off switch.</p>
+      <p class="muted">iPhone only gets push after the site is added to the home screen (iOS 16.4 or newer). The in-app bell always works.</p></div>
+    <div class="box"><h3>Feed</h3>
+      <p>A simple feed like Threads: a photo or text post, likes, comments and @tags. Session reports and sales show up in the same feed. No reposts and no algorithm. Newest first, with a filter for “people near me.”</p></div>
+  </div>
+</section>
+
+<section>
+  <span class="eyebrow">Gamification, first set</span>
+  <h2>Badges come from playing</h2>
+  <div class="tablewrap"><table>
+    <thead><tr><th>Badge</th><th>Earned by</th></tr></thead>
+    <tbody>
+      <tr><td>First Roll</td><td>Your first logged session</td></tr>
+      <tr><td>Regular</td><td>10 sessions</td></tr>
+      <tr><td>Host</td><td>Hosting 5 sessions that actually happened</td></tr>
+      <tr><td>Explorer</td><td>Playing at 5 different places</td></tr>
+      <tr><td>Wide Shelf</td><td>Playing 25 different games</td></tr>
+      <tr><td>Trader</td><td>3 confirmed trades</td></tr>
+      <tr><td>Verified member</td><td>Entering the member passcode</td></tr>
+    </tbody>
+  </table></div>
+  <p class="muted prose">Later: a yearly recap like Strava's, exported as a card image you can share.</p>
+</section>
+
+<section>
+  <span class="eyebrow">Data model</span>
+  <h2>Ten tables</h2>
+  <div class="diagram"><pre class="mermaid">
+erDiagram
+  USERS ||--o{ USER_GAMES : lists
+  GAMES ||--o{ USER_GAMES : "is listed in"
+  USERS ||--o{ SESSIONS : hosts
+  SESSIONS ||--o{ SESSION_PLAYERS : has
+  USERS ||--o{ SESSION_PLAYERS : joins
+  PLACES ||--o{ SESSIONS : hosts
+  GAMES ||--o{ SESSIONS : "played in"
+  USERS ||--o{ POSTS : writes
+  POSTS ||--o{ COMMENTS : has
+  POSTS ||--o{ LIKES : has
+  USERS ||--o{ BADGES : earns
+  USERS ||--o{ NOTIFICATIONS : receives
+  USER_GAMES {
+    int user_id
+    int bgg_id
+    text kind "favorite hot want own sell buy"
+    int price
+    text condition
+  }
+  SESSIONS {
+    int host_id
+    int bgg_id
+    int place_id
+    datetime starts_at
+    int seats
+    text status "planned done cancelled"
+  }
+  POSTS {
+    int author_id
+    text kind "photo status session trade"
+    text body
+    text image_key
+  }
+  </pre></div>
+</section>
+
+<section>
+  <span class="eyebrow">Design direction</span>
+  <h2>Dark charcoal satin, colors reserved for categories</h2>
+  <div class="grid2">
+    <div class="box"><h3>Look</h3>
+      <ul>
+        <li>Charcoal Satin (a slow, silky moving background) only on the landing hero and the top of the player card. Everything else stays still for readability.</li>
+        <li>One accent color, satin silver, for main buttons.</li>
+        <li>Your 4 category colors (<span class="fav">favorites</span>, <span class="hot">hotness</span>, <span class="want">want to play</span>, <span class="trade">trade</span>) only on icons and labels, never on buttons.</li>
+        <li>Your UI rules apply: 16px or larger text, labels above fields, 44px tap targets, and designed for phones first.</li>
+      </ul></div>
+    <div class="box"><h3>Which motion goes where</h3>
+      <p class="muted">From the 32 free transitions.dev recipes now saved in <code>design-kit/transitions</code>:</p>
+      <ul>
+        <li><code>like-button</code> for post likes</li>
+        <li><code>notification-badge</code> for the bell</li>
+        <li><code>avatar-group-hover</code> for the people in a session</li>
+        <li><code>card-tilt</code> for the player card</li>
+        <li><code>tabs-sliding</code> for the game page tabs</li>
+        <li><code>plus-menu-morph</code> for the new post, session or listing button</li>
+        <li><code>success-check</code> and <code>toast</code> for joining a session</li>
+        <li><code>skeleton-reveal</code> while the feed loads</li>
+        <li><code>number-pop-in</code> for badge counts</li>
+      </ul>
+      <p class="muted">Motion (motion.dev) covers page transitions and layout animations. Everything respects reduced-motion settings.</p></div>
+  </div>
+</section>
+
+<section>
+  <span class="eyebrow">Stack</span>
+  <h2>Same base as Quest Board TPK</h2>
+  <div class="tablewrap"><table>
+    <thead><tr><th>Piece</th><th>Choice</th><th>Why</th></tr></thead>
+    <tbody>
+      <tr><td>Front end</td><td>Next.js (static export), Tailwind, shadcn/ui, Motion</td><td>The stack you already run; shadcn is needed for the Charcoal Satin install</td></tr>
+      <tr><td>API</td><td>Cloudflare Pages Functions</td><td>Same deploy you already use, free tier</td></tr>
+      <tr><td>Database</td><td>Cloudflare D1</td><td>The person + game + kind filters are plain SQL</td></tr>
+      <tr><td>Images</td><td>Cloudflare R2</td><td>Post and avatar photos, resized before upload</td></tr>
+      <tr><td>Sign-in</td><td>Google sign-in (proposed)</td><td>No passwords to store; most members already have Google</td></tr>
+      <tr><td>BGG</td><td>Server-side calls with your token, cached in D1</td><td>The token stays secret; we stay within BGG rate limits</td></tr>
+      <tr><td>Push</td><td>Web Push (VAPID) from a Worker</td><td>No app store; works as an installed web app</td></tr>
+    </tbody>
+  </table></div>
+</section>
+
+<section>
+  <span class="eyebrow">Build order</span>
+  <h2>Three phases</h2>
+  <div>
+    <div class="phase"><span class="tag">Phase 1</span><div><h3>Cards and Find</h3><p class="muted">Sign-in, player card editor, BGG game search and collection import, game page showing who owns, loves, wants and sells it, Find with filters, public pages, share button, member passcode.</p></div></div>
+    <div class="phase"><span class="tag">Phase 2</span><div><h3>Sessions, places, feed</h3><p class="muted">Session scheduler with invite and join, places, automatic session posts, photo posts with likes, comments and tags, push notifications.</p></div></div>
+    <div class="phase"><span class="tag">Phase 3</span><div><h3>Trade and badges</h3><p class="muted">Selling and looking-to-buy matching, sold-and-confirmed flow, badges, hotness suggestions from sessions, yearly recap, Indonesian language.</p></div></div>
+  </div>
+</section>
+
+<section>
+  <span class="eyebrow">Your call</span>
+  <h2>Open questions</h2>
+  <div class="qs prose">
+    <div class="q"><p><span class="k">Who is it for?</span> Your WhatsApp group first, with public pages to bring in new people (my recommendation), or all of Indonesia from day one, which puts us head-on against Reroll?</p></div>
+    <div class="q"><p><span class="k">Sign-in:</span> is Google sign-in OK?</p></div>
+    <div class="q"><p><span class="k">Hotness:</span> picked by hand now and suggested from sessions later (my recommendation), or fully automatic?</p></div>
+    <div class="q"><p><span class="k">Trade:</span> are deals done outside the site over WhatsApp, with no payments in the app, OK?</p></div>
+    <div class="q"><p><span class="k">Name:</span> is “Board Game Hub” the final name, or a working title?</p></div>
+  </div>
+</section>
+
+</div>
