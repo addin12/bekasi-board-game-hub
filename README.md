@@ -53,6 +53,12 @@ Without a mail relay, the dev server prints sign-in codes in its console.
 | `npm run db:migrate:local` / `:remote` | Apply migrations |
 | `npm run deploy` | Build and deploy the Worker |
 | `npm run vapid` | Print a new web push key pair |
+| `npm run lint` | Lint the code (Biome) |
+| `npm run e2e` | End-to-end tests against the sandbox (needs Chrome). It cleans up its test data. |
+| `npm run backup` | Save the database and the pictures to `backups/` (`-- --env staging` for the sandbox) |
+| `npm run restore-check` | Load the newest dump into a scratch database and compare every table |
+| `npm run restore-prepare` | Put a dump in an order that D1 accepts, before a real restore |
+| `node scripts/rotate-secrets.mjs --env <site>` | Make new secrets, save them in an ignored file, and set them on Cloudflare |
 
 ## Configuration
 
@@ -66,6 +72,9 @@ Secrets are in `.dev.vars` on your computer (see `.dev.vars.example`). In produc
 - `app/routes/`: pages. `routes.ts` lists them.
 - `docs/brainstorm-report.html` and `DECISIONS.md`: the reasons for each choice.
 - `docs/free-tier.md`: the Cloudflare free-plan limits and the ceilings in the app.
+- `docs/runbook-backup-restore.md`: backups, restores, and the drill log.
+- `docs/secrets.md`: where each secret lives and what its loss breaks.
+- `docs/audit/`: the audit reports and their fixes.
 
 ## The two live sites
 
@@ -98,6 +107,10 @@ Set a secret on the real site with `wrangler secret put NAME`. Set it on the san
 - `GMAIL_USER` and `GMAIL_APP_PASSWORD` (email sign-in codes). Not set yet.
 - `R2_FREE_BYTES` (optional). It replaces the 10 GB free storage that the 80% and 95% rules use.
 - `MAIL_RELAY_URL` and `MAIL_RELAY_SECRET` (optional second choice). Not set.
+
+### Code and CI
+
+The code is in a private GitHub repository: `addin12/bekasi-board-game-hub`. Each push runs CI: typecheck, lint, unit tests, `npm audit` for shipped packages, and a secret scan. Dependabot opens update pull requests each week. Read each one before you merge it.
 
 ### State on 2026-11-19 (updated)
 
