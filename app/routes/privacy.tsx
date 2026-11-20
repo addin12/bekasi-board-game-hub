@@ -35,7 +35,7 @@ export default function Privacy() {
 
       <section className="grid gap-2">
         <h2>Who handles the data</h2>
-        <p>We do not sell it or share it for advertising. The site runs on Cloudflare, which stores the data and keeps short technical logs. Game details come from BoardGameGeek. Email sign-in codes are sent from a Gmail account of the community, so Google handles that mail. Phone notices pass through the push service of your browser (Google, Apple, or Mozilla).</p>
+        <p>We do not sell it or share it for advertising. The site runs on Cloudflare, which stores the data and keeps short technical logs. Game details come from BoardGameGeek. You sign in with your Google account, so Google handles the sign-in. Phone notices pass through the push service of your browser (Google, Apple, or Mozilla).</p>
       </section>
 
       <section className="grid gap-2">

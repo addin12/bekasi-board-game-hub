@@ -27,7 +27,7 @@ The back office is at `/admin`. Only the emails in the secret `ADMIN_EMAILS` can
 - React Router 8 on Cloudflare Workers.
 - D1 (SQLite) through Drizzle.
 - R2 for pictures.
-- Better Auth (email code and Google).
+- Better Auth. The real site signs in with Google only. The sandbox and the dev server also use email codes.
 - shadcn/ui and Tailwind 4.
 - Game data from the BoardGameGeek XML API.
 
@@ -81,7 +81,7 @@ Secrets are in `.dev.vars` on your computer (see `.dev.vars.example`). In produc
 | Site | URL | Data | Sign-in |
 |---|---|---|---|
 | Sandbox (test and simulation) | https://bekasi-board-game-hub-staging.bbgc.workers.dev | Fake demo members. The data can be wiped. | Any `name@sandbox.test` with code `000000`. Example: `raka@sandbox.test`. The admin is `admin@sandbox.test`. |
-| Real | https://bekasi-board-game-hub.bbgc.workers.dev | Real members | Google or email code, after you configure them |
+| Real | https://bekasi-board-game-hub.bbgc.workers.dev | Real members | Google sign-in only. Email codes are off on purpose (decision 50). |
 
 Each site has its own Worker, D1 database, R2 bucket, and secrets. In `wrangler.jsonc`, the top level is the real site and `env.staging` is the sandbox. The sandbox sends `X-Robots-Tag: noindex`.
 
@@ -104,7 +104,7 @@ Set a secret on the real site with `wrangler secret put NAME`. Set it on the san
 - Set now: `BGG_TOKEN`, `BETTER_AUTH_SECRET` (a different value on each site), and `BETTER_AUTH_URL`.
 - Set on the real site only: `GOOGLE_CLIENT_ID` and `GOOGLE_CLIENT_SECRET`. The sandbox has no Google redirect URI.
 - `VAPID_PUBLIC_KEY` and `VAPID_PRIVATE_KEY` (web push). Each site has its own pair.
-- `GMAIL_USER` and `GMAIL_APP_PASSWORD` (email sign-in codes). Not set yet.
+- `GMAIL_USER` and `GMAIL_APP_PASSWORD` (email sign-in codes and the alert email). Not set, on purpose. When you set both, email codes and the alert email turn on by themselves.
 - `R2_FREE_BYTES` (optional). It replaces the 10 GB free storage that the 80% and 95% rules use.
 - `MAIL_RELAY_URL` and `MAIL_RELAY_SECRET` (optional second choice). Not set.
 

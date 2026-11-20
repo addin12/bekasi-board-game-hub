@@ -38,7 +38,7 @@ function Row({ title, value, bar, note, status }: { title: string; value: string
 
 const R2_STATUS: Record<Level, string | undefined> = {
   ok: undefined,
-  warn: "Above 80%. The admins got an email.",
+  warn: "Above 80%. The admins got a notice.",
   stop: "Above 95%. New pictures are OFF until storage falls.",
 };
 
@@ -50,7 +50,7 @@ export function FreeTierPanel({ usage }: { usage: Usage }) {
       <div className="grid gap-1">
         <h2 id="free-tier" className="text-xl font-extrabold">Cloudflare free plan</h2>
         <p className="text-muted-foreground">
-          Cloudflare charges money only if picture storage goes past {formatBytes(FREE_TIER.r2Bytes)}. The admins get an email at 80%. New pictures stop at 95%, so no bill can start.
+          Cloudflare charges money only if picture storage goes past {formatBytes(FREE_TIER.r2Bytes)}. The admins get a notice at 80%. New pictures stop at 95%, so no bill can start.
         </p>
       </div>
       <div className="grid divide-y divide-line">
@@ -59,13 +59,13 @@ export function FreeTierPanel({ usage }: { usage: Usage }) {
           value={`${formatBytes(r2.bytes)} of ${formatBytes(freeBytes)} (${percentOf(r2.bytes, freeBytes)}%)`}
           bar={<Bar used={r2.bytes} limit={freeBytes} level={usage.r2Level} label="Picture storage" />}
           status={R2_STATUS[usage.r2Level]}
-          note={`${r2.objects}${r2.truncated ? "+" : ""} files. Email at ${formatBytes(freeBytes * CEILING.warnAt)}. New pictures stop at ${formatBytes(stopBytes)}.`}
+          note={`${r2.objects}${r2.truncated ? "+" : ""} files. Notice at ${formatBytes(freeBytes * CEILING.warnAt)}. New pictures stop at ${formatBytes(stopBytes)}.`}
         />
         <Row
           title="Database size (D1)"
           value={`${formatBytes(d1Bytes)} of ${formatBytes(FREE_TIER.d1DatabaseBytes)} (${percentOf(d1Bytes, FREE_TIER.d1DatabaseBytes)}%)`}
           bar={<Bar used={d1Bytes} limit={FREE_TIER.d1DatabaseBytes} level={usage.d1Level} label="Database size" />}
-          status={usage.d1Level === "ok" ? undefined : "Above 80%. The admins got an email."}
+          status={usage.d1Level === "ok" ? undefined : "Above 80%. The admins got a notice."}
           note="At the limit, saving fails. Cloudflare does not bill for this on the free plan."
         />
         <Row

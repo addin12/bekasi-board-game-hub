@@ -23,7 +23,7 @@ The code is in `app/lib/free-tier.ts`, `app/lib/limit-messages.ts`, and `app/lib
 | Level | R2 storage (of 10 GB) | What happens |
 |---|---|---|
 | OK | below 80% (8 GB) | Nothing. |
-| Warning | from 80% (8 GB) | The admins get an email, a bell message, and a phone notification. The admin page turns red. Uploads continue. |
+| Warning | from 80% (8 GB) | The admins get a bell message and a phone notification, and an email when you set up email. The admin page turns red. Uploads continue. |
 | Stop | from 95% (9.5 GB) | The admins get a second message. **New pictures are off.** The rest of the site works. Pictures that exist stay visible. |
 
 Uploads start again when storage falls below 95%. Delete posts that have a picture to free space.
@@ -56,7 +56,7 @@ The overview shows the time of the last check and what happened to the last emai
 
 ### The email
 
-The email goes to every address in the secret `ADMIN_EMAILS`. It needs the Gmail secrets (`GMAIL_USER`, `GMAIL_APP_PASSWORD`). Without them, the admins still get the bell message and the phone notification, and the overview says "not sent: email is not set up".
+The email goes to every address in the secret `ADMIN_EMAILS`. It needs the Gmail secrets (`GMAIL_USER`, `GMAIL_APP_PASSWORD`). The real site has no Gmail secrets, on purpose. So today, the admins still get the bell message and the phone notification, and the overview says "not sent: email is not set up".
 
 To change the free amount that the percentages use, set the secret `R2_FREE_BYTES`. The default is 10 GB.
 

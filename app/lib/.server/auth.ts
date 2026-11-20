@@ -24,7 +24,8 @@ function createAuth() {
     socialProviders: googleEnabled()
       ? { google: { clientId: env.GOOGLE_CLIENT_ID, clientSecret: env.GOOGLE_CLIENT_SECRET, prompt: "select_account" } }
       : undefined,
-    plugins: [
+    // Email codes exist only where a code can arrive (see emailEnabled). Without mail, the routes do not exist, so nobody can ask for a code that never comes.
+    plugins: emailEnabled() ? [
       emailOTP({
         otpLength: 6,
         expiresIn: 10 * 60,
@@ -49,7 +50,7 @@ function createAuth() {
           }
         },
       }),
-    ],
+    ] : [],
     // Workers have no shared memory between requests, so limits live in D1.
     // Sandbox testers often share one Wi-Fi (one IP), so the code-request limit is looser there.
     rateLimit: { enabled: true, storage: "database", window: 60, max: 30, customRules: { "/email-otp/send-verification-otp": { window: 300, max: isSandboxOn(env.SANDBOX) ? 200 : 3 } } },
