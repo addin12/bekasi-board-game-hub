@@ -6,13 +6,12 @@ import { BggBusy, ensureGames, importOwned } from "./bgg";
 import { refreshHot } from "./cards";
 import type { Db } from "./db";
 import { tradePost } from "./feed";
-import { recordUpload, uploadAllowed } from "./limits";
+import { saveImage } from "./common";
 
 export type ActionResult = { ok: true; message: string } | { ok: false; message: string; fieldErrors?: Record<string, string> };
 
 const LIMITS: Record<Kind, number> = { favorite: 3, hot: 3, want: 30, own: 300, sell: 30, buy: 30 };
 const EDITABLE: Kind[] = ["favorite", "want", "own", "sell", "buy"]; // hot is computed
-const AVATAR_TYPES: Record<string, string> = { "image/jpeg": "jpg", "image/png": "png", "image/webp": "webp" };
 const MAX_AVATAR = 2 * 1024 * 1024;
 
 export async function saveProfile(db: Db, userId: string, form: FormData, existing: { bggUsername: string | null; avatarKey: string | null } | null): Promise<ActionResult> {
@@ -32,16 +31,10 @@ export async function saveProfile(db: Db, userId: string, form: FormData, existi
   let avatarKey = existing?.avatarKey ?? null;
   const file = form.get("avatar");
   if (file instanceof File && file.size > 0) {
-    const ext = AVATAR_TYPES[file.type];
-    if (!ext) return { ok: false, message: "Check the fields marked below", fieldErrors: { avatar: "Use a JPG, PNG or WebP picture" } };
-    if (file.size > MAX_AVATAR) return { ok: false, message: "Check the fields marked below", fieldErrors: { avatar: "Pick a picture under 2 MB." } };
-    const allowed = await uploadAllowed(db, userId, file.size); // free-tier guard: see limits.ts
-    if (!allowed.ok) return { ok: false, message: "Check the fields marked below", fieldErrors: { avatar: allowed.message } };
-    const key = `avatars/${crypto.randomUUID()}.${ext}`;
-    await env.UPLOADS.put(key, await file.arrayBuffer(), { httpMetadata: { contentType: file.type } });
-    await recordUpload(db, userId, file.size);
+    const saved = await saveImage(db, userId, file, "avatars", MAX_AVATAR);
+    if ("error" in saved) return { ok: false, message: "Check the fields marked below", fieldErrors: { avatar: saved.error } };
     if (avatarKey) await env.UPLOADS.delete(avatarKey);
-    avatarKey = key;
+    avatarKey = saved.key;
   }
 
   const values = { displayName: v.displayName, handle: v.handle, district: v.district, bggUsername: v.bggUsername, bio: v.bio, avatarKey, updatedAt: new Date() };

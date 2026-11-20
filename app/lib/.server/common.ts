@@ -1,6 +1,7 @@
 import { env } from "cloudflare:workers";
 import { and, count, eq, isNull } from "drizzle-orm";
 import { notification } from "@/db/schema";
+import { prepareImage } from "@/lib/image-sniff";
 import type { Db } from "./db";
 import { recordUpload, uploadAllowed } from "./limits";
 import { pushInBackground } from "./push";
@@ -23,17 +24,18 @@ export async function unreadCount(db: Db, userId: string): Promise<number> {
   return n;
 }
 
-const IMAGE_TYPES: Record<string, string> = { "image/jpeg": "jpg", "image/png": "png", "image/webp": "webp" };
-
-/** Stores an uploaded picture in R2. Returns the key, or the message to show. */
+/**
+ * Stores an uploaded picture in R2. Returns the key, or the message to show.
+ * The browser's claimed type is ignored: the real type comes from the first bytes, and the metadata (GPS, camera, comments) is cut out.
+ */
 export async function saveImage(db: Db, userId: string, file: File, prefix: "posts" | "avatars", maxBytes: number): Promise<{ key: string } | { error: string }> {
-  const ext = IMAGE_TYPES[file.type];
-  if (!ext) return { error: "Use a JPG, PNG or WebP picture" };
   if (file.size > maxBytes) return { error: `Pick a picture under ${Math.round(maxBytes / 1024 / 1024)} MB.` };
-  const allowed = await uploadAllowed(db, userId, file.size); // free-tier guard: see limits.ts
+  const img = prepareImage(new Uint8Array(await file.arrayBuffer()));
+  if (!img) return { error: "Use a JPG, PNG or WebP picture" };
+  const allowed = await uploadAllowed(db, userId, img.bytes.length); // free-tier guard: see limits.ts
   if (!allowed.ok) return { error: allowed.message };
-  const key = `${prefix}/${crypto.randomUUID()}.${ext}`;
-  await env.UPLOADS.put(key, await file.arrayBuffer(), { httpMetadata: { contentType: file.type } });
-  await recordUpload(db, userId, file.size);
+  const key = `${prefix}/${crypto.randomUUID()}.${img.ext}`;
+  await env.UPLOADS.put(key, img.bytes, { httpMetadata: { contentType: img.contentType } });
+  await recordUpload(db, userId, img.bytes.length);
   return { key };
 }
