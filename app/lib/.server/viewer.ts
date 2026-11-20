@@ -1,7 +1,7 @@
-import { env } from "cloudflare:workers";
 import { eq } from "drizzle-orm";
 import { redirect } from "react-router";
 import { profile } from "@/db/schema";
+import { adminEmails } from "./admin-emails";
 import { getAuth } from "./auth";
 import { getDb } from "./db";
 
@@ -11,12 +11,23 @@ export type Viewer = {
   isAdmin: boolean;
 };
 
-export async function getViewer(request: Request): Promise<Viewer | null> {
+async function loadViewer(request: Request): Promise<Viewer | null> {
   const s = await getAuth().api.getSession({ headers: request.headers });
   if (!s) return null;
   const [p] = await getDb().select().from(profile).where(eq(profile.userId, s.user.id)).limit(1);
-  const admins = (env.ADMIN_EMAILS ?? "").split(",").map((e) => e.trim().toLowerCase()).filter(Boolean);
-  return { user: s.user, profile: p ?? null, isAdmin: s.user.emailVerified && admins.includes(s.user.email.toLowerCase()) };
+  return { user: s.user, profile: p ?? null, isAdmin: s.user.emailVerified && adminEmails().includes(s.user.email.toLowerCase()) };
+}
+
+const seen = new WeakMap<Request, Promise<Viewer | null>>();
+
+/** The layout and the page both ask for the viewer. A GET request changes nothing, so they share one answer. A POST asks fresh: an action may change the card. */
+export function getViewer(request: Request): Promise<Viewer | null> {
+  if (request.method !== "GET") return loadViewer(request);
+  const known = seen.get(request);
+  if (known) return known;
+  const fresh = loadViewer(request);
+  seen.set(request, fresh);
+  return fresh;
 }
 
 const backTo = (request: Request) => {

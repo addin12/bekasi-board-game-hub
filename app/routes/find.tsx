@@ -34,15 +34,15 @@ export async function loader({ request }: Route.LoaderArgs) {
   const district = DISTRICTS.includes(sp.get("district") ?? "") ? sp.get("district") : null;
   const verifiedOnly = sp.get("verified") === "1";
   const db = getDb();
-  const [results, gameRow] = await Promise.all([
+  const [{ people: results, total }, gameRow] = await Promise.all([
     findPeople(db, { me: v.user.id, mode, bggId: gameId, district, verifiedOnly }),
     gameId ? db.select({ name: game.name }).from(game).where(eq(game.bggId, gameId)).limit(1) : Promise.resolve([]),
   ]);
-  return { mode, gameId, gameName: gameRow[0]?.name ?? null, district, verifiedOnly, results };
+  return { mode, gameId, gameName: gameRow[0]?.name ?? null, district, verifiedOnly, results, total };
 }
 
 export default function Find({ loaderData }: Route.ComponentProps) {
-  const { mode, gameId, gameName, district, verifiedOnly, results } = loaderData;
+  const { mode, gameId, gameName, district, verifiedOnly, results, total } = loaderData;
   const [sp] = useSearchParams();
   const navigate = useNavigate();
   const withParams = (changes: Record<string, string | null>) => {
@@ -105,9 +105,10 @@ export default function Find({ loaderData }: Route.ComponentProps) {
 
       <section className="grid gap-4" aria-live="polite">
         <h2 className="text-xl font-extrabold">
-          {results.length} {results.length === 1 ? "match" : "matches"}
+          {total} {total === 1 ? "match" : "matches"}
           <span className="font-semibold text-muted-foreground"> · {current.help}</span>
         </h2>
+        {total > results.length && <p className="text-muted-foreground">Showing the best {results.length}. Pick a game or a district to narrow the list.</p>}
         {results.length === 0 ? (
           <div className="panel grid gap-3 p-6">
             <p className="font-bold">No matches yet</p>

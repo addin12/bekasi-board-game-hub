@@ -16,6 +16,7 @@ export type Result<T extends object = object> = ({ ok: true } & T) | { ok: false
 /** The same message to the same person inside this time is sent once. Joining and leaving a table in a loop cannot spam a phone. */
 const DUPLICATE_WINDOW_MS = 10 * 60_000;
 
+// shortcut: the duplicate check reads and then writes, so two identical notices at the same moment can both go out. Rare and harmless.
 export async function notify(db: Db, userId: string, text: string, href: string) {
   const body = text.slice(0, 200);
   const [same] = await db

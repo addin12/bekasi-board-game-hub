@@ -1,6 +1,7 @@
 import { getDb } from "@/lib/.server/db";
 import { pushEnabled, pushToUser, removeSubscription, saveSubscription } from "@/lib/.server/push";
 import { requireMember } from "@/lib/.server/viewer";
+import { readCapped } from "@/lib/read-body";
 import type { Route } from "./+types/api.push";
 
 const json = (body: object, status = 200) => Response.json(body, { status });
@@ -15,7 +16,9 @@ export async function action({ request }: Route.ActionArgs) {
   if (!pushEnabled()) return json({ ok: false, message: "Notifications are not set up on this site yet" }, 503);
 
   let body: { intent?: unknown; subscription?: unknown; endpoint?: unknown };
-  try { body = await request.json(); } catch { return json({ ok: false, message: "Send JSON" }, 400); }
+  const raw = await readCapped(request, 8 * 1024); // a push subscription is under 1 KB
+  if (raw === null) return json({ ok: false, message: "Too big" }, 413);
+  try { body = JSON.parse(raw); } catch { return json({ ok: false, message: "Send JSON" }, 400); }
   const db = getDb();
 
   if (body.intent === "subscribe") {

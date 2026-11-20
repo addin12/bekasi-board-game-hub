@@ -6,6 +6,7 @@ import type { ContentType } from "@/lib/admin-types";
 import { SITE_KEYS, mergeSiteText, siteSettingKey, type SiteText } from "@/lib/site-text";
 import { likePattern, profileSchema, type placeSchema } from "@/lib/validate";
 import { deleteAccount } from "./account";
+import { adminEmails } from "./admin-emails";
 import { newId, type Result } from "./common";
 import type { Db } from "./db";
 import { deleteComment, deletePost } from "./feed";
@@ -41,8 +42,7 @@ export async function adminStats(db: Db) {
   return r as { members: number; verified: number; plays: number; tables: number; posts: number; comments: number; places: number; reports: number };
 }
 
-export const isAdminEmail = (email: string) =>
-  (env.ADMIN_EMAILS ?? "").split(",").map((e) => e.trim().toLowerCase()).filter(Boolean).includes(email.toLowerCase());
+export const isAdminEmail = (email: string) => adminEmails().includes(email.toLowerCase());
 
 // ---------- Members ----------
 

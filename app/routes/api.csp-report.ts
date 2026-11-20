@@ -1,4 +1,5 @@
 import { logFailure } from "@/lib/.server/log";
+import { readCapped } from "@/lib/read-body";
 import type { Route } from "./+types/api.csp-report";
 
 const MAX_BYTES = 8 * 1024;
@@ -13,7 +14,8 @@ export async function action({ request }: Route.ActionArgs) {
   const declared = Number(request.headers.get("content-length") ?? 0);
   if (declared > MAX_BYTES) return new Response(null, { status: 413 });
   try {
-    const raw = (await request.text()).slice(0, MAX_BYTES);
+    const raw = await readCapped(request, MAX_BYTES); // a chunked post has no content-length, so the read itself stops at the cap
+    if (raw === null) return new Response(null, { status: 413 });
     const json = JSON.parse(raw) as Record<string, unknown>;
     const r = (json["csp-report"] ?? json) as Record<string, unknown>;
     const short = (v: unknown) => String(v ?? "").slice(0, 120);

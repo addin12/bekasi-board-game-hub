@@ -29,10 +29,6 @@ export async function removeSubscription(db: Db, userId: string, endpoint: unkno
   await db.delete(pushSubscription).where(and(eq(pushSubscription.endpoint, endpoint), eq(pushSubscription.userId, userId)));
 }
 
-export async function deviceCount(db: Db, userId: string): Promise<number> {
-  return (await db.select({ id: pushSubscription.id }).from(pushSubscription).where(eq(pushSubscription.userId, userId))).length;
-}
-
 /** Sends a notice to every device of one member. Devices that the push service reports as gone are deleted. Returns how many accepted it. */
 export async function pushToUser(db: Db, userId: string, notice: Notice): Promise<number> {
   if (!pushEnabled()) return 0;

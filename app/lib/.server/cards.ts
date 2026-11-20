@@ -4,7 +4,7 @@ import { earnedBadges, type BadgeStats } from "@/lib/badges";
 import { todayWib } from "@/lib/dates";
 import { chooseHot, type HotSource } from "@/lib/hotness";
 import { BggBusy, ensureGames, hotList, recentPlays } from "./bgg";
-import type { Db } from "./db";
+import { inParts, type Db } from "./db";
 import { uniqueMatches, type FindMode, type MatchReason } from "@/lib/find";
 import { isStyle, type StyleCode } from "@/lib/play-style";
 export type { FindMode, MatchReason };
@@ -146,23 +146,27 @@ function matchSql(mode: FindMode, me: string, bggId: number | null) {
   return sql`${pair(["sell"], ["buy"], "sells_your_buy")} UNION ${pair(["buy"], ["sell"], "buys_your_sell")}`;
 }
 
+/** The Find page shows the best matches first and at most this many. The page tells the member how many more there are. */
+const MAX_FOUND = 60;
+
 export async function findPeople(
   db: Db,
   input: { me: string; mode: FindMode; bggId: number | null; district: string | null; verifiedOnly: boolean },
 ) {
   const rows = (await db.all(matchSql(input.mode, input.me, input.bggId))) as Row[];
-  if (!rows.length) return [];
+  if (!rows.length) return { people: [], total: 0 };
   const userIds = [...new Set(rows.map((r) => r.user_id))];
   const gameIds = [...new Set(rows.map((r) => r.bgg_id))];
+  // D1 takes 100 bound values per query, so a long list goes in parts (before this, Find failed once more than 100 members matched).
   const [people, games] = await Promise.all([
-    db.select(personCols).from(profile).innerJoin(user, eq(user.id, profile.userId)).where(inArray(profile.userId, userIds)),
-    db.select({ bggId: game.bggId, name: game.name, year: game.year, thumbnail: game.thumbnail }).from(game).where(inArray(game.bggId, gameIds)),
+    inParts(userIds, (part) => db.select(personCols).from(profile).innerJoin(user, eq(user.id, profile.userId)).where(inArray(profile.userId, part))),
+    inParts(gameIds, (part) => db.select({ bggId: game.bggId, name: game.name, year: game.year, thumbnail: game.thumbnail }).from(game).where(inArray(game.bggId, part))),
   ]);
   const gameById = new Map(games.map((g) => [g.bggId, g]));
   // Same play style is a tie-breaker for people who match on games. It never adds a person who has no game in common.
   const [mine] = await db.select({ style: profile.playStyle }).from(profile).where(eq(profile.userId, input.me)).limit(1);
   const myStyle = input.mode === "trade" || !isStyle(mine?.style) ? null : mine.style;
-  return people
+  const found = people
     .map(toPerson)
     .filter((p) => (!input.district || p.district === input.district) && (!input.verifiedOnly || p.verified))
     .map((p) => {
@@ -173,4 +177,5 @@ export async function findPeople(
     })
     .filter((p) => p.matches.length)
     .sort((a, b) => b.score - a.score || Number(b.sameStyle) - Number(a.sameStyle) || a.displayName.localeCompare(b.displayName));
+  return { people: found.slice(0, MAX_FOUND), total: found.length };
 }

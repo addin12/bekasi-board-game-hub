@@ -50,7 +50,7 @@ The day counters restart at 00:00 UTC.
 
 1. After each picture upload.
 2. When an admin opens the overview.
-3. Every 6 hours, on the real site only. This is a Cron Trigger in `wrangler.jsonc`. It costs about 120 R2 operations a month.
+3. Every 6 hours, on the real site only. This is a Cron Trigger in `wrangler.jsonc`. It lists the bucket about once a day, so it costs about 30 R2 operations a month.
 
 The overview shows the time of the last check and what happened to the last email.
 
@@ -63,8 +63,8 @@ To change the free amount that the percentages use, set the secret `R2_FREE_BYTE
 ## How the storage number works
 
 1. The app lists the R2 bucket and adds up the sizes. The listing costs one R2 operation for each 1,000 files.
-2. The app stores the total for one hour in the `setting` table (key `usage.r2`).
-3. Each upload adds its size to the stored total at once.
+2. The app stores the total in the `setting` table (key `usage.r2`). It lists the bucket again only when the stored total is one day old.
+3. Each upload adds its size to the stored total at once. The app does not subtract deleted pictures until the next list, so the total can read a little high. That is the safe side.
 4. The admin overview shows the total, the D1 size, and the pictures added today.
 
 ## What to watch

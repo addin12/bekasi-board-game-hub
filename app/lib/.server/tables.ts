@@ -2,6 +2,7 @@ import { and, asc, count, eq, gt, gte, inArray, sql } from "drizzle-orm";
 import type { z } from "zod";
 import { game, place, playTable, post, profile, tablePlayer, user } from "@/db/schema";
 import { formatWhen } from "@/lib/dates";
+import { joinSeatSql } from "@/lib/join-seat";
 import type { tableSchema } from "@/lib/validate";
 import { ensureGames } from "./bgg";
 import { personCols, toPerson } from "./cards";
@@ -12,6 +13,7 @@ export type TableInput = z.infer<ReturnType<typeof tableSchema>>;
 
 const STILL_ON_MS = 3 * 3600_000; // a table stays joinable for 3 hours after it starts
 
+// shortcut: the two caps below read a count and then write, so two requests at the same moment can both pass (11 tables, not 10). They stop abuse, not exact counts.
 export async function createTable(db: Db, hostId: string, input: TableInput): Promise<Result<{ id: string }>> {
   const [{ day }] = await db.select({ day: count() }).from(playTable).where(and(eq(playTable.hostId, hostId), gt(playTable.createdAt, new Date(Date.now() - 86400_000))));
   if (day >= 10) return { ok: false, message: LIMIT_MSG };
@@ -43,8 +45,7 @@ export async function joinTable(db: Db, userId: string, tableId: string): Promis
   if (t.status !== "open" || t.startsAt.getTime() < Date.now() - STILL_ON_MS) return { ok: false, message: "This table is closed" };
   const [mine] = await db.select({ u: tablePlayer.userId }).from(tablePlayer).where(and(eq(tablePlayer.tableId, tableId), eq(tablePlayer.userId, userId))).limit(1);
   if (mine) return { ok: true };
-  const res = await db.run(sql`INSERT OR IGNORE INTO table_player (table_id, user_id)
-    SELECT ${tableId}, ${userId} WHERE (SELECT COUNT(*) FROM table_player WHERE table_id = ${tableId}) < ${t.seats}`);
+  const res = await db.run(joinSeatSql(tableId, userId, t.seats));
   if (!res.meta.changes) return { ok: false, message: "This table is full" };
   const [who] = await db.select({ name: profile.displayName }).from(profile).where(eq(profile.userId, userId)).limit(1);
   await notify(db, t.host, `${who?.name ?? "Someone"} joined your ${t.game} table.`, `/tables/${tableId}`);

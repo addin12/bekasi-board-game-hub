@@ -5,6 +5,7 @@ import { emailOTP } from "better-auth/plugins/email-otp";
 import * as schema from "@/db/schema";
 import { isSandboxEmail, isSandboxOn, SANDBOX_CODE } from "@/lib/sandbox";
 import { getDb } from "./db";
+import { logFailure } from "./log";
 import { mailConfigured, sendMail } from "./mail";
 
 export const googleEnabled = () => Boolean(env.GOOGLE_CLIENT_ID && env.GOOGLE_CLIENT_SECRET);
@@ -34,11 +35,16 @@ function createAuth() {
         generateOTP: ({ email }) => (isSandboxEmail(email, isSandboxOn(env.SANDBOX)) ? SANDBOX_CODE : undefined),
         async sendVerificationOTP({ email, otp }) {
           if (isSandboxEmail(email, isSandboxOn(env.SANDBOX))) return; // nothing to send
-          await sendMail(
-            email,
-            `${otp} is your ${env.APP_NAME} code`,
-            `Your sign-in code is ${otp}\n\nIt works for 10 minutes. If you didn't ask for it, ignore this email.`,
-          );
+          try {
+            await sendMail(
+              email,
+              `${otp} is your ${env.APP_NAME} code`,
+              `Your sign-in code is ${otp}\n\nIt works for 10 minutes. If you didn't ask for it, ignore this email.`,
+            );
+          } catch (e) {
+            logFailure("signin_mail_failed", e); // Better Auth still answers 200 to the member, so this log line is the only sign
+            throw e;
+          }
         },
       }),
     ],

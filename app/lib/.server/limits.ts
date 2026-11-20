@@ -4,6 +4,7 @@ import { notification, setting, user } from "@/db/schema";
 import { CEILING, FREE_TIER, alertDue, dayKey, decideUpload, levelFor, type Level, type UploadDecision } from "@/lib/free-tier";
 import { d1Alert, r2Alert, type Alert } from "@/lib/limit-messages";
 import { isSandboxEmail, isSandboxOn } from "@/lib/sandbox";
+import { adminEmails } from "./admin-emails";
 import type { Db } from "./db";
 import { logFailure } from "./log";
 import { mailConfigured, sendMail } from "./mail";
@@ -15,7 +16,9 @@ import { pushInBackground } from "./push";
 
 const USAGE_KEY = "usage.r2";
 const STATE_KEY = "limits.state";
-const FRESH_MS = 3600_000; // listing the bucket costs R2 operations, so the total is kept for one hour
+// Listing the bucket costs R2 operations and CPU time, so the full list runs once a day. Between lists, recordUpload adds each new
+// picture to the stored total. Deleted pictures are not subtracted until the next list, so the total errs on the safe (high) side.
+const FRESH_MS = 24 * 3600_000;
 const MAX_LIST_PAGES = 20; // 1,000 objects per page
 
 export type R2Usage = { bytes: number; objects: number; at: number; truncated: boolean };
@@ -46,7 +49,7 @@ async function read<T>(db: Db, key: string): Promise<T | null> {
   try { return JSON.parse(row.value) as T; } catch { return null; }
 }
 
-/** How much R2 holds. Uses the stored total when it is under an hour old. */
+/** How much R2 holds. Uses the stored total when it is under a day old. */
 export async function r2Usage(db: Db, { force = false }: { force?: boolean } = {}): Promise<R2Usage> {
   const stored = await read<R2Usage>(db, USAGE_KEY);
   if (stored && !force && typeof stored.bytes === "number" && Date.now() - stored.at < FRESH_MS) return stored;
@@ -62,7 +65,7 @@ async function counter(db: Db, key: string): Promise<number> {
   return row ? Number(row.value) || 0 : 0;
 }
 
-/** Ask before every picture is stored. */
+/** Ask before every picture is stored. shortcut: read-then-write, so two uploads at the same moment can both pass (off by one or two); upgrade only if abuse shows up. */
 export async function uploadAllowed(db: Db, userId: string, newBytes: number): Promise<UploadDecision> {
   const day = dayKey();
   const [usage, memberToday, siteToday] = await Promise.all([r2Usage(db), counter(db, counterKey(day, userId)), counter(db, counterKey(day))]);
@@ -85,11 +88,9 @@ export async function recordUpload(db: Db, userId: string, bytes: number) {
   }
 }
 
-const adminAddresses = (): string[] => (env.ADMIN_EMAILS ?? "").split(",").map((e) => e.trim().toLowerCase()).filter(Boolean);
-
 /** The bell, the phone, and the email. A failed email never stops the others. Returns what happened to the email. */
 async function alertAdmins(db: Db, alert: Alert): Promise<string> {
-  const emails = adminAddresses();
+  const emails = adminEmails();
   const admins = emails.length ? await db.select({ id: user.id }).from(user).where(inArray(user.email, emails)) : [];
   for (const a of admins) {
     await db.insert(notification).values({ id: crypto.randomUUID().replace(/-/g, "").slice(0, 16), userId: a.id, text: alert.bell, href: "/admin" });
