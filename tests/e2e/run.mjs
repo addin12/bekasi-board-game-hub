@@ -28,8 +28,8 @@ function gpsJpeg() {
   return Buffer.from([0xff, 0xd8, ...app0, ...app1, 0xff, 0xda, 0x00, 0x08, 1, 1, 0, 0, 0x3f, 0, 0x12, 0x34, 0x56, 0xff, 0xd9]);
 }
 
-async function login(browser, email, viewport = { width: 1000, height: 900 }) {
-  const ctx = await browser.newContext({ viewport });
+async function login(browser, email, viewport = { width: 1000, height: 900 }, extra = {}) {
+  const ctx = await browser.newContext({ viewport, ...extra });
   await ctx.request.post(`${BASE}/api/auth/email-otp/send-verification-otp`, { data: { email, type: "sign-in" }, headers: { origin: BASE } });
   const r = await ctx.request.post(`${BASE}/api/auth/sign-in/email-otp`, { data: { email, otp: "000000" }, headers: { origin: BASE } });
   if (r.status() !== 200) throw new Error(`sign-in as ${email} failed (${r.status()})`);
@@ -137,15 +137,16 @@ async function sandboxChecks(browser) {
   check((await unread(raka)) === 0, "opening /notifications in the browser marks them as read");
 
   // --- L8: accessibility (axe) on a member page, phone width ---
-  const ap = await raka.newPage();
-  await ap.setViewportSize({ width: 390, height: 844 });
+  // The site CSP blocks a script from a CDN, so this one context may bypass it. That is the test tool, not the site.
+  const axeCtx = await login(browser, "raka@sandbox.test", { width: 390, height: 844 }, { bypassCSP: true });
+  const ap = await axeCtx.newPage();
   await ap.goto(`${BASE}/feed`, { waitUntil: "networkidle" });
   await hydrated(ap);
   await ap.addScriptTag({ url: AXE });
   const violations = await ap.evaluate(async () => (await window.axe.run(document, { runOnly: { type: "tag", values: ["wcag2a", "wcag2aa", "wcag21a", "wcag21aa", "best-practice"] } })).violations.map((v) => `${v.id}(${v.nodes.length})`));
   check(violations.length === 0, "axe finds no violation on /feed at phone width", violations.join(", "));
 
-  await Promise.all([raka.close(), admin.close(), dinda.close(), bayu.close()]);
+  await Promise.all([raka.close(), admin.close(), dinda.close(), bayu.close(), axeCtx.close()]);
 }
 
 function cleanup() {
