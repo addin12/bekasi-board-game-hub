@@ -1,5 +1,5 @@
 import { describe, expect, it } from "vitest";
-import { BASIC_HEADERS, ENFORCED_CSP, IMAGE_HOSTS, newNonce, reportOnlyCsp, withBasicHeaders } from "@/lib/security-headers";
+import { BASIC_HEADERS, ENFORCED_CSP, IMAGE_HOSTS, cspHeaderName, newNonce, pageCsp, withBasicHeaders } from "@/lib/security-headers";
 
 const header = (name: string) => BASIC_HEADERS.find(([n]) => n.toLowerCase() === name.toLowerCase())?.[1];
 
@@ -21,8 +21,8 @@ describe("always-on headers", () => {
   });
 });
 
-describe("report-only policy", () => {
-  const csp = reportOnlyCsp("abc123");
+describe("page policy", () => {
+  const csp = pageCsp("abc123");
   const directive = (name: string) => csp.split("; ").find((d) => d.startsWith(name + " "));
   it("allows scripts from this site and the nonce, and nothing inline or eval", () => {
     expect(directive("script-src")).toBe("script-src 'self' 'nonce-abc123'");
@@ -37,6 +37,14 @@ describe("report-only policy", () => {
   it("lets pictures load from this site, from BoardGameGeek, and from Google", () => {
     for (const host of IMAGE_HOSTS) expect(directive("img-src")).toContain(host);
     expect(directive("img-src")).toContain("'self'");
+  });
+  it("also carries the four always-on rules, so a page is never less protected than other responses", () => {
+    for (const rule of ENFORCED_CSP.split("; ")) expect(csp).toContain(rule);
+  });
+  it("is enforced unless CSP_MODE says report-only", () => {
+    expect(cspHeaderName(undefined)).toBe("Content-Security-Policy");
+    expect(cspHeaderName("")).toBe("Content-Security-Policy");
+    expect(cspHeaderName("report-only")).toBe("Content-Security-Policy-Report-Only");
   });
   it("keeps network calls and workers on this site, and reports to the site", () => {
     expect(directive("connect-src")).toBe("connect-src 'self'");

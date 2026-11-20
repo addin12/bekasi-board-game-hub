@@ -1,9 +1,10 @@
-// The server entry. It is the framework default plus one thing: a fresh CSP nonce for each page (audit finding H1).
+// The server entry. It is the framework default plus one thing: a fresh CSP nonce and the CSP header for each page (audit finding H1).
+import { env } from "cloudflare:workers";
 import { isbot } from "isbot";
 import { renderToReadableStream } from "react-dom/server";
 import type { EntryContext, RouterContextProvider } from "react-router";
 import { ServerRouter } from "react-router";
-import { newNonce, reportOnlyCsp } from "@/lib/security-headers";
+import { cspHeaderName, newNonce, pageCsp } from "@/lib/security-headers";
 
 export const streamTimeout = 5_000;
 
@@ -36,6 +37,6 @@ export default async function handleRequest(
   if ((userAgent && isbot(userAgent)) || routerContext.isSpaMode) await body.allReady;
 
   responseHeaders.set("Content-Type", "text/html");
-  responseHeaders.set("Content-Security-Policy-Report-Only", reportOnlyCsp(nonce));
+  responseHeaders.set(cspHeaderName(env.CSP_MODE), pageCsp(nonce));
   return new Response(body, { headers: responseHeaders, status: responseStatusCode });
 }

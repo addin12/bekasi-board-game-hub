@@ -22,3 +22,5 @@ VAPID_PRIVATE_KEY=
 R2_FREE_BYTES=
 # Optional: key for the member passcode hash. Without it the site uses BETTER_AUTH_SECRET. Set it, so rotating one secret does not break the other.
 PASSCODE_KEY=
+# Optional: set to report-only to send the page CSP as report-only (a quick way back if a rule breaks a page). Empty means enforced.
+CSP_MODE=

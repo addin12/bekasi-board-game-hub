@@ -1,3 +1,4 @@
+import "./zod-config";
 import { z } from "zod";
 import { fromInputValue, isIsoDay, todayWib } from "./dates";
 import { DISTRICTS } from "./districts";

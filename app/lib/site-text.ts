@@ -1,3 +1,4 @@
+import "./zod-config";
 import { z } from "zod";
 
 // Text an admin can change from the back office. Stored in the `setting` table as site.<key>; plain text only,
