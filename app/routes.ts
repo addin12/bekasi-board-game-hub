@@ -7,6 +7,7 @@ export default [
   route("api/people/search", "routes/api.people.search.ts"),
   route("api/report", "routes/api.report.ts"),
   route("api/push", "routes/api.push.ts"),
+  route("api/csp-report", "routes/api.csp-report.ts"),
   route("img/*", "routes/img.ts"),
   route("sign-out", "routes/sign-out.ts"),
   route("robots.txt", "routes/robots.ts"),
