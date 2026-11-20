@@ -58,7 +58,19 @@ export async function r2Usage(db: Db, { force = false }: { force?: boolean } = {
   return fresh;
 }
 
-const counterKey = (day: string, userId?: string) => (userId ? `up.${day}.${userId}` : `up.${day}`);
+const MAIL_FAIL_KEY = "mail.failure";
+export type MailFailure = { at: number; error: string };
+
+/** Keeps the last failed sign-in email so the admin overview can show it. Never throws: the member's request must not fail a second time. */
+export async function recordMailFailure(db: Db, e: unknown) {
+  try {
+    await put(db, MAIL_FAIL_KEY, { at: Date.now(), error: (e instanceof Error ? e.message : String(e)).slice(0, 120) } satisfies MailFailure);
+  } catch (err) {
+    logFailure("mail_failure_not_saved", err);
+  }
+}
+
+const counterKey =(day: string, userId?: string) => (userId ? `up.${day}.${userId}` : `up.${day}`);
 
 async function counter(db: Db, key: string): Promise<number> {
   const [row] = await db.select({ value: setting.value }).from(setting).where(eq(setting.key, key)).limit(1);
@@ -147,7 +159,7 @@ export async function checkLimits(db: Db, opts: { r2?: R2Usage } = {}): Promise<
 /** What the admin page shows. */
 export async function usageReport(db: Db) {
   const report = await checkLimits(db);
-  return { ...report, freeBytes: freeBytes(), stopBytes: stopBytes(), uploadsToday: await counter(db, counterKey(dayKey())) };
+  return { ...report, freeBytes: freeBytes(), stopBytes: stopBytes(), uploadsToday: await counter(db, counterKey(dayKey())), mailFailure: await read<MailFailure>(db, MAIL_FAIL_KEY) };
 }
 
 /** The scheduled check (see workers/app.ts). */

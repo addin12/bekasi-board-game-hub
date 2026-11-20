@@ -11,6 +11,7 @@ type Usage = {
   uploadsToday: number;
   checkedAt: number;
   mail: string;
+  mailFailure: { at: number; error: string } | null;
 };
 
 function Bar({ used, limit, level, label }: { used: number; limit: number; level: Level; label: string }) {
@@ -79,6 +80,11 @@ export function FreeTierPanel({ usage }: { usage: Usage }) {
       <p className="text-sm text-muted-foreground tabular-nums">
         Last check: {formatStamp(usage.checkedAt)}. Last email: {usage.mail}.
       </p>
+      {usage.mailFailure && (
+        <p role="status" className="text-sm font-bold text-destructive">
+          Last failed sign-in email: {formatStamp(usage.mailFailure.at)}. {usage.mailFailure.error}. Check the Gmail app password.
+        </p>
+      )}
     </section>
   );
 }
