@@ -114,7 +114,7 @@ The code is under the MIT license (see `LICENSE`). The logo and the brand pictur
 
 ### Code and CI
 
-The code is in a public GitHub repository: `addin12/bekasi-board-game-hub`. Each push runs CI: typecheck, lint, unit tests, `npm audit` for shipped packages, and a secret scan. Dependabot opens update pull requests each week. Read each one before you merge it.
+The code is in a public GitHub repository: `addin12/bekasi-board-game-hub`. Each push runs CI: typecheck, lint, unit tests, `npm audit` for shipped packages, and a secret scan. After those pass, a push to the main branch also deploys to the sandbox and runs `npm run e2e` (setup: `docs/ci-e2e.md`). Dependabot opens update pull requests each week. Read each one before you merge it.
 
 ### State on 2026-11-19 (updated)
 

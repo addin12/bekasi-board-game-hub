@@ -9,6 +9,8 @@ This page answers audit finding H2. It lists names only. Never write a value in 
 | Cloudflare Worker secrets | The live values. Cloudflare cannot show a value again after you set it. | Two-step verification on the Cloudflare login. |
 | `.dev.vars` on this PC | Local development values, plus the Google and Gmail values. | Git ignores it. |
 | `.dev.vars.production` and `.dev.vars.staging` on this PC | The **complete** set for each site, saved by `node scripts/rotate-secrets.mjs --env <site>`. | Git ignores it. **Copy each file into a password manager.** |
+| GitHub repository secrets | `CLOUDFLARE_API_TOKEN` and `CLOUDFLARE_ACCOUNT_ID`, for the CI job that deploys to the sandbox. GitHub cannot show a value again. | Two-step verification on the GitHub login. |
+| `.dev.vars.ci` on this PC | A copy of those two values. | Git ignores it. Copy it to a password manager. |
 | A password manager (owner) | A copy of the two files above, the Google client JSON, the Gmail app password, and the recovery codes of both accounts. | A strong master password and its own two-step verification. |
 
 Without the copy in a password manager, a lost PC takes the secrets with it. The site keeps running, but you must make new secrets.
@@ -25,6 +27,7 @@ Without the copy in a password manager, a lost PC takes the secrets with it. The
 | `GOOGLE_CLIENT_ID`, `GOOGLE_CLIENT_SECRET` | "Continue with Google". | Google sign-in stops. | In the Google console, open the OAuth client and add a new secret. Put both values in `.dev.vars`, then run the rotate command. |
 | `GMAIL_USER`, `GMAIL_APP_PASSWORD` | Sign-in codes and the free-plan alert email. | Email codes and alert emails stop. | Make a new app password at myaccount.google.com/apppasswords. Put it in `.dev.vars`, then run the rotate command. Revoke the old one. |
 | `BETTER_AUTH_URL` | The public address of the site. | Not a secret. | It is in the rotate script. |
+| `CLOUDFLARE_API_TOKEN` (GitHub secret) | The CI job deploys to the sandbox with it. It expires on 2027-11-20. It has Workers, D1, and R2 rights on the one account, and no zone. | CI cannot deploy. The job fails with a sign-in error. | Make a new token as in `docs/ci-e2e.md`. Replace the GitHub secret and `.dev.vars.ci`. Delete the old token on Cloudflare. |
 | `CSP_MODE`, `R2_FREE_BYTES` | Optional switches. | Nothing breaks. | `wrangler secret put <NAME>` |
 
 ## Rotating
