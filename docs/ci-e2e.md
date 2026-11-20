@@ -9,16 +9,22 @@ The job needs two GitHub secrets. Without them, the job ends with a warning and 
 1. Open `dash.cloudflare.com` and sign in with the community Google account.
 2. Open **My Profile**, then **API Tokens**, then **Create Token**.
 3. Pick the template **Edit Cloudflare Workers**. Press **Use template**.
-4. Under **Permissions**, check that the list has **Account, D1, Edit**. If it does not, press **Add more** and add it.
-5. Under **Account Resources**, pick the community account only.
-6. Under **Zone Resources**, pick **All zones** (the template needs this field, and the site uses no zone).
-7. Press **Continue to summary**, then **Create Token**.
-8. Copy the token. Cloudflare shows it once. Save it in the password manager.
-9. Open **Account Home**. Next to the account name, open the menu and press **Copy account ID**.
-10. Open the repository on GitHub, then **Settings**, **Secrets and variables**, **Actions**, **New repository secret**.
-11. Make the secret `CLOUDFLARE_API_TOKEN`. Paste the token.
-12. Make the secret `CLOUDFLARE_ACCOUNT_ID`. Paste the account ID.
-13. Tell Claude "I added the secrets". Claude starts one run and reads the result.
+4. In **Token name**, type `bekasi-hub-github-ci`.
+5. Delete the **Zone policy** with its trash icon. The site uses no zone, so the token does not need it.
+6. Press the pencil on the **Account policy**. Check that the list has **D1 Write**. If it does not, add it.
+7. In the same policy, set **Account Resources** to the community account only.
+8. Keep the **User policy** as it is.
+9. Under **Token expiration**, press **1 year**.
+10. Leave **Client IP address filtering** empty. The GitHub runners have no fixed address.
+11. Press **Continue to summary**, then **Create Token**.
+12. Copy the token. Cloudflare shows it once. Save it in the password manager.
+13. Open **Account Home**. Next to the account name, open the menu and press **Copy account ID**.
+14. Open the repository on GitHub, then **Settings**, **Secrets and variables**, **Actions**, **New repository secret**.
+15. Make the secret `CLOUDFLARE_API_TOKEN`. Paste the token.
+16. Make the secret `CLOUDFLARE_ACCOUNT_ID`. Paste the account ID.
+17. Tell Claude "I added the secrets". Claude starts one run and reads the result.
+
+After a year the token stops working, and the job fails with a sign-in error. Then repeat steps 2 to 15 and replace the secret.
 
 Never paste the token in a chat or a file. If the token reaches a chat or a public place, delete it on Cloudflare the same day and make a new one.
 
