@@ -8,7 +8,7 @@ This runbook answers audit finding M1. A backup is not a backup until a restore 
 |---|---|---|
 | Database (members, cards, posts, plays, tables, settings) | Cloudflare D1 | 1. D1 Time Travel: any moment of the last 7 days, same account. 2. A weekly dump on this PC. |
 | Pictures (card photos, post pictures) | Cloudflare R2 | A weekly copy on this PC. The keys come from the database. |
-| Code | `D:\TTRPG\Board Game Hub` | The GitHub repository (see `docs/secrets.md`). The old history is in a private repository. |
+| Code | `D:\TTRPG\Board Game Hub` | The GitHub repository (see `docs/secrets.md`). |
 | Secrets | Cloudflare Worker secrets | Not backed up by this runbook. See `docs/secrets.md`. |
 
 The dump and the pictures hold personal data (emails, photos). Git ignores the folder `backups/`. Never put it in a public place.
