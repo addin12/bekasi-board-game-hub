@@ -104,14 +104,27 @@ async function alertAdmins(db: Db, alert: Alert): Promise<string> {
 
 export type LimitReport = { r2: R2Usage; d1Bytes: number; r2Level: Level; d1Level: Level; checkedAt: number; mail: string };
 
-const d1Size = () => env.DB.prepare("select 1").run().then((r) => Number(r.meta.size_after) || 0).catch(() => 0);
 
 /**
  * The whole check: measure R2 and D1, send the 80% and 95% messages when they are due, and remember the time.
  * Called after an upload, when an admin opens the overview, and by the scheduled check every few hours.
  */
 export async function checkLimits(db: Db, opts: { r2?: R2Usage } = {}): Promise<LimitReport> {
-  const [r2, d1Bytes, prev] = await Promise.all([opts.r2 ?? r2Usage(db), d1Size(), read<State>(db, STATE_KEY)]);
+  // Raw D1 calls and one batch keep the CPU time of the scheduled run well under the 10 ms of the free plan.
+  // One read gives both stored values and, in its metadata, the size of the database.
+  const rows = await env.DB.prepare("select key, value from setting where key in (?1, ?2)").bind(USAGE_KEY, STATE_KEY).all<{ key: string; value: string }>();
+  const byKey = new Map(rows.results.map((r) => [r.key, r.value]));
+  const parse = <T,>(k: string): T | null => { try { const v = byKey.get(k); return v ? (JSON.parse(v) as T) : null; } catch { return null; } };
+  const d1Bytes = Number(rows.meta.size_after) || 0;
+  const upsert = (key: string, value: unknown) =>
+    env.DB.prepare("insert into setting (key, value, updated_at) values (?1, ?2, ?3) on conflict(key) do update set value = excluded.value, updated_at = excluded.updated_at").bind(key, JSON.stringify(value), Date.now());
+  const writes: D1PreparedStatement[] = [];
+
+  const stored = parse<R2Usage>(USAGE_KEY);
+  let r2 = opts.r2 ?? (stored && typeof stored.bytes === "number" && Date.now() - stored.at < FRESH_MS ? stored : null);
+  if (!r2) { r2 = await listBucket(); writes.push(upsert(USAGE_KEY, r2)); }
+
+  const prev = parse<State>(STATE_KEY);
   const state: State = { r2: prev?.r2 ?? {}, d1: prev?.d1 ?? {}, checkedAt: Date.now(), mail: prev?.mail ?? "none yet" };
   const now = Date.now();
   const r2Level = levelFor(r2.bytes, freeBytes());
@@ -124,7 +137,8 @@ export async function checkLimits(db: Db, opts: { r2?: R2Usage } = {}): Promise<
   const d1Due = alertDue(d1Level === "ok" ? "ok" : "warn", state.d1, now);
   if (d1Due === "warn") { state.d1.warn = now; state.mail = await alertAdmins(db, d1Alert(d1Bytes, site)); }
 
-  await put(db, STATE_KEY, state);
+  writes.push(upsert(STATE_KEY, state));
+  await env.DB.batch(writes);
   return { r2, d1Bytes, r2Level, d1Level, checkedAt: state.checkedAt, mail: state.mail };
 }
 
