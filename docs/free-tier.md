@@ -16,20 +16,49 @@ Only R2 can cost money. Workers Free and D1 Free stop working at their limit. Th
 
 R2 reads cannot pass their limit in practice. The Workers limit allows about 3,000,000 requests a month, and each picture view needs one read.
 
-## Ceilings in the app
+## Rules in the app
 
-The code is in `app/lib/free-tier.ts` and `app/lib/.server/limits.ts`.
+The code is in `app/lib/free-tier.ts`, `app/lib/limit-messages.ts`, and `app/lib/.server/limits.ts`.
 
-| Ceiling | Value | Why |
+| Level | R2 storage (of 10 GB) | What happens |
 |---|---|---|
-| Picture storage | 8 GB (80% of 10 GB) | The gap covers pictures that arrive while the stored total is up to an hour old. |
-| Pictures for each member each day | 10 | One member cannot fill the storage fast. |
-| Pictures for the whole site each day | 300 | This limits R2 writes and storage growth if many accounts misbehave. |
-| Size of one picture | 2 MB (card photo), 3 MB (post picture) | This was already in place. |
+| OK | below 80% (8 GB) | Nothing. |
+| Warning | from 80% (8 GB) | The admins get an email, a bell message, and a phone notification. The admin page turns red. Uploads continue. |
+| Stop | from 95% (9.5 GB) | The admins get a second message. **New pictures are off.** The rest of the site works. Pictures that exist stay visible. |
 
-When a ceiling stops an upload, the member sees a short message. The rest of the site keeps working. The day counters restart at 00:00 UTC.
+Uploads start again when storage falls below 95%. Delete posts that have a picture to free space.
 
-To change the storage ceiling, set the secret `R2_CEILING_BYTES` on a site. Without it, the default is 8 GB.
+The database (D1) gets the 80% message only. At its limit, Cloudflare refuses writes and does not bill. So it needs no stop.
+
+A message repeats once a week while a level stays. A message for a higher level goes out at once.
+
+### Why we stop pictures and not the whole site
+
+Cloudflare bills R2 for the data that sits in it, whether the site runs or not. Turning the whole site off does not lower the bill. Only fewer stored bytes lower it. New pictures are the only thing that adds bytes. Reads of pictures are free in practice (see above). So the stop turns off the one thing that can start a bill and keeps the site useful.
+
+### More limits for each day
+
+| Ceiling | Value |
+|---|---|
+| Pictures for each member each day | 10 |
+| Pictures for the whole site each day | 300 |
+| Size of one picture | 2 MB (card photo), 3 MB (post picture) |
+
+The day counters restart at 00:00 UTC.
+
+### When the check runs
+
+1. After each picture upload.
+2. When an admin opens the overview.
+3. Every 6 hours, on the real site only. This is a Cron Trigger in `wrangler.jsonc`. It costs about 120 R2 operations a month.
+
+The overview shows the time of the last check and what happened to the last email.
+
+### The email
+
+The email goes to every address in `ADMIN_EMAILS`. It needs the Gmail secrets (`GMAIL_USER`, `GMAIL_APP_PASSWORD`). Without them, the admins still get the bell message and the phone notification, and the overview says "not sent: email is not set up".
+
+To change the free amount that the percentages use, set the secret `R2_FREE_BYTES`. The default is 10 GB.
 
 ## How the storage number works
 
@@ -47,5 +76,5 @@ To change the storage ceiling, set the secret `R2_CEILING_BYTES` on a site. With
 
 ## If the site grows past the free plan
 
-1. Workers Paid costs US$5 a month. It removes the daily request limit and the 10 ms CPU limit. D1 and R2 then bill by use above their included amounts.
+1. Workers Paid costs US$5 a month. It lifts the daily request limit and the 10 ms CPU limit. D1 and R2 then bill by use above their included amounts.
 2. A custom domain on Cloudflare adds rate limiting in front of the site. The workers.dev address does not offer it.

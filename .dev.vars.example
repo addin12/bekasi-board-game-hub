@@ -18,5 +18,5 @@ GMAIL_APP_PASSWORD=
 VAPID_PUBLIC_KEY=
 VAPID_PRIVATE_KEY=
 
-# Optional: lowest of the R2 storage ceiling in bytes (default 8 GB, which is 80% of the free 10 GB).
-R2_CEILING_BYTES=
+# Optional: the free R2 storage in bytes that the 80% and 95% rules use (default 10 GB). Change it only if Cloudflare changes the free amount.
+R2_FREE_BYTES=

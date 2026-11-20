@@ -17,6 +17,8 @@
 		{ "binding": "DB", "database_name": "bekasi-bgh", "database_id": "d795dcf3-535d-4cf6-b95f-072cb4ba8621", "migrations_dir": "drizzle" }
 	],
 	"r2_buckets": [{ "binding": "UPLOADS", "bucket_name": "bekasi-bgh-uploads" }],
+	// Free-plan check: every 6 hours (UTC). The sandbox has none, so it never sends mail.
+	"triggers": { "crons": ["23 */6 * * *"] },
 	"observability": { "enabled": true },
 	"upload_source_maps": true,
 	"env": {
@@ -30,7 +32,8 @@
 			"d1_databases": [
 				{ "binding": "DB", "database_name": "bekasi-bgh-staging", "database_id": "c8a6431b-5fcd-48a5-8718-35a869dba332", "migrations_dir": "drizzle" }
 			],
-			"r2_buckets": [{ "binding": "UPLOADS", "bucket_name": "bekasi-bgh-staging-uploads" }]
+			"r2_buckets": [{ "binding": "UPLOADS", "bucket_name": "bekasi-bgh-staging-uploads" }],
+			"triggers": { "crons": [] }
 		}
 	}
 }

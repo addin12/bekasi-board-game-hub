@@ -96,7 +96,7 @@ Set a secret on the real site with `wrangler secret put NAME`. Set it on the san
 - Set on the real site only: `GOOGLE_CLIENT_ID` and `GOOGLE_CLIENT_SECRET`. The sandbox has no Google redirect URI.
 - `VAPID_PUBLIC_KEY` and `VAPID_PRIVATE_KEY` (web push). Each site has its own pair.
 - `GMAIL_USER` and `GMAIL_APP_PASSWORD` (email sign-in codes). Not set yet.
-- `R2_CEILING_BYTES` (optional). It replaces the 8 GB picture storage ceiling.
+- `R2_FREE_BYTES` (optional). It replaces the 10 GB free storage that the 80% and 95% rules use.
 - `MAIL_RELAY_URL` and `MAIL_RELAY_SECRET` (optional second choice). Not set.
 
 ### State on 2026-11-19 (updated)

@@ -16,12 +16,14 @@ export const FREE_TIER = {
 } as const;
 
 export const CEILING = {
-  /** 80% of the R2 free storage. The gap covers pictures that arrive while the usage number is up to an hour old. */
-  r2Bytes: 8 * GB,
+  /** Share of a free limit where the admins get an email and the admin page turns red. */
+  warnAt: 0.8,
+  /** Share of the free R2 storage where new pictures stop. The 5% gap covers pictures that arrive while a total is old. */
+  stopAt: 0.95,
+  /** How often a reminder repeats while a number stays above a threshold. */
+  repeatEveryMs: 7 * 24 * 3600_000,
   uploadsPerMemberPerDay: 10,
   uploadsPerSitePerDay: 300,
-  /** The admin page warns from this share of a limit. */
-  warnAt: 0.8,
 } as const;
 
 /** The UTC day, as in "2026-11-20". Cloudflare's daily limits reset at 00:00 UTC. */
@@ -29,6 +31,19 @@ export const dayKey = (d: Date = new Date()): string => d.toISOString().slice(0,
 
 export const percentOf = (used: number, limit: number): number => Math.min(100, Math.round((used / limit) * 100));
 export const nearLimit = (used: number, limit: number): boolean => used >= limit * CEILING.warnAt;
+
+export type Level = "ok" | "warn" | "stop";
+/** ok below 80%, warn from 80%, stop from 95% of a limit. */
+export const levelFor = (used: number, limit: number): Level => (used >= limit * CEILING.stopAt ? "stop" : used >= limit * CEILING.warnAt ? "warn" : "ok");
+
+/**
+ * Which message the admins get now, or null for none. `sent` holds the time of the last message of each kind.
+ * A message goes out when a level is reached for the first time, and again after one week while the level stays.
+ */
+export function alertDue(level: Level, sent: { warn?: number; stop?: number }, now: number): "warn" | "stop" | null {
+  if (level === "ok") return null;
+  return now - (sent[level] ?? 0) >= CEILING.repeatEveryMs ? level : null;
+}
 
 export type UploadDecision = { ok: true } | { ok: false; reason: "member" | "site" | "storage"; message: string };
 
