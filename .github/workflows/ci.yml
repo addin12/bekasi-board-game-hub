@@ -32,6 +32,45 @@ jobs:
       # Fails on a high or critical advisory in a package that ships. Advisories in development tools are listed in the audit report.
       - run: npm audit --omit=dev --audit-level=high
 
+  # Deploys this commit to the sandbox, then runs the browser checks against it. Setup steps: docs/ci-e2e.md.
+  # It runs on a push to the main branch only, never on a pull request, so a pull request can never reach the Cloudflare token.
+  # Without the two secrets, the job ends with a warning and does nothing.
+  e2e:
+    name: end-to-end on the sandbox
+    needs: check
+    if: github.event_name == 'push'
+    runs-on: ubuntu-latest
+    timeout-minutes: 25
+    concurrency:
+      group: sandbox-e2e # the checks change the shared sandbox data, so only one run at a time
+      cancel-in-progress: false
+    env:
+      CLOUDFLARE_API_TOKEN: ${{ secrets.CLOUDFLARE_API_TOKEN }}
+      CLOUDFLARE_ACCOUNT_ID: ${{ secrets.CLOUDFLARE_ACCOUNT_ID }}
+    steps:
+      - name: Look for the Cloudflare secrets
+        id: gate
+        run: |
+          if [ -n "$CLOUDFLARE_API_TOKEN" ] && [ -n "$CLOUDFLARE_ACCOUNT_ID" ]; then
+            echo "ready=true" >> "$GITHUB_OUTPUT"
+          else
+            echo "::warning::The secrets CLOUDFLARE_API_TOKEN and CLOUDFLARE_ACCOUNT_ID are not set. The end-to-end job did not run. See docs/ci-e2e.md."
+          fi
+      - uses: actions/checkout@v4
+        if: steps.gate.outputs.ready == 'true'
+      - uses: actions/setup-node@v4
+        if: steps.gate.outputs.ready == 'true'
+        with:
+          node-version: 24
+          cache: npm
+      - run: npm ci
+        if: steps.gate.outputs.ready == 'true'
+      - run: npm run deploy:sandbox
+        if: steps.gate.outputs.ready == 'true'
+      # The runner has Google Chrome, which the checks use (channel "chrome").
+      - run: npm run e2e
+        if: steps.gate.outputs.ready == 'true'
+
   secret-scan:
     name: secret scan
     runs-on: ubuntu-latest
