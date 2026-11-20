@@ -7,7 +7,7 @@
     "app/**/.client/**/*",
     "workers/**/*",
     "worker-configuration.d.ts",
-    "tests/**/*"
+    "tests/unit/**/*"
   ],
   "compilerOptions": {
     "composite": true,
