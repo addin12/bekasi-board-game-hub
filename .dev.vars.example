@@ -20,3 +20,5 @@ VAPID_PRIVATE_KEY=
 
 # Optional: the free R2 storage in bytes that the 80% and 95% rules use (default 10 GB). Change it only if Cloudflare changes the free amount.
 R2_FREE_BYTES=
+# Optional: key for the member passcode hash. Without it the site uses BETTER_AUTH_SECRET. Set it, so rotating one secret does not break the other.
+PASSCODE_KEY=

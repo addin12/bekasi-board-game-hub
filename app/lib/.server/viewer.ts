@@ -16,7 +16,7 @@ export async function getViewer(request: Request): Promise<Viewer | null> {
   if (!s) return null;
   const [p] = await getDb().select().from(profile).where(eq(profile.userId, s.user.id)).limit(1);
   const admins = (env.ADMIN_EMAILS ?? "").split(",").map((e) => e.trim().toLowerCase()).filter(Boolean);
-  return { user: s.user, profile: p ?? null, isAdmin: admins.includes(s.user.email.toLowerCase()) };
+  return { user: s.user, profile: p ?? null, isAdmin: s.user.emailVerified && admins.includes(s.user.email.toLowerCase()) };
 }
 
 const backTo = (request: Request) => {

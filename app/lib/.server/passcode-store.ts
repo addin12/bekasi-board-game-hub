@@ -4,10 +4,13 @@ import { passcodeAttempt, profile, setting } from "@/db/schema";
 import { constantTimeEqual, hashPasscode, MAX_TRIES_PER_HOUR } from "@/lib/passcode";
 import type { Db } from "./db";
 
+/** The key for the passcode hash. A separate secret, so rotating the session secret does not break the passcode. */
+const passcodeKey = () => env.PASSCODE_KEY || env.BETTER_AUTH_SECRET;
+
 const KEY = "member_passcode_hash";
 
 export async function setPasscode(db: Db, code: string) {
-  const value = await hashPasscode(env.BETTER_AUTH_SECRET, code);
+  const value = await hashPasscode(passcodeKey(), code);
   await db.insert(setting).values({ key: KEY, value }).onConflictDoUpdate({ target: setting.key, set: { value, updatedAt: new Date() } });
 }
 
@@ -24,7 +27,7 @@ export async function verifyMember(db: Db, userId: string, code: string): Promis
   const hourAgo = new Date(Date.now() - 3600_000);
   const [{ n }] = await db.select({ n: count() }).from(passcodeAttempt).where(and(eq(passcodeAttempt.userId, userId), gt(passcodeAttempt.at, hourAgo)));
   if (n >= MAX_TRIES_PER_HOUR) return "too_many";
-  if (!constantTimeEqual(await hashPasscode(env.BETTER_AUTH_SECRET, code), row.v)) {
+  if (!constantTimeEqual(await hashPasscode(passcodeKey(), code), row.v)) {
     await db.insert(passcodeAttempt).values({ userId });
     console.warn(JSON.stringify({ event: "passcode_wrong", userId })); // security event → Workers logs
     return "wrong";
