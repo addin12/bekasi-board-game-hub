@@ -18,3 +18,6 @@ worker-configuration.d.ts
 
 # Third-party screenshots used only for research
 /research/raw/
+
+# Backups of the database and the pictures (they hold personal data)
+/backups/
