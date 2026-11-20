@@ -5,6 +5,7 @@ import { CEILING, FREE_TIER, alertDue, dayKey, decideUpload, levelFor, type Leve
 import { d1Alert, r2Alert, type Alert } from "@/lib/limit-messages";
 import { isSandboxEmail, isSandboxOn } from "@/lib/sandbox";
 import type { Db } from "./db";
+import { logFailure } from "./log";
 import { mailConfigured, sendMail } from "./mail";
 import { pushInBackground } from "./push";
 
@@ -80,7 +81,7 @@ export async function recordUpload(db: Db, userId: string, bytes: number) {
   if (stored) {
     const next = { ...stored, bytes: stored.bytes + bytes, objects: stored.objects + 1 };
     await put(db, USAGE_KEY, next);
-    waitUntil(checkLimits(db, { r2: next }).then(() => undefined, () => undefined)); // the upload does not wait for the email
+    waitUntil(checkLimits(db, { r2: next }).then(() => undefined, (e) => logFailure("limit_check_failed", e))); // the upload does not wait for the email
   }
 }
 

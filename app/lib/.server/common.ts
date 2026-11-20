@@ -1,5 +1,5 @@
 import { env } from "cloudflare:workers";
-import { and, count, eq, isNull } from "drizzle-orm";
+import { and, count, eq, gt, isNull } from "drizzle-orm";
 import { notification } from "@/db/schema";
 import { prepareImage } from "@/lib/image-sniff";
 import type { Db } from "./db";
@@ -13,8 +13,18 @@ export const LIMIT_MSG = "Too many requests. Try again in a few minutes.";
 
 export type Result<T extends object = object> = ({ ok: true } & T) | { ok: false; message: string };
 
+/** The same message to the same person inside this time is sent once. Joining and leaving a table in a loop cannot spam a phone. */
+const DUPLICATE_WINDOW_MS = 10 * 60_000;
+
 export async function notify(db: Db, userId: string, text: string, href: string) {
-  await db.insert(notification).values({ id: newId(), userId, text: text.slice(0, 200), href });
+  const body = text.slice(0, 200);
+  const [same] = await db
+    .select({ id: notification.id })
+    .from(notification)
+    .where(and(eq(notification.userId, userId), eq(notification.text, body), eq(notification.href, href), gt(notification.createdAt, new Date(Date.now() - DUPLICATE_WINDOW_MS))))
+    .limit(1);
+  if (same) return;
+  await db.insert(notification).values({ id: newId(), userId, text: body, href });
   // The same notice also goes to the member's phones, if they turned push on.
   pushInBackground(db, userId, { title: env.APP_NAME, body: text, url: href, tag: href.slice(0, 40) });
 }

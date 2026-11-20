@@ -2,6 +2,7 @@ import { env, waitUntil } from "cloudflare:workers";
 import { and, desc, eq, inArray } from "drizzle-orm";
 import { pushSubscription } from "@/db/schema";
 import type { Db } from "./db";
+import { logFailure } from "./log";
 import { sendOne, subscriptionSchema, type Notice } from "./webpush";
 
 /** Push works only when the site has its VAPID key pair. */
@@ -47,5 +48,5 @@ export async function pushToUser(db: Db, userId: string, notice: Notice): Promis
 /** Fire and forget: the page that caused the notice does not wait for the push services. A failure never breaks that page. */
 export function pushInBackground(db: Db, userId: string, notice: Notice) {
   if (!pushEnabled()) return;
-  waitUntil(pushToUser(db, userId, notice).catch(() => 0));
+  waitUntil(pushToUser(db, userId, notice).catch((e) => { logFailure("push_failed", e); return 0; }));
 }

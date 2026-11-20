@@ -1,5 +1,6 @@
 import { and, desc, eq, isNull } from "drizzle-orm";
-import { Link } from "react-router";
+import { useEffect } from "react";
+import { Link, useFetcher } from "react-router";
 import { notification } from "@/db/schema";
 import { formatStamp } from "@/lib/dates";
 import { getDb } from "@/lib/.server/db";
@@ -12,13 +13,23 @@ export async function loader({ request }: Route.LoaderArgs) {
   const v = await requireMember(request);
   const db = getDb();
   const rows = await db.select().from(notification).where(eq(notification.userId, v.user.id)).orderBy(desc(notification.createdAt)).limit(50);
-  // Opening the page is what marks them read; the list still shows which ones were new.
-  if (rows.some((r) => !r.readAt)) await db.update(notification).set({ readAt: new Date() }).where(and(eq(notification.userId, v.user.id), isNull(notification.readAt)));
   return { items: rows.map((r) => ({ id: r.id, text: r.text, href: r.href, isNew: !r.readAt, at: r.createdAt.getTime() })) };
+}
+
+/** Marking messages as read changes data, so it is a POST. A link prefetch or a crawler that only reads the page never triggers it. */
+export async function action({ request }: Route.ActionArgs) {
+  const v = await requireMember(request);
+  await getDb().update(notification).set({ readAt: new Date() }).where(and(eq(notification.userId, v.user.id), isNull(notification.readAt)));
+  return { ok: true };
 }
 
 export default function Notifications({ loaderData }: Route.ComponentProps) {
   const { items } = loaderData;
+  const markRead = useFetcher();
+  // The page shows which messages were new. Once it is on screen, the browser tells the site they were read.
+  useEffect(() => {
+    if (items.some((n) => n.isNew)) markRead.submit({}, { method: "post" });
+  }, []);
   return (
     <div className="mx-auto grid max-w-2xl gap-6">
       <h1 className="text-3xl font-extrabold">Notifications</h1>
