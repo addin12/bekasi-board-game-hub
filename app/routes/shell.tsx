@@ -117,7 +117,10 @@ export default function Shell({ loaderData }: Route.ComponentProps) {
 
       <footer className={cn("border-t border-line", member && "pb-20 md:pb-0")}>
         <div className="mx-auto flex max-w-5xl flex-wrap items-center justify-between gap-x-6 gap-y-1 px-4 py-5 text-sm text-muted-foreground">
-          <p>{site.footer}</p>
+          <p className="flex items-center gap-3 font-semibold text-ink">
+            <img src="/icon-192.png" alt="" width={36} height={36} className="size-9 rounded-lg" />
+            {site.footer}
+          </p>
           <nav aria-label="About" className="flex flex-wrap items-center gap-x-4">
             <Link className="inline-flex h-11 items-center font-semibold text-ink underline underline-offset-4" to="/privacy">Privacy</Link>
             <Link className="inline-flex h-11 items-center font-semibold text-ink underline underline-offset-4" to="/terms">Terms</Link>

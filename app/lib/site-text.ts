@@ -9,7 +9,7 @@ export const SITE_DEFAULTS = {
   homeIntro: "Make a player card with the games you love, the ones you want to play, and the ones you're selling. The hub matches it with every other card in the community.",
   banner: "",
   contact: "Ask an admin in the community WhatsApp group",
-  footer: "Run by and for the Bekasi board game community",
+  footer: "Bekasi Board Game Community",
 } as const;
 
 export type SiteText = { -readonly [K in keyof typeof SITE_DEFAULTS]: string };
